@@ -33,4 +33,22 @@ struct WateredTests {
             date: date
         )
     }
+    
+    @Test func hydrationTrackerCalculatesTotalMilliliters() async throws {
+        let water = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        let tea = DrinkEntry(
+            type: .tea,
+            amount: DrinkAmount(value: 300, unit: .milliliters),
+            date: Date()
+        )
+        
+        let tracker = HydrationTracker(entries: [water, tea])
+        
+        #expect(tracker.totalMilliliters == 550)
+    }
 }
