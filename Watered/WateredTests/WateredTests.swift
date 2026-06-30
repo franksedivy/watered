@@ -18,9 +18,9 @@ struct WateredTests {
     }
     
     @Test func drinkAmountFluidOunces() async throws {
-        let amount = DrinkAmount(value: 8, unit: .fluidOunces)
+        let amount = DrinkAmount(value: 8, unit: .usFluidOunces)
         
-        #expect(amount.formatted == "8 fl oz")
+        #expect(amount.formatted == "8 US fl oz")
     }
     
     @Test func drinkEntryStoresTypeAmountAndDate() async throws {
@@ -54,5 +54,11 @@ struct WateredTests {
         let tracker = HydrationTracker(entries: [water, tea])
         
         #expect(tracker.totalMilliliters == 550)
+    }
+    
+    @Test func drinkAmountConvertsImperialFluidOUncestoMilliliters() async throws {
+        let amount = DrinkAmount(value: 8, unit: .imperialFluidOunces)
+        
+        #expect(Int(amount.volumeInMilliliters.rounded()) == 227)
     }
 }

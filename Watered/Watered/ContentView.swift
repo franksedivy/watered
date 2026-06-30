@@ -19,13 +19,13 @@ struct ContentView: View {
                 date: Date()
             )
             
-            let tea = DrinkEntry(
-                type: .tea,
-                amount: DrinkAmount(value: 300, unit: .milliliters),
+            let juice = DrinkEntry(
+                type: .juice,
+                amount: DrinkAmount(value: 8, unit: .imperialFluidOunces),
                 date: Date()
             )
             
-            let tracker = HydrationTracker(entries: [water, tea])
+            let tracker = HydrationTracker(entries: [water, juice])
             
             print("[Watered] Drink count: \(tracker.entries.count)")
             print("[Watered] Total: \(Int(tracker.totalMilliliters)) ml")

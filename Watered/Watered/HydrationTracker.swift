@@ -12,7 +12,7 @@ struct HydrationTracker {
     
     var totalMilliliters: Double {
         entries.reduce(0) {total, entry in
-            total + entry.amount.value
+            total + entry.amount.volumeInMilliliters
         }
     }
 }
