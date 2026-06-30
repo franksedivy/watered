@@ -32,6 +32,10 @@ struct WateredTests {
             amount: amount,
             date: date
         )
+        
+        #expect(entry.type == .water)
+        #expect(entry.amount.formatted == "250 ml")
+        #expect(entry.date == date)
     }
     
     @Test func hydrationTrackerCalculatesTotalMilliliters() async throws {
