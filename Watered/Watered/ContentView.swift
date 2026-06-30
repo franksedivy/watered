@@ -14,7 +14,16 @@ struct ContentView: View {
         }
         .onAppear(){
             let amount = DrinkAmount(value: 250, unit: .milliliters)
+            let entry = DrinkEntry(
+                type: .water,
+                amount: amount,
+                date: Date()
+            )
+            
+            print("[Watered] Drink entry created")
+            print("[Watered] Type: \(entry.type.rawValue)")
             print("[Watered] Drink amount: \(amount.formatted)")
+            print("[Watered] Date: \(entry.date)")
         }
     }
 }
