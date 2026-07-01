@@ -13,16 +13,26 @@ struct DrinkAmount {
     
     // A short display string for console output and simple UI labels.
     var formatted: String {
-        "\(Int(value)) \(unit.rawValue)"
+        let text = "\(Int(value)) \(unit.rawValue)"
+        
+        wateredLog("Formatted drink amount: \(text)")
+        
+        return text
     }
     
     // Converts any supported unit into milliliters for consisten totals.
-    var volumeInMilliliters: Double {
+    func volumeInMilliliters(label: String = "drink amount") -> Double {
+        wateredLog("Converting \(label): \(formatted)")
+        
         let measurement = Measurement(
             value: value,
             unit: unit.foundationUnit
         )
         
-        return measurement.converted(to: .milliliters).value
+        let convertedValue = measurement.converted(to: .milliliters).value
+        
+        wateredLog("Converted \(label): \(Int(convertedValue.rounded())) ml")
+        
+        return convertedValue
     }
 }

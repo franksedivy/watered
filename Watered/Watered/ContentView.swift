@@ -25,12 +25,19 @@ struct ContentView: View {
                 date: Date()
             )
             
-            let tracker = HydrationTracker(entries: [water, juice])
+            let goal = HydrationGoal(
+                amount: DrinkAmount(value: 2000, unit: .milliliters)
+            )
             
-            print("[Watered] Drink count: \(tracker.entries.count)")
-            print("[Watered] Total: \(Int(tracker.totalMilliliters)) ml")
+            let tracker = HydrationTracker(
+                entries: [water, juice],
+                dailyGoal: goal
+            )
             
-            
+            print("[Watered UI] Drink count: \(tracker.entries.count)")
+            print("[Watered UI] Total: \(Int(tracker.totalMilliliters.rounded())) ml")
+            print("[Watered UI] Goal: \(Int(tracker.dailyGoal.volumeInMilliliters.rounded())) ml")
+            print("[Watered UI] Remaining: \(Int(tracker.remainingMilliliters.rounded())) ml")
         }
     }
 }

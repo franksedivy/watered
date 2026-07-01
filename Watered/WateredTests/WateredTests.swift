@@ -61,4 +61,23 @@ struct WateredTests {
         
         #expect(Int(amount.volumeInMilliliters.rounded()) == 227)
     }
+    
+    @Test func hydrationTrackerCalculatesRemainingMilliliters() async throws {
+        let water = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 550, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [water],
+            dailyGoal: goal
+        )
+        
+        #expect(tracker.remainingMilliliters == 1450)
+    }
 }
