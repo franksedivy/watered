@@ -51,7 +51,14 @@ struct WateredTests {
             date: Date()
         )
         
-        let tracker = HydrationTracker(entries: [water, tea])
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [water, tea],
+            dailyGoal: goal
+        )
         
         #expect(tracker.totalMilliliters == 550)
     }

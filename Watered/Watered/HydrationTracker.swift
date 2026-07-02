@@ -15,7 +15,7 @@ struct HydrationTracker {
         wateredLog("Calculating total from \(entries.count) drink entries")
         
         let total = entries.reduce(0) { total, entry in
-            let newTotal = total + entry.amount.volumeInMilliliters()
+            let newTotal = total + entry.amount.volumeInMilliliters
             
             wateredLog("Added \(entry.type.rawValue); running total is \(Int(newTotal.rounded())) ml")
             

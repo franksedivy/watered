@@ -13,7 +13,7 @@ struct HydrationGoal {
     
     // the goal converted to milliliters for internal calculations.
     var volumeInMilliliters: Double {
-        let convertedGoal = amount.volumeInMilliliters()
+        let convertedGoal = amount.volumeInMilliliters
         
         wateredLog("Daily goal converted: \(Int(convertedGoal.rounded())) ml")
         
