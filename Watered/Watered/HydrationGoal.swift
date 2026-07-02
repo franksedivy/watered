@@ -11,12 +11,13 @@ import Foundation
 struct HydrationGoal {
     let amount: DrinkAmount
     
-    // the goal converted to milliliters for internal calculations.
+    // The goal represented as a Foundation volume measurement.
+    var volume: Measurement<UnitVolume> {
+        amount.volume
+    }
+    
+    // Temporary compatibility helper while existing code still expects milliliters
     var volumeInMilliliters: Double {
-        let convertedGoal = amount.volumeInMilliliters
-        
-        wateredLog("Daily goal converted: \(Int(convertedGoal.rounded())) ml")
-        
-        return convertedGoal
+        volume.converted(to: .milliliters).value
     }
 }
