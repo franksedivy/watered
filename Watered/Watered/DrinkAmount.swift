@@ -23,9 +23,4 @@ struct DrinkAmount {
             unit: unit.foundationUnit
         )
     }
-    
-    // Temporary compatibility helper whil we migrate the tracker to Measurement<UnitVolume>
-    var volumeInMilliliters: Double {
-        volume.converted(to: .milliliters).value
-    }
 }

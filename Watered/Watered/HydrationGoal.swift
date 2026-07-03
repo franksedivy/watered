@@ -15,9 +15,4 @@ struct HydrationGoal {
     var volume: Measurement<UnitVolume> {
         amount.volume
     }
-    
-    // Temporary compatibility helper while existing code still expects milliliters
-    var volumeInMilliliters: Double {
-        volume.converted(to: .milliliters).value
-    }
 }

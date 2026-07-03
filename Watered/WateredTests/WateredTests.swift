@@ -62,13 +62,14 @@ struct WateredTests {
         
         let total = tracker.totalVolume.converted(to: .milliliters)
         
-        #expect(tracker.totalMilliliters == 550)
+        #expect(total.value == 550)
     }
     
     @Test func drinkAmountConvertsImperialFluidOUncestoMilliliters() async throws {
         let amount = DrinkAmount(value: 8, unit: .imperialFluidOunces)
+        let volume = amount.volume.converted(to: .milliliters)
         
-        #expect(Int(amount.volumeInMilliliters.rounded()) == 227)
+        #expect(Int(volume.value.rounded()) == 227)
     }
     
     @Test func hydrationTrackerCalculatesRemainingVolume() async throws {

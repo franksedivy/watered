@@ -27,14 +27,4 @@ struct HydrationTracker {
         
         return Measurement(value: remainingInMilliliters, unit: .milliliters)
     }
-    
-    // Temporary compatibility helper while existing UI/tests still expect milliliters
-    var totalMilliliters: Double {
-        totalVolume.converted(to: .milliliters).value
-    }
-    
-    // Temporary compatibility helper while existing UI/tests still expect milliliter values
-    var remainingMilliliters: Double {
-        remainingVolume.converted(to: .milliliters).value
-    }
 }
