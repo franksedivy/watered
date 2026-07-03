@@ -38,7 +38,7 @@ struct WateredTests {
         #expect(entry.date == date)
     }
     
-    @Test func hydrationTrackerCalculatesTotalMilliliters() async throws {
+    @Test func hydrationTrackerCalculatesTotalVolume() async throws {
         let water = DrinkEntry(
             type: .water,
             amount: DrinkAmount(value: 250, unit: .milliliters),
@@ -60,6 +60,8 @@ struct WateredTests {
             dailyGoal: goal
         )
         
+        let total = tracker.totalVolume.converted(to: .milliliters)
+        
         #expect(tracker.totalMilliliters == 550)
     }
     
@@ -69,7 +71,7 @@ struct WateredTests {
         #expect(Int(amount.volumeInMilliliters.rounded()) == 227)
     }
     
-    @Test func hydrationTrackerCalculatesRemainingMilliliters() async throws {
+    @Test func hydrationTrackerCalculatesRemainingVolume() async throws {
         let water = DrinkEntry(
             type: .water,
             amount: DrinkAmount(value: 550, unit: .milliliters),
@@ -85,6 +87,15 @@ struct WateredTests {
             dailyGoal: goal
         )
         
-        #expect(tracker.remainingMilliliters == 1450)
+        let remaining = tracker.remainingVolume.converted(to: .milliliters)
+        
+        #expect(remaining.value == 1450)
+    }
+    
+    @Test func volumeFormatterFormatsWholeMilliliters() async throws {
+        let formatter = VolumeFormatter()
+        let volume = Measurement(value: 477.2, unit: UnitVolume.milliliters)
+        
+        #expect(formatter.wholeNumberString(from: volume) == "477 mL")
     }
 }
