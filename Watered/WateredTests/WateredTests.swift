@@ -34,7 +34,7 @@ struct WateredTests {
         )
         
         #expect(entry.type == .water)
-        #expect(entry.amount.formatted == "250 ml")
+        #expect(await entry.amount.formatted == "250 ml")
         #expect(entry.date == date)
     }
     
@@ -60,14 +60,14 @@ struct WateredTests {
             dailyGoal: goal
         )
         
-        let total = tracker.totalVolume.converted(to: .milliliters)
+        let total = await tracker.totalVolume.converted(to: .milliliters)
         
         #expect(total.value == 550)
     }
     
     @Test func drinkAmountConvertsImperialFluidOUncestoMilliliters() async throws {
         let amount = DrinkAmount(value: 8, unit: .imperialFluidOunces)
-        let volume = amount.volume.converted(to: .milliliters)
+        let volume = await amount.volume.converted(to: .milliliters)
         
         #expect(Int(volume.value.rounded()) == 227)
     }
@@ -88,13 +88,13 @@ struct WateredTests {
             dailyGoal: goal
         )
         
-        let remaining = tracker.remainingVolume.converted(to: .milliliters)
+        let remaining = await tracker.remainingVolume.converted(to: .milliliters)
         
         #expect(remaining.value == 1450)
     }
     
     @Test func volumeFormatterFormatsWholeMilliliters() async throws {
-        let formatter = VolumeFormatter()
+        let formatter = await VolumeFormatter()
         let volume = Measurement(value: 477.2, unit: UnitVolume.milliliters)
         
         #expect(formatter.wholeNumberString(from: volume) == "477 mL")
@@ -119,12 +119,39 @@ struct WateredTests {
             dailyGoal: goal
         )
         
-        let snapshot = tracker.snapshot
+        let snapshot = await tracker.snapshot
         
         #expect(snapshot.drinkCount == 1)
         #expect(snapshot.totalVolume.converted(to: .milliliters).value == 500)
         #expect(snapshot.goalVolume.converted(to: .milliliters).value == 2000)
         #expect(snapshot.remainingVolume.converted(to: .milliliters).value == 1500)
+    }
+    
+    @Test func hydrationSnapshotCalculatesProgress() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 1,
+            totalVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters)
+        )
         
+        #expect(snapshot.progress == 0.25)
+    }
+    
+    @Test func hydrationSnapshotCapsProgressAtOne() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 2,
+            totalVolume: Measurement(value: 2500, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 0, unit: UnitVolume.milliliters)
+        )
+        
+        #expect(snapshot.progress == 1)
+    }
+    
+    @Test func progressFormatterFormatsPercentage() async throws {
+        let formatter = ProgressFormatter()
+        
+        #expect(formatter.percentageString(from: 0.25) == "25%")
     }
 }

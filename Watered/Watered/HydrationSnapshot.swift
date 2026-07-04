@@ -13,4 +13,16 @@ struct HydrationSnapshot {
     let totalVolume: Measurement<UnitVolume>
     let goalVolume: Measurement<UnitVolume>
     let remainingVolume: Measurement<UnitVolume>
+    
+    // Progress toward the daily goal, where 0 is empty and 1 is complete.
+    var progress: Double {
+        let total = totalVolume.converted(to: .milliliters).value
+        let goal = goalVolume.converted(to: .milliliters).value
+        
+        guard goal > 0 else {
+            return 0
+        }
+        
+        return min(total / goal, 1)
+    }
 }

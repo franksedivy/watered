@@ -36,11 +36,13 @@ struct ContentView: View {
             
             let formatter = VolumeFormatter()
             let snapshot = tracker.snapshot
+            let progressFormatter = ProgressFormatter()
             
             print("[Watered UI] Drink count: \(snapshot.drinkCount)")
             print("[Watered UI] Total \(formatter.wholeNumberString(from: snapshot.totalVolume))")
             print("[Watered UI] Goal: \(formatter.wholeNumberString(from: snapshot.goalVolume))")
             print("[Watered UI] Remaining: \(formatter.wholeNumberString(from: snapshot.remainingVolume))")
+            print("[Watered UI] Progress: \(progressFormatter.percentageString(from: snapshot.progress))")
         }
     }
 }
