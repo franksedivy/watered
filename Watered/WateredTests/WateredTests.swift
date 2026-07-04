@@ -154,4 +154,17 @@ struct WateredTests {
         
         #expect(formatter.percentageString(from: 0.25) == "25%")
     }
+    
+    @Test func drinkAmountDescriptionUsesFormattedAmount() async throws {
+        let amount = DrinkAmount(value: 250, unit: .milliliters)
+        
+        #expect(await amount.description == "250 mL")
+    }
+    
+    @Test func drinkEntryDescriptionIncludesTypeAndAmount() async throws {
+        let entry = DrinkEntry(type: .water, amount: DrinkAmount(value: 250, unit: .milliliters), date: Date()
+        )
+        
+        #expect(await entry.description == "Water, 250 mL")
+    }
 }

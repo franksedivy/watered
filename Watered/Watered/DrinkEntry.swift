@@ -7,8 +7,12 @@
 
 import Foundation
 
-struct DrinkEntry {
+struct DrinkEntry: CustomStringConvertible {
     let type: DrinkType
     let amount: DrinkAmount
     let date: Date
+    
+    var description: String {
+        "\(type.rawValue), \(amount)"
+    }
 }

@@ -7,9 +7,13 @@
 
 import Foundation
 
-struct DrinkAmount {
+struct DrinkAmount: CustomStringConvertible {
     let value: Double
     let unit: LiquidUnit
+    
+    var description: String {
+        formatted
+    }
     
     // A short display string for console output and simple UI labels.
     var formatted: String {
