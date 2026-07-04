@@ -27,4 +27,13 @@ struct HydrationTracker {
         
         return Measurement(value: remainingInMilliliters, unit: .milliliters)
     }
+    
+    // Captures the current hydration state once for display, logging, or UI
+    var snapshot: HydrationSnapshot {
+        HydrationSnapshot(
+            drinkCount: entries.count,
+            totalVolume: totalVolume,
+            goalVolume: dailyGoal.volume,
+            remainingVolume: remainingVolume)
+    }
 }

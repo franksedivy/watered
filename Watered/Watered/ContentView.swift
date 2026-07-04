@@ -35,11 +35,12 @@ struct ContentView: View {
             )
             
             let formatter = VolumeFormatter()
+            let snapshot = tracker.snapshot
             
-            print("[Watered UI] Drink count: \(tracker.entries.count)")
-            print("[Watered UI] Total \(formatter.wholeNumberString(from: tracker.totalVolume))")
-            print("[Watered UI] Goal: \(formatter.wholeNumberString(from: tracker.dailyGoal.volume))")
-            print("[Watered UI] Remaining: \(formatter.wholeNumberString(from: tracker.remainingVolume))")
+            print("[Watered UI] Drink count: \(snapshot.drinkCount)")
+            print("[Watered UI] Total \(formatter.wholeNumberString(from: snapshot.totalVolume))")
+            print("[Watered UI] Goal: \(formatter.wholeNumberString(from: snapshot.goalVolume))")
+            print("[Watered UI] Remaining: \(formatter.wholeNumberString(from: snapshot.remainingVolume))")
         }
     }
 }

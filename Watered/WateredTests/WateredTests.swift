@@ -99,4 +99,32 @@ struct WateredTests {
         
         #expect(formatter.wholeNumberString(from: volume) == "477 mL")
     }
+    @Test func hydrationTrackerCreatesSnapshot() async throws {
+        let water = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 500,
+            unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(
+                value: 2000,
+                unit: .milliliters
+            )
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [water],
+            dailyGoal: goal
+        )
+        
+        let snapshot = tracker.snapshot
+        
+        #expect(snapshot.drinkCount == 1)
+        #expect(snapshot.totalVolume.converted(to: .milliliters).value == 500)
+        #expect(snapshot.goalVolume.converted(to: .milliliters).value == 2000)
+        #expect(snapshot.remainingVolume.converted(to: .milliliters).value == 1500)
+        
+    }
 }
