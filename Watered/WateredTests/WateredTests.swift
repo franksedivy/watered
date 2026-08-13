@@ -158,14 +158,14 @@ struct WateredTests {
     @Test func drinkAmountDescriptionUsesFormattedAmount() async throws {
         let amount = DrinkAmount(value: 250, unit: .milliliters)
         
-        #expect(await amount.description == "250 mL")
+        #expect(await amount.description == "250 ml")
     }
     
     @Test func drinkEntryDescriptionIncludesTypeAndAmount() async throws {
         let entry = DrinkEntry(type: .water, amount: DrinkAmount(value: 250, unit: .milliliters), date: Date()
         )
         
-        #expect(await entry.description == "Water, 250 mL")
+        #expect(await entry.description == "Water, 250 ml")
     }
     
     @Test func hydrationSummaryViewDataFormatsSnapshotForDisplay() async throws {
