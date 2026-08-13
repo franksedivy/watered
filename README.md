@@ -27,7 +27,6 @@ Models calculate > Formatters format > Views display.
 
 ## Current App State
 The app currently has a simple read-only screen.
-
 It can show:
 - total liquid consumed
 - daily goal
