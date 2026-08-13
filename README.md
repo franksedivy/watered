@@ -6,16 +6,35 @@ The current focus is the core model layer: representing drinks, calculating inta
 ## Approach
 The app is being built model-first.
 That means we are starting with the core ideas of the app before amking the UI more complex:
-1. Represent liquid units - `LiquidUnit.swift`
-2. Represent drink amounts - `DrinkAmount.swift`
-3. Represent drink types - `DrinkType.swift`
-4. Represent one logged drink - `HydrationSnapshot.swift`
-5. Calculate total intake and remaining intake - `HydrationTracker.swift`
-6. Format that state for display - `ProgressFormatter.swift` / `VolumeFormatter.swift`
-7. Show a simple SwiftUI summary view - `ContentView.swift`
+1. Represent liquid units
+2. Represent drink amounts
+3. Represent drink types
+4. Represent one logged drink
+5. Calculate total intake and remaining intake
+6. Format that state for display
+7. Show a simple SwiftUI summary view
 
 The guiding idea is:
 Models calculate > Formatters format > Views display.
+
+## High-Level App Flow
+`WateredApp` starts the app.
+`ContentView` currently creates temporary sample data.
+`HydrationTracker` takes drink entries and a daily goal.
+`HydrationSnapshot` captures the calculated hydration state.
+`VolumeFormatter` and `ProgressFormatter` turn raw model values into readable text.
+`ContentView` displays the result on screen.
+
+## Current App State
+The app currently has a simple read-only screen.
+
+It can show:
+- total liquid consumed
+- daily goal
+- remaining liquid
+- number of drinks logged
+
+The data is still sample data created in code. There is no real add-drink button, persistence, HealthKit, Watch app, or user settings yet.
 
 ## Design Principles
 - Keep models quiet and focused
