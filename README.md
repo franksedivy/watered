@@ -15,19 +15,22 @@ That means we are starting with the core ideas of the app before amking the UI m
 7. Show a simple SwiftUI summary view
 
 The guiding idea is:
-Models calculate > Formatters format > Views display.
+Models calculate > Snapshots summarize > Formatters format > Views display.
 
 ## High-Level App Flow
 `WateredApp` starts the app.
 `ContentView` currently creates temporary sample data.
 `HydrationTracker` takes drink entries and a daily goal.
 `HydrationSnapshot` captures the calculated hydration state.
-`VolumeFormatter` and `ProgressFormatter` turn raw model values into readable text.
-`ContentView` displays the result on screen.
+`HydrationSummaryViewData` prepares display-ready text and progress value from the snapshot.
+`VolumeFormatter` and `ProgressFormatter` turn raw model values into readable text and are used by `HydrationSummaryViewData`.
+`ContentView` displays the prepared values on screen.
 
 ## Current App State
 The app currently has a simple read-only screen.
 It can show:
+- progress percentage
+- progress bar
 - total liquid consumed
 - daily goal
 - remaining liquid
@@ -48,10 +51,10 @@ The data is still sample data created in code. There is no real add-drink button
 ---
 
 ## Known Cleanup items
-- 'ContenView' still does some formatting directly
-- A future 'HydrationSummaryViewData' type could prepare display-ready strings for the view.
-- 'ProgressFormatter' exists, but the UI should be checked to make sure progress is actually shown
-- Some tests currently use 'await' becuase of Swift 6 actor-isolation warnings. We should understand and clean this up later.
+- `ContentView` still creates temporary sample data directly
+- `HydrationSummaryViewData` now prepares display-ready values, but later this may move behind a view model or app state object
+- Some tests currently use `await` because of Swift 6 actor-isolation warnings. We should understand and clean this up later.
+- `WateredDebug` is still temporary and should either be removed or replaced with a deliberate debug scenario/logger
 
 ---
 
@@ -67,21 +70,25 @@ Current responsibility:
 
 ### ContentView.swift
 This is the current SwiftUI screen.
+
 Right now it creates sample hydration data directly in the view:
 - one water entry
 - one juice entry
 - one daily goal
 - one hydration tracker
 - one hydration snapshot
-It then displays values from that snapshot.
+- one hydration summary view data object
+
+It then displays values from `HydrationSummaryViewData`.
 
 Current responsibility:
 - show the basic hydration summary screen
 - prove that model data can appear in SwiftUI
+- read prepared display values instead of formatting them directly
 
 Future responsibility:
 - mostly layout only
-- eventually receive prepared display data from a view model or view-data type
+- eventually receive prepared display data from a view model or app state object
 
 ### LiquidUnit.swift
 `LiquidUnit` defines the volume units Watered understands.
@@ -164,6 +171,24 @@ For example:
 - `1.0` means complete
 
 The snapshot is useful because the UI can read one summary object instead of repeatedly asking the tracker for separate values.
+
+### HydrationSummaryViewData.swift
+`HydrationSummaryViewData` prepares values for the hydration summary screen.
+
+It takes:
+- a `HydrationSnapshot`
+- a `VolumeFormatter`
+- a `ProgressFormatter`
+
+It creates:
+- total text
+- goal text
+- remaining text
+- drink count text
+- progress percentage text
+- progress value for the progress bar
+
+This keeps `ContentView` focused on layout instead of making it build strings or format numbers.
 
 ### VolumeFormatter.swift
 `VolumeFormatter` turns volume measurements into readable text.

@@ -8,26 +8,27 @@
 import SwiftUI
 
 struct ContentView: View {
-    private let snapshot = HydrationTracker(
-        entries: [
-            DrinkEntry(
-                type: .water,
-                amount: DrinkAmount(value: 250, unit: .milliliters),
-                date: Date()
-            ),
-            DrinkEntry(
-                type: .juice,
-                amount: DrinkAmount(value: 8, unit: .imperialFluidOunces),
-                date: Date()
+    private let summary = HydrationSummaryViewData(
+        snapshot: HydrationTracker(
+            entries: [
+                DrinkEntry(
+                    type: .water,
+                    amount: DrinkAmount(value: 250, unit: .milliliters),
+                    date: Date()
+                ),
+                DrinkEntry(
+                    type: .juice,
+                    amount: DrinkAmount(value: 8, unit: .imperialFluidOunces),
+                    date: Date()
+                )
+            ],
+            dailyGoal: HydrationGoal(
+                amount: DrinkAmount(value: 2000, unit: .milliliters)
             )
-        ],
-        dailyGoal: HydrationGoal(
-            amount: DrinkAmount(value: 2000, unit: .milliliters)
-        )
-    ).snapshot
-    
-    private let volumeFormatter = VolumeFormatter()
-    private let progressFormatter = ProgressFormatter()
+        ).snapshot,
+        volumeFormatter: VolumeFormatter(),
+        progressFormatter: ProgressFormatter()
+    )
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -42,12 +43,16 @@ struct ContentView: View {
             }
             
             VStack(alignment: .leading, spacing: 12) {
-                Text("Total: \(volumeFormatter.wholeNumberString(from: snapshot.totalVolume))")
-                Text("Goal: \(volumeFormatter.wholeNumberString(from: snapshot.goalVolume))")
-                Text("Remaining \(volumeFormatter.wholeNumberString(from: snapshot.remainingVolume))")
-                Text("Drinks logged: \(snapshot.drinkCount)")
+                Text(summary.progressText)
+                    .font(.system(size: 48, weight: .bold))
+                
+                ProgressView(value: summary.progressValue)
+                
+                Text(summary.totalText)
+                Text(summary.goalText)
+                Text(summary.remainingText)
+                Text(summary.drinkCountText)
             }
-            .font(.title3)
             
             Spacer()
         }

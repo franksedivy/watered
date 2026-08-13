@@ -167,4 +167,26 @@ struct WateredTests {
         
         #expect(await entry.description == "Water, 250 mL")
     }
+    
+    @Test func hydrationSummaryViewDataFormatsSnapshotForDisplay() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount:2,
+            totalVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters)
+        )
+        
+        let viewData = HydrationSummaryViewData(
+            snapshot: snapshot,
+            volumeFormatter: VolumeFormatter(),
+            progressFormatter: ProgressFormatter()
+        )
+        
+        #expect(viewData.totalText == "Total: 500 mL")
+        #expect(viewData.goalText == "Goal: 2000 mL")
+        #expect(viewData.remainingText == "Remaining: 1500 mL")
+        #expect(viewData.drinkCountText == "Drinks logged: 2")
+        #expect(viewData.progressText == "25%")
+        #expect(viewData.progressValue == 0.25)
+    }
 }
