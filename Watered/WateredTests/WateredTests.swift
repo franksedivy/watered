@@ -228,7 +228,7 @@ struct WateredTests {
         #expect(waterVolume?.value == 89)
     }
     
-    @Test func drinkEntryOtherWaterVolumesIsUknown() async throws {
+    @Test func drinkEntryOtherWaterVolumeIsUnknown() async throws {
         let entry = DrinkEntry(
             type: .other,
             amount: DrinkAmount(value: 250, unit: .milliliters),
