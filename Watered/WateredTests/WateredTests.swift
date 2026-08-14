@@ -237,4 +237,73 @@ struct WateredTests {
         
         #expect(await entry.waterVolume == nil)
     }
+    
+    // Tests calculations of total and remaining water volumes
+    @Test func hydrationTrackerCalculatesTotalWaterVolume() async throws {
+        let water = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        let juice = DrinkEntry(
+            type: .juice,
+            amount: DrinkAmount(value: 100, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [water, juice],
+            dailyGoal: goal
+        )
+        
+        let totalWater = await tracker.totalWaterVolume?.converted(to: .milliliters)
+        
+        #expect(totalWater?.value == 339)
+    }
+    
+    @Test func hydrationTrackerCalculatesRemainingWaterVolume() async throws {
+        let juice = DrinkEntry(
+            type: .juice,
+            amount: DrinkAmount(value: 100, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 500, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [juice],
+            dailyGoal: goal
+        )
+        
+        let remainingWater = await tracker.remainingWaterVolume?.converted(to: .milliliters)
+        
+        #expect(remainingWater?.value == 411)
+    }
+    
+    @Test func hydrationTrackerWaterVolumeIsUnknownWhenEntryWaterVolumeIsUnknown() async throws {
+        let other = DrinkEntry(
+            type: .other,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [other],
+            dailyGoal: goal
+        )
+        
+        #expect(await tracker.totalWaterVolume == nil)
+        #expect(await tracker.remainingWaterVolume == nil)
+    }
 }
