@@ -13,4 +13,20 @@ enum DrinkType: String {
     case tea = "Tea"
     case juice = "Juice"
     case other = "Other"
+    
+    // Estimated physical water content for each drink type.
+    var waterContentRatio: Double? {
+        switch self {
+        case .water:
+            return 1.0
+        case .coffee:
+            return 0.99
+        case .tea:
+            return 0.99
+        case .juice:
+            return 0.89
+        case .other:
+            return nil
+        }
+    }
 }

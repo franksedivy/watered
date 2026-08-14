@@ -189,4 +189,18 @@ struct WateredTests {
         #expect(viewData.progressText == "25%")
         #expect(viewData.progressValue == 0.25)
     }
+    
+    @Test func drinkTypeWaterHasFullWaterContent() async throws {
+        #expect(DrinkType.water.waterContentRatio == 1)
+    }
+    @Test func drinkTypeJuiceHasEstimateWaterContent() async throws {
+        #expect(DrinkType.juice.waterContentRatio == 0.89)
+    }
+    @Test func drinkTypeCoffeeHasEstimateWaterContent() async throws {
+        #expect(DrinkType.coffee.waterContentRatio == 0.99)
+    }
+    @Test func drinkTypeOtherhasUnknownWaterContent() async throws {
+        #expect(DrinkType.other.waterContentRatio == nil)
+    }
 }
+
