@@ -11,9 +11,10 @@ import Foundation
 struct VolumeFormatter {
     func
         wholeNumberString(from volume: Measurement<UnitVolume>,
-        convertedTo unit: UnitVolume = .milliliters) -> String {
-            let convertedVolume = volume.converted(to: unit)
-            let roundedValue = Int(convertedVolume.value.rounded())
+        convertedTo unit: UnitVolume = .milliliters)
+    -> String {
+        let convertedVolume = volume.converted(to: unit)
+        let roundedValue = Int(convertedVolume.value.rounded())
         
         return "\(roundedValue) \(convertedVolume.unit.symbol)"
     }

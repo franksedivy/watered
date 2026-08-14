@@ -13,7 +13,7 @@ enum LiquidUnit: String {
     case usFluidOunces = "US fl oz"
     case imperialFluidOunces = "imp fl oz"
     
-    // The matching Foundaiton unit, used to for system-backed conversions
+    // The matching Foundaiton unit, used for system-backed conversions
     var foundationUnit: UnitVolume {
         switch self {
         case .milliliters:

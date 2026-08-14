@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  HydrationSummaryViewData.swift
 //  Watered
 //
 //  Created by Frank Sedivy on 13/08/2026.

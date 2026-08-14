@@ -5,7 +5,7 @@ The current focus is the core model layer: representing drinks, calculating inta
 
 ## Approach
 The app is being built model-first.
-That means we are starting with the core ideas of the app before amking the UI more complex:
+That means we are starting with the core ideas of the app before making the UI more complex:
 1. Represent liquid units
 2. Represent drink amounts
 3. Represent drink types
@@ -15,7 +15,7 @@ That means we are starting with the core ideas of the app before amking the UI m
 7. Show a simple SwiftUI summary view
 
 The guiding idea is:
-Models calculate > Snapshots summarize > Formatters format > Views display.
+Models calculate > Snapshots summarise > View data prepares > Views display.
 
 ## High-Level App Flow
 `WateredApp` starts the app.
@@ -40,10 +40,10 @@ The data is still sample data created in code. There is no real add-drink button
 
 ## Design Principles
 - Keep models quiet and focused
-- Keep formatting separate form calculations
+- Keep formatting separate from calculations
 - Keep SwiftUI views lightweight and focused on layout
 - Use Foundation types where they fit, especially 'Measurement<UnitVolume>'
-- Avoid harcoding anything
+- Avoid hard-coding anything
 - Prefer small, buildable steps
 - Add tests around model behaviour
 - Refactor when the design starts to feel unclear
@@ -199,7 +199,7 @@ This keeps display formatting out of the model layer.
 ### ProgressFormatter.swift
 `ProgressFormatter` turns a progress value into a percentage string.
 
-Example:`0.25` becomes `25%`
+Example: `0.25` becomes `25%`
 This keeps percentage display logic out of the SwiftUI view.
 
 ### WateredDebug.swift
