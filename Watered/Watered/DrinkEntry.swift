@@ -15,4 +15,16 @@ struct DrinkEntry: CustomStringConvertible {
     var description: String {
         "\(type.rawValue), \(amount)"
     }
+    
+    // Estimated physical water volume for the drink entry.
+    var waterVolume: Measurement<UnitVolume>? {
+        guard let waterContentRatio = type.waterContentRatio else {
+            return nil
+        }
+        
+        return Measurement(
+            value: amount.volume.value * waterContentRatio,
+            unit: amount.volume.unit
+        )
+    }
 }
