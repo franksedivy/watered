@@ -216,7 +216,7 @@ struct WateredTests {
         #expect(waterVolume?.value == 250)
     }
     
-    @Test func drinkEtnryJuiceWaterVolumeUsesWaterContentRatio() async throws {
+    @Test func drinkEntryJuiceWaterVolumeUsesWaterContentRatio() async throws {
         let entry = DrinkEntry(
             type: .juice,
             amount: DrinkAmount(value: 100, unit: .milliliters),
@@ -226,5 +226,15 @@ struct WateredTests {
         let waterVolume = await entry.waterVolume?.converted(to: .milliliters)
         
         #expect(waterVolume?.value == 89)
+    }
+    
+    @Test func drinkEntryOtherWaterVolumesIsUknown() async throws {
+        let entry = DrinkEntry(
+            type: .other,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        #expect(await entry.waterVolume == nil)
     }
 }
