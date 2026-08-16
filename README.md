@@ -149,8 +149,10 @@ It owns:
 - daily goal
 
 It calculates:
-- total volume consumed
-- remaining volume
+- total raw liquid volume consumed
+- total estimated water volume consumed
+- remaining raw liquid volume
+- remaining estimated water volume
 - a hydration snapshot
 
 It does not format text for the UI. It works with `Measurement<UnitVolume>` values.
@@ -160,15 +162,28 @@ It does not format text for the UI. It works with `Measurement<UnitVolume>` valu
 
 It stores:
 - drink count
-- total volume
+- total raw liquid volume
+- total estimated water volume
 - goal volume
-- remaining volume
+- remaining raw liquid volume
+- remaining estimated water volume
 
-It also calculates progress from `0` to `1`.
+It calculates two progress values:
+- `progress`, based on raw liquid volume
+- `waterProgress`, based on estimated water volume
 
-For example:
-- `0.25` means 25%
-- `1.0` means complete
+`waterProgress` is optional because some drink entries, such as `Other`, may not have a known water content ratio.
+
+Example:
+
+If the daily goal is `2000 ml` and the user logs `1000 ml` of juice:
+
+- raw liquid volume is `1000 ml`
+- estimated water volume is `890 ml`
+- `progress` is `0.5`, or 50%
+- `waterProgress` is `0.445`, or 44.5%
+
+This lets Watered distinguish between how much liquid was consumed and how much estimated water that liquid contains.
 
 The snapshot is useful because the UI can read one summary object instead of repeatedly asking the tracker for separate values.
 

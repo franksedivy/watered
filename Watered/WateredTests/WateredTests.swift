@@ -10,7 +10,9 @@ import Testing
 @testable import Watered
 
 struct WateredTests {
-
+    
+    // MARK: - DrinkAmount
+    
     @Test func drinkAmountFormatsMilliliters() async throws {
         let amount = DrinkAmount(value: 250, unit: .milliliters)
         
@@ -22,6 +24,43 @@ struct WateredTests {
         
         #expect(amount.formatted == "8 US fl oz")
     }
+    
+    @Test func drinkAmountConvertsImperialFluidOuncesToMilliliters() async throws {
+        let amount = DrinkAmount(value: 8, unit: .imperialFluidOunces)
+        let volume = await amount.volume.converted(to: .milliliters)
+        
+        #expect(Int(volume.value.rounded()) == 227)
+    }
+    
+    @Test func drinkAmountDescriptionUsesFormattedAmount() async throws {
+        let amount = DrinkAmount(value: 250, unit: .milliliters)
+        
+        #expect(await amount.description == "250 ml")
+    }
+    
+    // MARK: - DrinkType
+    
+    @Test func drinkTypeWaterHasFullWaterContent() async throws {
+        #expect(DrinkType.water.waterContentRatio == 1)
+    }
+    
+    @Test func drinkTypeTeaHasEstimatedWaterContent() async throws {
+        #expect(DrinkType.tea.waterContentRatio == 0.99)
+    }
+    
+    @Test func drinkTypeJuiceHasEstimatedWaterContent() async throws {
+        #expect(DrinkType.juice.waterContentRatio == 0.89)
+    }
+    
+    @Test func drinkTypeCoffeeHasEstimatedWaterContent() async throws {
+        #expect(DrinkType.coffee.waterContentRatio == 0.99)
+    }
+    
+    @Test func drinkTypeOtherHasUnknownWaterContent() async throws {
+        #expect(DrinkType.other.waterContentRatio == nil)
+    }
+    
+    // MARK: - DrinkEntry
     
     @Test func drinkEntryStoresTypeAmountAndDate() async throws {
         let date = Date()
@@ -38,172 +77,16 @@ struct WateredTests {
         #expect(entry.date == date)
     }
     
-    @Test func hydrationTrackerCalculatesTotalVolume() async throws {
-        let water = DrinkEntry(
+    @Test func drinkEntryDescriptionIncludesTypeAndAmount() async throws {
+        let entry = DrinkEntry(
             type: .water,
             amount: DrinkAmount(value: 250, unit: .milliliters),
             date: Date()
         )
         
-        let tea = DrinkEntry(
-            type: .tea,
-            amount: DrinkAmount(value: 300, unit: .milliliters),
-            date: Date()
-        )
-        
-        let goal = HydrationGoal(
-            amount: DrinkAmount(value: 2000, unit: .milliliters)
-        )
-        
-        let tracker = HydrationTracker(
-            entries: [water, tea],
-            dailyGoal: goal
-        )
-        
-        let total = await tracker.totalVolume.converted(to: .milliliters)
-        
-        #expect(total.value == 550)
-    }
-    
-    @Test func drinkAmountConvertsImperialFluidOUncestoMilliliters() async throws {
-        let amount = DrinkAmount(value: 8, unit: .imperialFluidOunces)
-        let volume = await amount.volume.converted(to: .milliliters)
-        
-        #expect(Int(volume.value.rounded()) == 227)
-    }
-    
-    @Test func hydrationTrackerCalculatesRemainingVolume() async throws {
-        let water = DrinkEntry(
-            type: .water,
-            amount: DrinkAmount(value: 550, unit: .milliliters),
-            date: Date()
-        )
-        
-        let goal = HydrationGoal(
-            amount: DrinkAmount(value: 2000, unit: .milliliters)
-        )
-        
-        let tracker = HydrationTracker(
-            entries: [water],
-            dailyGoal: goal
-        )
-        
-        let remaining = await tracker.remainingVolume.converted(to: .milliliters)
-        
-        #expect(remaining.value == 1450)
-    }
-    
-    @Test func volumeFormatterFormatsWholeMilliliters() async throws {
-        let formatter = await VolumeFormatter()
-        let volume = Measurement(value: 477.2, unit: UnitVolume.milliliters)
-        
-        #expect(formatter.wholeNumberString(from: volume) == "477 mL")
-    }
-    @Test func hydrationTrackerCreatesSnapshot() async throws {
-        let water = DrinkEntry(
-            type: .water,
-            amount: DrinkAmount(value: 500,
-            unit: .milliliters),
-            date: Date()
-        )
-        
-        let goal = HydrationGoal(
-            amount: DrinkAmount(
-                value: 2000,
-                unit: .milliliters
-            )
-        )
-        
-        let tracker = HydrationTracker(
-            entries: [water],
-            dailyGoal: goal
-        )
-        
-        let snapshot = await tracker.snapshot
-        
-        #expect(snapshot.drinkCount == 1)
-        #expect(snapshot.totalVolume.converted(to: .milliliters).value == 500)
-        #expect(snapshot.goalVolume.converted(to: .milliliters).value == 2000)
-        #expect(snapshot.remainingVolume.converted(to: .milliliters).value == 1500)
-    }
-    
-    @Test func hydrationSnapshotCalculatesProgress() async throws {
-        let snapshot = HydrationSnapshot(
-            drinkCount: 1,
-            totalVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
-            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
-            remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters)
-        )
-        
-        #expect(snapshot.progress == 0.25)
-    }
-    
-    @Test func hydrationSnapshotCapsProgressAtOne() async throws {
-        let snapshot = HydrationSnapshot(
-            drinkCount: 2,
-            totalVolume: Measurement(value: 2500, unit: UnitVolume.milliliters),
-            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
-            remainingVolume: Measurement(value: 0, unit: UnitVolume.milliliters)
-        )
-        
-        #expect(snapshot.progress == 1)
-    }
-    
-    @Test func progressFormatterFormatsPercentage() async throws {
-        let formatter = ProgressFormatter()
-        
-        #expect(formatter.percentageString(from: 0.25) == "25%")
-    }
-    
-    @Test func drinkAmountDescriptionUsesFormattedAmount() async throws {
-        let amount = DrinkAmount(value: 250, unit: .milliliters)
-        
-        #expect(await amount.description == "250 ml")
-    }
-    
-    @Test func drinkEntryDescriptionIncludesTypeAndAmount() async throws {
-        let entry = DrinkEntry(type: .water, amount: DrinkAmount(value: 250, unit: .milliliters), date: Date()
-        )
-        
         #expect(await entry.description == "Water, 250 ml")
     }
     
-    @Test func hydrationSummaryViewDataFormatsSnapshotForDisplay() async throws {
-        let snapshot = HydrationSnapshot(
-            drinkCount:2,
-            totalVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
-            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
-            remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters)
-        )
-        
-        let viewData = HydrationSummaryViewData(
-            snapshot: snapshot,
-            volumeFormatter: VolumeFormatter(),
-            progressFormatter: ProgressFormatter()
-        )
-        
-        #expect(viewData.totalText == "Total: 500 mL")
-        #expect(viewData.goalText == "Goal: 2000 mL")
-        #expect(viewData.remainingText == "Remaining: 1500 mL")
-        #expect(viewData.drinkCountText == "Drinks logged: 2")
-        #expect(viewData.progressText == "25%")
-        #expect(viewData.progressValue == 0.25)
-    }
-    
-    @Test func drinkTypeWaterHasFullWaterContent() async throws {
-        #expect(DrinkType.water.waterContentRatio == 1)
-    }
-    @Test func drinkTypeJuiceHasEstimateWaterContent() async throws {
-        #expect(DrinkType.juice.waterContentRatio == 0.89)
-    }
-    @Test func drinkTypeCoffeeHasEstimateWaterContent() async throws {
-        #expect(DrinkType.coffee.waterContentRatio == 0.99)
-    }
-    @Test func drinkTypeOtherhasUnknownWaterContent() async throws {
-        #expect(DrinkType.other.waterContentRatio == nil)
-    }
-    
-    // Tests WaterVolume
     @Test func drinkEntryWaterVolumeKeepsFullWaterAmount() async throws {
         let entry = DrinkEntry(
             type: .water,
@@ -238,7 +121,56 @@ struct WateredTests {
         #expect(await entry.waterVolume == nil)
     }
     
-    // Tests calculations of total and remaining water volumes
+    // MARK: - HydrationTracker
+    
+    @Test func hydrationTrackerCalculatesTotalVolume() async throws {
+        let water = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        let tea = DrinkEntry(
+            type: .tea,
+            amount: DrinkAmount(value: 300, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [water, tea],
+            dailyGoal: goal
+        )
+        
+        let total = await tracker.totalVolume.converted(to: .milliliters)
+        
+        #expect(total.value == 550)
+    }
+    
+    @Test func hydrationTrackerCalculatesRemainingVolume() async throws {
+        let water = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 550, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [water],
+            dailyGoal: goal
+        )
+        
+        let remaining = await tracker.remainingVolume.converted(to: .milliliters)
+        
+        #expect(remaining.value == 1450)
+    }
+    
     @Test func hydrationTrackerCalculatesTotalWaterVolume() async throws {
         let water = DrinkEntry(
             type: .water,
@@ -305,5 +237,126 @@ struct WateredTests {
         
         #expect(await tracker.totalWaterVolume == nil)
         #expect(await tracker.remainingWaterVolume == nil)
+    }
+    
+    @Test func hydrationTrackerCreatesSnapshot() async throws {
+        let water = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 500, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [water],
+            dailyGoal: goal
+        )
+        
+        let snapshot = await tracker.snapshot
+        
+        #expect(snapshot.drinkCount == 1)
+        #expect(snapshot.totalVolume.converted(to: .milliliters).value == 500)
+        #expect(snapshot.totalWaterVolume?.converted(to: .milliliters).value == 500)
+        #expect(snapshot.goalVolume.converted(to: .milliliters).value == 2000)
+        #expect(snapshot.remainingVolume.converted(to: .milliliters).value == 1500)
+        #expect(snapshot.remainingWaterVolume?.converted(to: .milliliters).value == 1500)
+    }
+    
+    // MARK: - HydrationSnapshot
+    
+    @Test func hydrationSnapshotCalculatesProgress() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 1,
+            totalVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
+            totalWaterVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
+            remainingWaterVolume: Measurement(value: 1500, unit: UnitVolume.milliliters)
+        )
+        
+        #expect(snapshot.progress == 0.25)
+    }
+    
+    @Test func hydrationSnapshotCapsProgressAtOne() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 2,
+            totalVolume: Measurement(value: 2500, unit: UnitVolume.milliliters),
+            totalWaterVolume: Measurement(value: 2500, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 0, unit: UnitVolume.milliliters),
+            remainingWaterVolume: Measurement(value: 0, unit: UnitVolume.milliliters)
+        )
+        
+        #expect(snapshot.progress == 1)
+    }
+    
+    @Test func hydrationSnapshotCalculatesWaterProgress() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 1,
+            totalVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
+            totalWaterVolume: Measurement(value: 89, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 200, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
+            remainingWaterVolume: Measurement(value: 111, unit: UnitVolume.milliliters)
+        )
+        
+        #expect(snapshot.waterProgress == 0.445)
+    }
+    
+    @Test func hydrationSnapshotWaterProgressIsUnknownWhenWaterVolumeIsUnknown() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 1,
+            totalVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
+            totalWaterVolume: nil,
+            goalVolume: Measurement(value: 200, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
+            remainingWaterVolume: nil
+        )
+        
+        #expect(snapshot.waterProgress == nil)
+    }
+    
+    // MARK: - Formatters
+    
+    @Test func volumeFormatterFormatsWholeMilliliters() async throws {
+        let formatter = await VolumeFormatter()
+        let volume = Measurement(value: 477.2, unit: UnitVolume.milliliters)
+        
+        #expect(formatter.wholeNumberString(from: volume) == "477 mL")
+    }
+    
+    @Test func progressFormatterFormatsPercentage() async throws {
+        let formatter = ProgressFormatter()
+        
+        #expect(formatter.percentageString(from: 0.25) == "25%")
+    }
+    
+    // MARK: - HydrationSummaryViewData
+    
+    @Test func hydrationSummaryViewDataFormatsSnapshotForDisplay() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 2,
+            totalVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
+            totalWaterVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
+            remainingWaterVolume: Measurement(value: 1500, unit: UnitVolume.milliliters)
+        )
+        
+        let viewData = HydrationSummaryViewData(
+            snapshot: snapshot,
+            volumeFormatter: VolumeFormatter(),
+            progressFormatter: ProgressFormatter()
+        )
+        
+        #expect(viewData.totalText == "Total: 500 mL")
+        #expect(viewData.goalText == "Goal: 2000 mL")
+        #expect(viewData.remainingText == "Remaining: 1500 mL")
+        #expect(viewData.drinkCountText == "Drinks logged: 2")
+        #expect(viewData.progressText == "25%")
+        #expect(viewData.progressValue == 0.25)
     }
 }

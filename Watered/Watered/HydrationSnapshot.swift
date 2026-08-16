@@ -11,12 +11,30 @@ import Foundation
 struct HydrationSnapshot {
     let drinkCount: Int
     let totalVolume: Measurement<UnitVolume>
+    let totalWaterVolume: Measurement<UnitVolume>?
     let goalVolume: Measurement<UnitVolume>
     let remainingVolume: Measurement<UnitVolume>
+    let remainingWaterVolume: Measurement<UnitVolume>?
     
     // Progress toward the daily goal, where 0 is empty and 1 is complete.
     var progress: Double {
         let total = totalVolume.converted(to: .milliliters).value
+        let goal = goalVolume.converted(to: .milliliters).value
+        
+        guard goal > 0 else {
+            return 0
+        }
+        
+        return min(total / goal, 1)
+    }
+    
+    // Progress based on estimated physical water volume.
+    var waterProgress: Double? {
+        guard let totalWaterVolume = totalWaterVolume else {
+            return nil
+        }
+        
+        let total = totalWaterVolume.converted(to: .milliliters).value
         let goal = goalVolume.converted(to: .milliliters).value
         
         guard goal > 0 else {

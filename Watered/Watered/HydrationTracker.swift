@@ -21,17 +21,17 @@ struct HydrationTracker {
     
     // The total estimated water content from all drink entries.
     var totalWaterVolume: Measurement<UnitVolume>? {
-        var totalInMillilisters = 0.0
+        var totalInMilliliters = 0.0
         
         for entry in entries {
             guard let waterVolume = entry.waterVolume else {
                 return nil
             }
             
-            totalInMillilisters += waterVolume.converted(to: .milliliters).value
+            totalInMilliliters += waterVolume.converted(to: .milliliters).value
         }
         
-        return Measurement(value: totalInMillilisters, unit: .milliliters)
+        return Measurement(value: totalInMilliliters, unit: .milliliters)
     }
     
     // The remaining liquid needed to reach the daily goal.
@@ -61,7 +61,9 @@ struct HydrationTracker {
         HydrationSnapshot(
             drinkCount: entries.count,
             totalVolume: totalVolume,
+            totalWaterVolume: totalWaterVolume,
             goalVolume: dailyGoal.volume,
-            remainingVolume: remainingVolume)
+            remainingVolume: remainingVolume,
+            remainingWaterVolume: remainingWaterVolume)
     }
 }
