@@ -1,5 +1,5 @@
 # Watered
-Watered is an iOS hydration tracker built as a learning project in Swift and SwiftUI where i'm guided by Codex, but acitvely try to learn all the patterns and code that makes the app. It's not code vibing and letting Codex do all the work, it's codex playing a role of the tutor, guiding, explaining but not doing any of the hands on work.
+Watered is an iOS hydration tracker built as a learning project in Swift and SwiftUI where i'm guided by Codex, but acitvely learn all the patterns and code that makes the app. It's not code vibing and letting Codex do all the work, it's codex playing a role of the tutor, guiding, explaining but not doing any of the hands on work, however a dood amount of automation by the GPT happens in the background to ensure documentation (such as this file) and tests are kept up to date and in sync with latest code.
 
 The current focus is the core model layer: representing drinks, calculating intake, and keeping the code clean before building out the UI.
 
@@ -42,7 +42,7 @@ The data is still sample data created in code. There is no real add-drink button
 - Keep models quiet and focused
 - Keep formatting separate from calculations
 - Keep SwiftUI views lightweight and focused on layout
-- Use Foundation types where they fit, especially 'Measurement<UnitVolume>'
+- Use Foundation types where they fit, especially `Measurement<UnitVolume>`
 - Avoid hard-coding anything
 - Prefer small, buildable steps
 - Add tests around model behaviour
