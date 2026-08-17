@@ -26,14 +26,34 @@ Models calculate > Snapshots summarise > View data prepares > Views display.
 `VolumeFormatter` and `ProgressFormatter` turn raw model values into readable text and are used by `HydrationSummaryViewData`.
 `ContentView` displays the prepared values on screen.
 
+## Today Screen Semantics
+The Today screen separates two related but different ideas:
+
+1. Total liquid consumed
+2. Hydration progress
+
+The main amount shown on the Today screen is total liquid consumed.
+For example, if the user drinks `1 L` of juice, the app should still say they drank `1 L` today.
+
+The progress percentage is based on estimated water contribution toward the daily hydration target.
+For example, if the daily target is `2 L` and the user drinks `1 L` of juice with an estimated water content ratio of `0.89`, the user has logged `1 L` of liquid but made about `44.5%` progress toward the hydration target.
+
+This means the app can honestly show both:
+- how much liquid the user drank
+- how much that liquid appears to contribute toward hydration
+
+The daily goal should be understood as a hydration target, not simply a raw liquid-volume target.
+
+Alcohol handling is intentionally out of scope for now. Alcohol may need a separate model later because it can affect hydration differently from simple physical water content.
+
 ## Current App State
 The app currently has a simple read-only screen.
 It can show:
-- progress percentage
+- hydration progress percentage
 - progress bar
 - total liquid consumed
-- daily goal
-- remaining liquid
+- daily hydration goal
+- remaining estimated water contribution
 - number of drinks logged
 
 The data is still sample data created in code. There is no real add-drink button, persistence, HealthKit, Watch app, or user settings yet.
