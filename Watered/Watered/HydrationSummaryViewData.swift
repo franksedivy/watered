@@ -15,17 +15,59 @@ struct HydrationSummaryViewData {
     let drinkCountText: String
     let progressText: String
     let progressValue: Double
+    let drinkBreakdownTexts: [String]
     
+    // MARK: - Initialisation
+    
+    // Purpose: Converts a HydrationSnapshot into simple display-ready values.
+    //
+    // Input: Uses a HydrationSnapshot, VolumeFormatter, and ProgressFormatter.
+    //
+    // Returns:
+    // A HydrationSummaryViewData value containing strings and progress values
+    // ready for the SwiftUI view to display.
+    //
+    // Behavior:
+    // Formats raw liquid total for the main Today total, formats hydration
+    // progress from estimated water progress, formats remaining hydration when
+    // it is known, and formats grouped drink breakdown rows.
+    //
+    // Notes:
+    // This type prepares text for the UI, but it does not calculate hydration
+    // totals itself. Those calculations belong to HydrationTracker and
+    // HydrationSnapshot.
     init(
         snapshot: HydrationSnapshot,
         volumeFormatter: VolumeFormatter,
         progressFormatter: ProgressFormatter
     ) {
-        totalText = "Total: \(volumeFormatter.wholeNumberString(from: snapshot.totalVolume))"
-        goalText = "Goal: \(volumeFormatter.wholeNumberString(from: snapshot.goalVolume))"
-        remainingText = "Remaining: \(volumeFormatter.wholeNumberString(from: snapshot.remainingVolume))"
+        let totalLiquid = volumeFormatter.wholeNumberString(from: snapshot.totalVolume)
+        let goal = volumeFormatter.wholeNumberString(from: snapshot.goalVolume)
+        
+        totalText = "Total liquid: \(totalLiquid)"
+        goalText = "Hydration goal: \(goal)"
         drinkCountText = "Drinks logged: \(snapshot.drinkCount)"
-        progressText = progressFormatter.percentageString(from: snapshot.progress)
-        progressValue = snapshot.progress
+        
+        if let remainingWaterVolume = snapshot.remainingWaterVolume {
+            let remainingHydration = volumeFormatter.wholeNumberString(from: remainingWaterVolume)
+            remainingText = "Remaining hydration: \(remainingHydration)"
+        } else {
+            remainingText = "Remaining hydration: Unknown"
+        }
+        
+        if let hydrationProgress = snapshot.waterProgress {
+            progressText = progressFormatter.percentageString(from: hydrationProgress)
+            progressValue = hydrationProgress
+        } else {
+            progressText = "Hydration progress unknown"
+            progressValue = 0.0
+        }
+        
+        drinkBreakdownTexts = snapshot.drinkBreakdown.map { drinkBreakdown in
+            let amount = volumeFormatter.wholeNumberString(from: drinkBreakdown.totalVolume)
+            let drinkType = drinkBreakdown.type.rawValue.lowercased()
+            
+            return "\(amount) of \(drinkType)"
+        }
     }
 }

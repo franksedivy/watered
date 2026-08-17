@@ -419,16 +419,25 @@ struct WateredTests {
     }
     
     // MARK: - HydrationSummaryViewData
+    
+    // Given a snapshot where total liquid and estimated water contribution differ,
+    // when view data is created, then the main total uses raw liquid volume while
+    // progress uses estimated hydration contribution.
     @MainActor
-    @Test func hydrationSummaryViewDataFormatsSnapshotForDisplay() async throws {
+    @Test func hydrationSummaryViewDataUsesHydrationProgressNotRawLiquidProgress() async throws {
         let snapshot = HydrationSnapshot(
-            drinkCount: 2,
-            totalVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
-            totalWaterVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
+            drinkCount: 1,
+            totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters),
+            totalWaterVolume: Measurement(value: 890, unit: UnitVolume.milliliters),
             goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
-            remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
-            remainingWaterVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
-            drinkBreakdown: []
+            remainingVolume: Measurement(value: 1000, unit: UnitVolume.milliliters),
+            remainingWaterVolume: Measurement(value: 1110, unit: UnitVolume.milliliters),
+            drinkBreakdown: [
+                DrinkBreakdown(
+                    type: .juice,
+                    totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters)
+                )
+            ]
         )
         
         let viewData = HydrationSummaryViewData(
@@ -437,11 +446,45 @@ struct WateredTests {
             progressFormatter: ProgressFormatter()
         )
         
-        #expect(viewData.totalText == "Total: 500 mL")
-        #expect(viewData.goalText == "Goal: 2000 mL")
-        #expect(viewData.remainingText == "Remaining: 1500 mL")
-        #expect(viewData.drinkCountText == "Drinks logged: 2")
-        #expect(viewData.progressText == "25%")
-        #expect(viewData.progressValue == 0.25)
+        #expect(viewData.totalText == "Total liquid: 1000 mL")
+        #expect(viewData.goalText == "Hydration goal: 2000 mL")
+        #expect(viewData.remainingText == "Remaining hydration: 1110 mL")
+        #expect(viewData.drinkCountText == "Drinks logged: 1")
+        #expect(viewData.progressText == "45%")
+        #expect(viewData.progressValue == 0.445)
+        #expect(viewData.drinkBreakdownTexts == ["1000 mL of juice"])
+    }
+    
+    // Given a snapshot with unknown estimated water contribution, when view data is
+    // created, then hydration progress and remaining hydration are shown as unknown
+    // rather than guessed.
+    @MainActor
+    @Test func hydrationSummaryViewDataHandlesUnknownHydrationProgress() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 1,
+            totalVolume: Measurement(value: 250, unit: UnitVolume.milliliters),
+            totalWaterVolume: nil,
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 1750, unit: UnitVolume.milliliters),
+            remainingWaterVolume: nil,
+            drinkBreakdown: [
+                DrinkBreakdown(
+                    type: .other,
+                    totalVolume: Measurement(value: 250, unit: UnitVolume.milliliters)
+                )
+            ]
+        )
+        
+        let viewData = HydrationSummaryViewData(
+            snapshot: snapshot,
+            volumeFormatter: VolumeFormatter(),
+            progressFormatter: ProgressFormatter()
+        )
+        
+        #expect(viewData.totalText == "Total liquid: 250 mL")
+        #expect(viewData.remainingText == "Remaining hydration: Unknown")
+        #expect(viewData.progressText == "Hydration progress unknown")
+        #expect(viewData.progressValue == 0.0)
+        #expect(viewData.drinkBreakdownTexts == ["250 mL of other"])
     }
 }

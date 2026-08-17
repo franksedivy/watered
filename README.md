@@ -249,12 +249,15 @@ It takes:
 - a `ProgressFormatter`
 
 It creates:
-- total text
-- goal text
-- remaining text
+- total liquid text
+- hydration goal text
+- remaining hydration text
 - drink count text
-- progress percentage text
+- hydration progress percentage text
 - progress value for the progress bar
+- drink breakdown text rows
+
+The Today screen uses total raw liquid volume for the main consumed amount, but uses estimated water contribution for hydration progress and remaining hydration.
 
 This keeps `ContentView` focused on layout instead of making it build strings or format numbers.
 
