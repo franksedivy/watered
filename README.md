@@ -219,6 +219,7 @@ It stores:
 - goal volume
 - remaining raw liquid volume
 - remaining estimated water volume
+- drink breakdown grouped by drink type
 
 It calculates two progress values:
 - `progress`, based on raw liquid volume

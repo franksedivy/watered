@@ -171,8 +171,6 @@ struct HydrationTracker {
     // tracker for individual values.
     //
     // Notes:
-    // The snapshot does not currently include drinkBreakdown. That will be added
-    // in a later ticket once the grouped model data is proven by tests.
     var snapshot: HydrationSnapshot {
         HydrationSnapshot(
             drinkCount: entries.count,
@@ -180,6 +178,8 @@ struct HydrationTracker {
             totalWaterVolume: totalWaterVolume,
             goalVolume: dailyGoal.volume,
             remainingVolume: remainingVolume,
-            remainingWaterVolume: remainingWaterVolume)
+            remainingWaterVolume: remainingWaterVolume,
+            drinkBreakdown: drinkBreakdown
+        )
     }
 }

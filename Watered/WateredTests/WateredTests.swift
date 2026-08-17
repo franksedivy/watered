@@ -239,6 +239,7 @@ struct WateredTests {
         #expect(await tracker.remainingWaterVolume == nil)
     }
     
+    @MainActor
     @Test func hydrationTrackerCreatesSnapshot() async throws {
         let water = DrinkEntry(
             type: .water,
@@ -255,7 +256,10 @@ struct WateredTests {
             dailyGoal: goal
         )
         
-        let snapshot = await tracker.snapshot
+        let snapshot = tracker.snapshot
+        let breakdown = snapshot.drinkBreakdown
+        let firstBreakdown = breakdown.first
+        let firstBreakdownTotal = firstBreakdown?.totalVolume.converted(to: .milliliters)
         
         #expect(snapshot.drinkCount == 1)
         #expect(snapshot.totalVolume.converted(to: .milliliters).value == 500)
@@ -263,6 +267,9 @@ struct WateredTests {
         #expect(snapshot.goalVolume.converted(to: .milliliters).value == 2000)
         #expect(snapshot.remainingVolume.converted(to: .milliliters).value == 1500)
         #expect(snapshot.remainingWaterVolume?.converted(to: .milliliters).value == 1500)
+        #expect(breakdown.count == 1)
+        #expect(firstBreakdown?.type == .water)
+        #expect(firstBreakdownTotal?.value == 500)
     }
     
     // Given multiple drink entries, including two entries with the same drink type,
@@ -298,8 +305,12 @@ struct WateredTests {
         )
         
         let breakdown = tracker.drinkBreakdown
-        let waterBreakdown = breakdown.first { $0.type == .water}
-        let juiceBreakdown = breakdown.first { $0.type == .juice}
+        let waterBreakdown = breakdown.first { drinkBreakdown in
+            drinkBreakdown.type == .water
+        }
+        let juiceBreakdown = breakdown.first { drinkBreakdown in
+            drinkBreakdown.type == .juice
+        }
         
         let waterTotal = waterBreakdown?.totalVolume.converted(to: .milliliters)
         let juiceTotal = juiceBreakdown?.totalVolume.converted(to: .milliliters)
@@ -343,7 +354,8 @@ struct WateredTests {
             totalWaterVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
             goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
             remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
-            remainingWaterVolume: Measurement(value: 1500, unit: UnitVolume.milliliters)
+            remainingWaterVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
+            drinkBreakdown: []
         )
         
         #expect(snapshot.progress == 0.25)
@@ -356,7 +368,8 @@ struct WateredTests {
             totalWaterVolume: Measurement(value: 2500, unit: UnitVolume.milliliters),
             goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
             remainingVolume: Measurement(value: 0, unit: UnitVolume.milliliters),
-            remainingWaterVolume: Measurement(value: 0, unit: UnitVolume.milliliters)
+            remainingWaterVolume: Measurement(value: 0, unit: UnitVolume.milliliters),
+            drinkBreakdown: []
         )
         
         #expect(snapshot.progress == 1)
@@ -369,7 +382,8 @@ struct WateredTests {
             totalWaterVolume: Measurement(value: 89, unit: UnitVolume.milliliters),
             goalVolume: Measurement(value: 200, unit: UnitVolume.milliliters),
             remainingVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
-            remainingWaterVolume: Measurement(value: 111, unit: UnitVolume.milliliters)
+            remainingWaterVolume: Measurement(value: 111, unit: UnitVolume.milliliters),
+            drinkBreakdown: []
         )
         
         #expect(snapshot.waterProgress == 0.445)
@@ -382,7 +396,8 @@ struct WateredTests {
             totalWaterVolume: nil,
             goalVolume: Measurement(value: 200, unit: UnitVolume.milliliters),
             remainingVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
-            remainingWaterVolume: nil
+            remainingWaterVolume: nil,
+            drinkBreakdown: []
         )
         
         #expect(snapshot.waterProgress == nil)
@@ -412,7 +427,8 @@ struct WateredTests {
             totalWaterVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
             goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
             remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
-            remainingWaterVolume: Measurement(value: 1500, unit: UnitVolume.milliliters)
+            remainingWaterVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
+            drinkBreakdown: []
         )
         
         let viewData = HydrationSummaryViewData(
