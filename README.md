@@ -247,6 +247,7 @@ It takes:
 - a `HydrationSnapshot`
 - a `VolumeFormatter`
 - a `ProgressFormatter`
+- a display unit
 
 It creates:
 - total liquid text
@@ -264,8 +265,15 @@ This keeps `ContentView` focused on layout instead of making it build strings or
 ### VolumeFormatter.swift
 `VolumeFormatter` turns volume measurements into readable text.
 
-Example: `477 mL`
-This keeps display formatting out of the model layer.
+It can format a `Measurement<UnitVolume>` using any supported `LiquidUnit`.
+The formatter converts the measurement through `LiquidUnit.foundationUnit` and then uses Foundation's measurement formatting to produce the display text.
+
+Example outputs:
+- `1000 ml`
+- `34 US fl oz`
+- `35 fl oz`
+
+This keeps display formatting and display-unit choice out of the model layer.
 
 ### ProgressFormatter.swift
 `ProgressFormatter` turns a progress value into a percentage string.

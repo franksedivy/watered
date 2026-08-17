@@ -21,7 +21,8 @@ struct HydrationSummaryViewData {
     
     // Purpose: Converts a HydrationSnapshot into simple display-ready values.
     //
-    // Input: Uses a HydrationSnapshot, VolumeFormatter, and ProgressFormatter.
+    // Input: Uses a HydrationSnapshot, VolumeFormatter, ProgressFormatter and
+    // display unit.
     //
     // Returns:
     // A HydrationSummaryViewData value containing strings and progress values
@@ -39,17 +40,27 @@ struct HydrationSummaryViewData {
     init(
         snapshot: HydrationSnapshot,
         volumeFormatter: VolumeFormatter,
-        progressFormatter: ProgressFormatter
+        progressFormatter: ProgressFormatter,
+        displayUnit: LiquidUnit = .milliliters
     ) {
-        let totalLiquid = volumeFormatter.wholeNumberString(from: snapshot.totalVolume)
-        let goal = volumeFormatter.wholeNumberString(from: snapshot.goalVolume)
+        let totalLiquid = volumeFormatter.wholeNumberString(
+            from: snapshot.totalVolume,
+            displayedAs: displayUnit
+        )
+        let goal = volumeFormatter.wholeNumberString(
+            from: snapshot.goalVolume,
+            displayedAs: displayUnit
+        )
         
         totalText = "Total liquid: \(totalLiquid)"
         goalText = "Hydration goal: \(goal)"
         drinkCountText = "Drinks logged: \(snapshot.drinkCount)"
         
         if let remainingWaterVolume = snapshot.remainingWaterVolume {
-            let remainingHydration = volumeFormatter.wholeNumberString(from: remainingWaterVolume)
+            let remainingHydration = volumeFormatter.wholeNumberString(
+                from: remainingWaterVolume,
+                displayedAs: displayUnit
+            )
             remainingText = "Remaining hydration: \(remainingHydration)"
         } else {
             remainingText = "Remaining hydration: Unknown"
@@ -64,7 +75,10 @@ struct HydrationSummaryViewData {
         }
         
         drinkBreakdownTexts = snapshot.drinkBreakdown.map { drinkBreakdown in
-            let amount = volumeFormatter.wholeNumberString(from: drinkBreakdown.totalVolume)
+            let amount = volumeFormatter.wholeNumberString(
+                from: drinkBreakdown.totalVolume,
+                displayedAs: displayUnit
+            )
             let drinkType = drinkBreakdown.type.rawValue.lowercased()
             
             return "\(amount) of \(drinkType)"

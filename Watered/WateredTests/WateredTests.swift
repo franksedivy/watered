@@ -406,10 +406,24 @@ struct WateredTests {
     // MARK: - Formatters
     
     @Test func volumeFormatterFormatsWholeMilliliters() async throws {
-        let formatter = await VolumeFormatter()
-        let volume = Measurement(value: 477.2, unit: UnitVolume.milliliters)
+        let formatter = await VolumeFormatter(locale: Locale(identifier: "en_GB"))
+        let volume = Measurement(value: 1000, unit: UnitVolume.milliliters)
         
-        #expect(formatter.wholeNumberString(from: volume) == "477 mL")
+        #expect(formatter.wholeNumberString(from: volume, displayedAs: .milliliters) == "1000 ml")
+    }
+    
+    @Test func volumeFormatterFormatsWholeUSFluidOunces() async throws {
+        let formatter = await VolumeFormatter(locale: Locale(identifier: "en_GB"))
+        let volume = Measurement(value: 1000, unit: UnitVolume.milliliters)
+        
+        #expect(formatter.wholeNumberString(from: volume, displayedAs: .usFluidOunces) == "34 US fl oz")
+    }
+    
+    @Test func volumeFormatterFormatsWholeImperialFluidOunces() async throws {
+        let formatter = await VolumeFormatter(locale: Locale(identifier: "en_GB"))
+        let volume = Measurement(value: 1000, unit: UnitVolume.milliliters)
+        
+        #expect(formatter.wholeNumberString(from: volume, displayedAs: .imperialFluidOunces) == "35 fl oz")
     }
     
     @Test func progressFormatterFormatsPercentage() async throws {
@@ -446,13 +460,13 @@ struct WateredTests {
             progressFormatter: ProgressFormatter()
         )
         
-        #expect(viewData.totalText == "Total liquid: 1000 mL")
-        #expect(viewData.goalText == "Hydration goal: 2000 mL")
-        #expect(viewData.remainingText == "Remaining hydration: 1110 mL")
+        #expect(viewData.totalText == "Total liquid: 1000 ml")
+        #expect(viewData.goalText == "Hydration goal: 2000 ml")
+        #expect(viewData.remainingText == "Remaining hydration: 1110 ml")
         #expect(viewData.drinkCountText == "Drinks logged: 1")
         #expect(viewData.progressText == "45%")
         #expect(viewData.progressValue == 0.445)
-        #expect(viewData.drinkBreakdownTexts == ["1000 mL of juice"])
+        #expect(viewData.drinkBreakdownTexts == ["1000 ml of juice"])
     }
     
     // Given a snapshot with unknown estimated water contribution, when view data is
@@ -481,10 +495,42 @@ struct WateredTests {
             progressFormatter: ProgressFormatter()
         )
         
-        #expect(viewData.totalText == "Total liquid: 250 mL")
+        #expect(viewData.totalText == "Total liquid: 250 ml")
         #expect(viewData.remainingText == "Remaining hydration: Unknown")
         #expect(viewData.progressText == "Hydration progress unknown")
         #expect(viewData.progressValue == 0.0)
-        #expect(viewData.drinkBreakdownTexts == ["250 mL of other"])
+        #expect(viewData.drinkBreakdownTexts == ["250 ml of other"])
+    }
+    
+    // Given a supported display unit, when summary view data is created, then volume
+    // strings are formatted using that unit without changing the underlying model values.
+    @MainActor
+    @Test func hydrationSummaryViewDataUsesDisplayUnit() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 1,
+            totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters),
+            totalWaterVolume: Measurement(value: 1000, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingVolume: Measurement(value: 1000, unit: UnitVolume.milliliters),
+            remainingWaterVolume: Measurement(value: 1000, unit: UnitVolume.milliliters),
+            drinkBreakdown: [
+                DrinkBreakdown(
+                    type: .water,
+                    totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters)
+                )
+            ]
+        )
+        
+        let viewData = HydrationSummaryViewData(
+            snapshot: snapshot,
+            volumeFormatter: VolumeFormatter(locale: Locale(identifier: "en_GB")),
+            progressFormatter: ProgressFormatter(),
+            displayUnit: .usFluidOunces
+        )
+        
+        #expect(viewData.totalText == "Total liquid: 34 US fl oz")
+        #expect(viewData.goalText == "Hydration goal: 68 US fl oz")
+        #expect(viewData.remainingText == "Remaining hydration: 34 US fl oz")
+        #expect(viewData.drinkBreakdownTexts == ["34 US fl oz of water"])
     }
 }
