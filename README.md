@@ -141,6 +141,29 @@ For example:
 It exposes the amount as `Measurement<UnitVolume>`, which is the system-backed volume representation.
 It also has a simple text description so it can be printed or logged in a readable way.
 
+### DrinkBreakdown.swift
+`DrinkBreakdown` represents a grouped drink total for one drink type.
+
+It stores:
+
+- drink type
+- total raw liquid volume for that drink type
+
+Example:
+
+If today's entries are:
+
+- Water, 250 ml
+- Water, 500 ml
+- Juice, 300 ml
+
+The drink breakdown can represent:
+
+- Water, 750 ml
+- Juice, 300 ml
+
+This lets the app move from individual logged drinks to simple grouped totals for the Today screen.
+
 ### DrinkType.swift
 `DrinkType` defines what kind of drink was logged.
 
@@ -182,6 +205,7 @@ It calculates:
 - remaining raw liquid volume
 - remaining estimated water volume
 - a hydration snapshot
+- drink breakdown grouped by drink type
 
 It does not format text for the UI. It works with `Measurement<UnitVolume>` values.
 

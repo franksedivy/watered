@@ -265,6 +265,75 @@ struct WateredTests {
         #expect(snapshot.remainingWaterVolume?.converted(to: .milliliters).value == 1500)
     }
     
+    // Given multiple drink entries, including two entries with the same drink type,
+    // when the tracker creates a drink breakdown, then entries of the same type are
+    // grouped together and their raw liquid volumes are added.
+    @MainActor
+    @Test func hydrationTrackerCreatesDrinkBreakdownByType() async throws {
+        let firstWater = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        let secondWater = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 500, unit: .milliliters),
+            date: Date()
+        )
+        
+        let juice = DrinkEntry(
+            type: .juice,
+            amount: DrinkAmount(value: 300, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [firstWater, secondWater, juice],
+            dailyGoal: goal
+        )
+        
+        let breakdown = tracker.drinkBreakdown
+        let waterBreakdown = breakdown.first { $0.type == .water}
+        let juiceBreakdown = breakdown.first { $0.type == .juice}
+        
+        let waterTotal = waterBreakdown?.totalVolume.converted(to: .milliliters)
+        let juiceTotal = juiceBreakdown?.totalVolume.converted(to: .milliliters)
+        
+        #expect(breakdown.count == 2)
+        #expect(waterTotal?.value == 750)
+        #expect(juiceTotal?.value == 300)
+    }
+    
+    // Given drink entries for only one drink type, when the tracker creates a drink
+    // breakdown, then drink types with no entries are left out of the result.
+    @MainActor
+    @Test func hydrationTrackerDrinkBreakdownExcludesEmptyDrinkTypes() async throws {
+        let water = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [water],
+            dailyGoal: goal
+        )
+        
+        let breakdown = tracker.drinkBreakdown
+        
+        #expect(breakdown.count == 1)
+        #expect(breakdown.first?.type == .water)
+    }
+    
     // MARK: - HydrationSnapshot
     
     @Test func hydrationSnapshotCalculatesProgress() async throws {
@@ -335,7 +404,7 @@ struct WateredTests {
     }
     
     // MARK: - HydrationSummaryViewData
-    
+    @MainActor
     @Test func hydrationSummaryViewDataFormatsSnapshotForDisplay() async throws {
         let snapshot = HydrationSnapshot(
             drinkCount: 2,
