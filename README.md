@@ -27,10 +27,10 @@ Models calculate > Snapshots summarise > View data prepares > Views display.
 `ContentView` displays the prepared values on screen.
 
 ## Today Screen Semantics
-The Today screen separates two related but different ideas:
-
+The Today screen deliberately separates three related ideas:
 1. Total liquid consumed
 2. Hydration progress
+3. Hydration contribution breakdown
 
 The main amount shown on the Today screen is total liquid consumed.
 For example, if the user drinks `1 L` of juice, the app should still say they drank `1 L` today.
@@ -38,13 +38,21 @@ For example, if the user drinks `1 L` of juice, the app should still say they dr
 The progress percentage is based on estimated water contribution toward the daily hydration target.
 For example, if the daily target is `2 L` and the user drinks `1 L` of juice with an estimated water content ratio of `0.89`, the user has logged `1 L` of liquid but made about `44.5%` progress toward the hydration target.
 
-This means the app can honestly show both:
-- how much liquid the user drank
-- how much that liquid appears to contribute toward hydration
+The circular target visual uses the same hydration-progress meaning.
+Its coloured segments represent each drink type's estimated water contribution toward the hydration target.
+The unfilled part of the ring represents the remaining hydration target.
+
+The drink breakdown list uses raw liquid volume grouped by drink type.
+This means the list and ring show the same drink categories, but not necessarily the same values.
+
+Example:
+- list row: `1 L juice consumed`
+- ring segment: `890 mL contribution toward hydration target`
 
 The daily goal should be understood as a hydration target, not simply a raw liquid-volume target.
 
-Alcohol handling is intentionally out of scope for now. Alcohol may need a separate model later because it can affect hydration differently from simple physical water content.
+Alcohol handling is intentionally out of scope for `0.1`.
+Alcohol may need a separate model later because it can affect hydration differently from simple physical water content.
 
 ## Current App State
 The app currently has a simple read-only screen.
