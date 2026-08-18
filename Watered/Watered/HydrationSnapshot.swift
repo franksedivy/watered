@@ -16,7 +16,7 @@ struct HydrationSnapshot {
     let totalWaterVolume: Measurement<UnitVolume>?
     let goalVolume: Measurement<UnitVolume>
     let remainingVolume: Measurement<UnitVolume>
-    let remainingWaterVolume: Measurement<UnitVolume>?
+    let remainingHydrationVolume: Measurement<UnitVolume>?
     let drinkBreakdown: [DrinkBreakdown]
     
     // MARK: - Raw Liquid Progress
@@ -44,8 +44,9 @@ struct HydrationSnapshot {
         return min(total / goal, 1)
     }
     
-    // MARK: - Estimated Water Progress
-    // Purpose: Calculates hydration progress using estimated water volume.
+    // MARK: - Hydration Progress
+
+    // Purpose: Calculates progress toward the daily hydration target.
     //
     // Input: Uses totalWaterVolume and goalVolume.
     //
@@ -60,7 +61,7 @@ struct HydrationSnapshot {
     // Notes:
     // This is the progress value most closely aligned with the Today screen's
     // hydration target.
-    var waterProgress: Double? {
+    var hydrationProgress: Double? {
         guard let totalWaterVolume = totalWaterVolume else {
             return nil
         }

@@ -123,7 +123,7 @@ struct HydrationTracker {
         return Measurement(value: remainingInMilliliters, unit: .milliliters)
     }
     
-    // MARK: - Remaining Water Volume
+    // MARK: - Remaining Hydration Volume
         
     // Purpose:
     // Calculates how much estimated water volume is left before the daily
@@ -142,7 +142,7 @@ struct HydrationTracker {
     // Notes:
     // This is likely to become the main "remaining" value for the Today screen,
     // because the daily goal is understood as a hydration target.
-    var remainingWaterVolume: Measurement<UnitVolume>? {
+    var remainingHydrationVolume: Measurement<UnitVolume>? {
         guard let totalWaterVolume = totalWaterVolume else {
             return nil
         }
@@ -178,7 +178,7 @@ struct HydrationTracker {
             totalWaterVolume: totalWaterVolume,
             goalVolume: dailyGoal.volume,
             remainingVolume: remainingVolume,
-            remainingWaterVolume: remainingWaterVolume,
+            remainingHydrationVolume: remainingHydrationVolume,
             drinkBreakdown: drinkBreakdown
         )
     }

@@ -29,9 +29,9 @@ struct HydrationSummaryViewData {
     // ready for the SwiftUI view to display.
     //
     // Behavior:
-    // Formats raw liquid total for the main Today total, formats hydration
-    // progress from estimated water progress, formats remaining hydration when
-    // it is known, and formats grouped drink breakdown rows.
+    // Formats raw liquid total for the main Today total, formats progress from
+    // estimated water contribution, formats remaining hydration when it is known,
+    // and formats grouped drink breakdown rows.
     //
     // Notes:
     // This type prepares text for the UI, but it does not calculate hydration
@@ -56,9 +56,9 @@ struct HydrationSummaryViewData {
         goalText = "Hydration goal: \(goal)"
         drinkCountText = "Drinks logged: \(snapshot.drinkCount)"
         
-        if let remainingWaterVolume = snapshot.remainingWaterVolume {
+        if let remainingHydrationVolume = snapshot.remainingHydrationVolume {
             let remainingHydration = volumeFormatter.wholeNumberString(
-                from: remainingWaterVolume,
+                from: remainingHydrationVolume,
                 displayedAs: displayUnit
             )
             remainingText = "Remaining hydration: \(remainingHydration)"
@@ -66,7 +66,7 @@ struct HydrationSummaryViewData {
             remainingText = "Remaining hydration: Unknown"
         }
         
-        if let hydrationProgress = snapshot.waterProgress {
+        if let hydrationProgress = snapshot.hydrationProgress {
             progressText = progressFormatter.percentageString(from: hydrationProgress)
             progressValue = hydrationProgress
         } else {
