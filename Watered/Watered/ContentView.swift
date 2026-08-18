@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    // MARK: - TEMPORARY Sample data
     private let summary = HydrationSummaryViewData(
         snapshot: HydrationTracker(
             entries: [
@@ -37,12 +38,11 @@ struct ContentView: View {
     )
     
     // MARK: - Body
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             headerSection
             summarySection
-            DrinkBreakdownSection
+            drinkBreakdownSection
             
             Spacer()
         }
@@ -76,12 +76,12 @@ struct ContentView: View {
         }
     }
     
-    private var DrinkBreakdownSection: some View {
+    private var drinkBreakdownSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Drink breakdown")
                 .font(.headline)
-            ForEach(summary.drinkBreakdownTexts, id: \.self) { DrinkBreakdownText in
-                Text(DrinkBreakdownText)
+            ForEach(summary.drinkBreakdownTexts, id: \.self) { drinkBreakdownText in
+                Text(drinkBreakdownText)
             }
         }
     }
