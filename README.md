@@ -169,6 +169,7 @@ The drink breakdown can represent:
 This lets the app move from individual logged drinks to simple grouped totals for the Today screen.
 
 ### DrinkType.swift
+`DrinkType` defines what kind of drink was logged.
 Each drink type can define a `waterContentRatio`.
 
 Current ratios:
