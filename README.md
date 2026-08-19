@@ -132,6 +132,18 @@ Current units:
 It also maps each app unit to Foundation's `UnitVolume`.
 This lets Watered use Apple's measurement system instead of hard-coded conversion numbers.
 
+### VolumeCalculation.swift
+`VolumeCalculation` centralises the unit Watered uses for internal model calculations.
+
+It defines one base calculation unit and provides helpers to:
+- convert any `Measurement<UnitVolume>` into a base numeric value
+- wrap a base numeric value back into a `Measurement<UnitVolume>`
+
+This keeps calculation-unit decisions out of individual model calculations.
+
+The calculation unit is not the same thing as the display unit.
+Display units are handled separately by `VolumeFormatter` and `LiquidUnit`.
+
 ### DrinkAmount.swift
 `DrinkAmount` represents an amount of liquid.
 It stores:

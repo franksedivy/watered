@@ -350,6 +350,21 @@ struct WateredTests {
         #expect(snapshot.hydrationProgress == nil)
     }
     
+    // MARK: - VolumeCalculation
+    
+    @Test func volumeCalculationConvertsMeasurementToBaseValue() async throws {
+        let volume = Measurement(value: 1, unit: UnitVolume.liters)
+        
+        #expect(VolumeCalculation.baseValue(from: volume) == 1000)
+    }
+    
+    @Test func volumeCalculationCreatesMeasurementFromBaseValue() async throws {
+        let volume = VolumeCalculation.measurement(fromBaseValue: 750)
+        
+        #expect(volume.value == 750)
+        #expect(volume.unit == VolumeCalculation.baseUnit)
+    }
+    
     // MARK: - Formatters
     
     @Test func volumeFormatterFormatsWholeMilliliters() async throws {

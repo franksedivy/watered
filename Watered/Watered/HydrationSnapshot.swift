@@ -29,8 +29,9 @@ struct HydrationSnapshot {
     // Returns nil if totalWaterVolume is unknown.
     //
     // Behavior:
-    // If totalWaterVolume exists, converts totalWaterVolume and goalVolume to
-    // milliliters, divides estimated water volume by goal, and caps the result at 1.
+    // If totalWaterVolume exists, converts totalWaterVolume and goalVolume to the
+    // model's base calculation unit, divides estimated water volume by goal, and
+    // caps the result at 1.
     //
     // Notes:
     // This is the progress value most closely aligned with the Today screen's
@@ -40,13 +41,13 @@ struct HydrationSnapshot {
             return nil
         }
         
-        let total = totalWaterVolume.converted(to: .milliliters).value
-        let goal = goalVolume.converted(to: .milliliters).value
+        let totalBaseValue = VolumeCalculation.baseValue(from: totalWaterVolume)
+        let goalBaseValue = VolumeCalculation.baseValue(from: goalVolume)
         
-        guard goal > 0 else {
+        guard goalBaseValue > 0 else {
             return 0
         }
         
-        return min(total / goal, 1)
+        return min(totalBaseValue / goalBaseValue, 1)
     }
 }

@@ -13,22 +13,26 @@ struct HydrationTracker {
     
     // MARK: - Total Volume
     // Purpose: Calculates the total raw liquid volume from all logged drink entries.
-    // Input: Uses the tracker's entries array.
-    // Returns:A Measurement<UnitVolume> in milliliters representing total liquid consumed.
+    // Input:
+    // Uses the tracker's entries array.
+    //
+    // Returns:
+    // A Measurement<UnitVolume> in the model's base calculation unit representing
+    // total liquid consumed.
     //
     // Behavior:
-    // Converts each entry amount to milliliters, adds the values together, and
-    // returns the final total as a Foundation Measurement.
+    // Converts each entry amount to the model's base calculation unit, adds the
+    // values together, and returns the final total as a Foundation Measurement.
     //
     // Notes:
     // This does not apply water-content ratios. Water, juice, tea, coffee, and
     // other drinks all count by their physical liquid volume.
     var totalVolume: Measurement<UnitVolume> {
-        let totalInMilliliters = entries.reduce(0.0) { total, entry in
-            total + entry.amount.volume.converted(to: .milliliters).value
+        let totalBaseValue = entries.reduce(0.0) { total, entry in
+            total + VolumeCalculation.baseValue(from: entry.amount.volume)
         }
         
-        return Measurement(value: totalInMilliliters, unit: .milliliters)
+        return VolumeCalculation.measurement(fromBaseValue: totalBaseValue)
     }
     
     // MARK: - Total Water Volume
@@ -37,29 +41,29 @@ struct HydrationTracker {
     // Input: Uses the tracker's entries array and each entry's waterVolume.
     //
     // Returns:
-    // An optional Measurement<UnitVolume> in milliliters.
+    // An optional Measurement<UnitVolume> in the model's base calculation unit.
     // Returns nil if any entry has unknown water content.
     //
     // Behavior:
     // Loops through entries one by one. If an entry has waterVolume, it is
-    // converted to milliliters and added to the total. If an entry has nil
-    // waterVolume, the calculation stops and returns nil.
+    // converted to the model's base calculation unit and added to the total. If an
+    // entry has nil waterVolume, the calculation stops and returns nil.
     //
     // Notes:
     // Returning nil is deliberate. It prevents the app from silently guessing
     // water contribution for unknown drink types.
     var totalWaterVolume: Measurement<UnitVolume>? {
-        var totalInMilliliters = 0.0
+        var totalBaseValue = 0.0
         
         for entry in entries {
             guard let waterVolume = entry.waterVolume else {
                 return nil
             }
             
-            totalInMilliliters += waterVolume.converted(to: .milliliters).value
+            totalBaseValue += VolumeCalculation.baseValue(from: waterVolume)
         }
         
-        return Measurement(value: totalInMilliliters, unit: .milliliters)
+        return VolumeCalculation.measurement(fromBaseValue: totalBaseValue)
     }
     
     // MARK: - Drink Breakdown
@@ -74,8 +78,8 @@ struct HydrationTracker {
     // Behavior:
     // Loops through every known DrinkType, filters the entries down to the
     // current type, skips the type when there are no matching entries, adds the
-    // matching entry volumes together in milliliters, and returns one grouped
-    // result for each drink type found.
+    // matching entry volumes together in the base calculation unit, and returns one
+    // grouped result for each drink type found.
     //
     // Notes:
     // This intentionally returns raw liquid volume only. Hydration contribution
@@ -90,13 +94,13 @@ struct HydrationTracker {
                 return nil
             }
             
-            let totalInMilliliters = entriesForType.reduce(0.0) { total, entry in
-                total + entry.amount.volume.converted(to: .milliliters).value
+            let totalBaseValue = entriesForType.reduce(0.0) { total, entry in
+                total + VolumeCalculation.baseValue(from: entry.amount.volume)
             }
             
             return DrinkBreakdown(
                 type: type,
-                totalVolume: Measurement(value: totalInMilliliters, unit: .milliliters)
+                totalVolume: VolumeCalculation.measurement(fromBaseValue: totalBaseValue)
             )
         }
     }
@@ -110,12 +114,13 @@ struct HydrationTracker {
     // Input: Uses dailyGoal.volume and totalWaterVolume.
     //
     // Returns:
-    // An optional Measurement<UnitVolume> in milliliters.
+    // An optional Measurement<UnitVolume> in the model's base calculation unit.
     // Returns nil if totalWaterVolume is nil.
     //
     // Behavior:
-    // Converts the goal and estimated water volume to milliliters, subtracts
-    // estimated water consumed from the goal, and clamps the result at zero.
+    // Converts the goal and estimated water volume to the model's base calculation
+    // unit, subtracts estimated water consumed from the goal, and clamps the result
+    // at zero.
     //
     // Notes:
     // This is likely to become the main "remaining" value for the Today screen,
@@ -125,11 +130,11 @@ struct HydrationTracker {
             return nil
         }
         
-        let goalInMilliliters = dailyGoal.volume.converted(to: .milliliters).value
-        let totalInMilliliters = totalWaterVolume.converted(to: .milliliters).value
-        let remainingInMilliliters = max(goalInMilliliters - totalInMilliliters, 0)
+        let goalBaseValue = VolumeCalculation.baseValue(from: dailyGoal.volume)
+        let totalBaseValue = VolumeCalculation.baseValue(from: totalWaterVolume)
+        let remainingBaseValue = max(goalBaseValue - totalBaseValue, 0)
         
-        return Measurement(value: remainingInMilliliters, unit: .milliliters)
+        return VolumeCalculation.measurement(fromBaseValue: remainingBaseValue)
     }
     
     // MARK: - Snapshot
