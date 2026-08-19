@@ -202,7 +202,6 @@ It owns:
 It calculates:
 - total raw liquid volume consumed
 - total estimated water volume consumed
-- remaining raw liquid volume
 - remaining hydration volume
 - a hydration snapshot
 - drink breakdown grouped by drink type
@@ -217,7 +216,6 @@ It stores:
 - total raw liquid volume
 - total estimated water volume
 - goal volume
-- remaining raw liquid volume
 - remaining hydration volume
 - drink breakdown grouped by drink type
 

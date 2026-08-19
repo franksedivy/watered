@@ -15,7 +15,6 @@ struct HydrationSnapshot {
     let totalVolume: Measurement<UnitVolume>
     let totalWaterVolume: Measurement<UnitVolume>?
     let goalVolume: Measurement<UnitVolume>
-    let remainingVolume: Measurement<UnitVolume>
     let remainingHydrationVolume: Measurement<UnitVolume>?
     let drinkBreakdown: [DrinkBreakdown]
     

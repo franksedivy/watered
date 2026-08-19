@@ -101,28 +101,6 @@ struct HydrationTracker {
         }
     }
     
-    // MARK: - Remaining Volume
-    // Purpose: Calculates how much raw liquid volume is left before the daily goal is met.
-    //
-    // Input: Uses dailyGoal.volume and totalVolume.
-    //
-    // Returns: A Measurement<UnitVolume> in milliliters representing remaining raw liquid.
-    //
-    // Behavior:
-    // Converts the goal and total liquid volume to milliliters, subtracts total
-    // consumed volume from the goal, and clamps the result at zero.
-    //
-    // Notes:
-    // This value may become less important as the Today screen focuses on
-    // hydration contribution rather than raw liquid progress.
-    var remainingVolume: Measurement<UnitVolume> {
-        let goalInMilliliters = dailyGoal.volume.converted(to: .milliliters).value
-        let totalInMilliliters = totalVolume.converted(to: .milliliters).value
-        let remainingInMilliliters = max(goalInMilliliters - totalInMilliliters, 0)
-        
-        return Measurement(value: remainingInMilliliters, unit: .milliliters)
-    }
-    
     // MARK: - Remaining Hydration Volume
         
     // Purpose:
@@ -177,7 +155,6 @@ struct HydrationTracker {
             totalVolume: totalVolume,
             totalWaterVolume: totalWaterVolume,
             goalVolume: dailyGoal.volume,
-            remainingVolume: remainingVolume,
             remainingHydrationVolume: remainingHydrationVolume,
             drinkBreakdown: drinkBreakdown
         )
