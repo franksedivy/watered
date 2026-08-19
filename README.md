@@ -221,8 +221,7 @@ It stores:
 - remaining hydration volume
 - drink breakdown grouped by drink type
 
-It calculates two progress values:
-- `progress`, based on raw liquid volume
+It calculates one progress value:
 - `hydrationProgress`, based on estimated water contribution
 
 `hydrationProgress` is optional because some drink entries, such as `Other`, may not have a known water content ratio.
@@ -233,7 +232,6 @@ If the daily goal is `2000 ml` and the user logs `1000 ml` of juice:
 
 - raw liquid volume is `1000 ml`
 - estimated water volume is `890 ml`
-- `progress` is `0.5`, or 50%
 - `hydrationProgress` is `0.445`, or 44.5%
 
 This lets Watered distinguish between how much liquid was consumed and how much estimated water that liquid contains.

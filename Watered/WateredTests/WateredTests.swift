@@ -346,35 +346,6 @@ struct WateredTests {
     }
     
     // MARK: - HydrationSnapshot
-    
-    @Test func hydrationSnapshotCalculatesProgress() async throws {
-        let snapshot = HydrationSnapshot(
-            drinkCount: 1,
-            totalVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
-            totalWaterVolume: Measurement(value: 500, unit: UnitVolume.milliliters),
-            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
-            remainingVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
-            remainingHydrationVolume: Measurement(value: 1500, unit: UnitVolume.milliliters),
-            drinkBreakdown: []
-        )
-        
-        #expect(snapshot.progress == 0.25)
-    }
-    
-    @Test func hydrationSnapshotCapsProgressAtOne() async throws {
-        let snapshot = HydrationSnapshot(
-            drinkCount: 2,
-            totalVolume: Measurement(value: 2500, unit: UnitVolume.milliliters),
-            totalWaterVolume: Measurement(value: 2500, unit: UnitVolume.milliliters),
-            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
-            remainingVolume: Measurement(value: 0, unit: UnitVolume.milliliters),
-            remainingHydrationVolume: Measurement(value: 0, unit: UnitVolume.milliliters),
-            drinkBreakdown: []
-        )
-        
-        #expect(snapshot.progress == 1)
-    }
-    
     @Test func hydrationSnapshotCalculatesHydrationProgress() async throws {
         let snapshot = HydrationSnapshot(
             drinkCount: 1,

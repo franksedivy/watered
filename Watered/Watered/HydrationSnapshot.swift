@@ -19,31 +19,6 @@ struct HydrationSnapshot {
     let remainingHydrationVolume: Measurement<UnitVolume>?
     let drinkBreakdown: [DrinkBreakdown]
     
-    // MARK: - Raw Liquid Progress
-    // Purpose: Calculates raw liquid progress against the daily goal.
-    //
-    // Input: Uses totalVolume and goalVolume.
-    //
-    // Returns: A Double where 0 means no progress and 1 means the goal is complete.
-    //
-    // Behavior:
-    // Converts totalVolume and goalVolume to milliliters, divides total by goal,
-    // and caps the result at 1.
-    //
-    // Notes:
-    // This treats all liquid volume equally. It may become less important as the
-    // Today screen focuses on hydration contribution progress.
-    var progress: Double {
-        let total = totalVolume.converted(to: .milliliters).value
-        let goal = goalVolume.converted(to: .milliliters).value
-        
-        guard goal > 0 else {
-            return 0
-        }
-        
-        return min(total / goal, 1)
-    }
-    
     // MARK: - Hydration Progress
 
     // Purpose: Calculates progress toward the daily hydration target.
