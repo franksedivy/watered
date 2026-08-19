@@ -298,6 +298,104 @@ struct WateredTests {
         #expect(juiceTotal?.value == 300)
     }
     
+    // Given water entries in the drink log, when the tracker creates a drink breakdown,
+    // then the water breakdown reports the same value for raw liquid volume and
+    // estimated hydration volume.
+    @MainActor
+    @Test func hydrationTrackerDrinkBreakdwonIncludesHydrationVolumeForWater() async throws {
+        let firstWater = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        let secondWater = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 500, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [firstWater, secondWater],
+            dailyGoal: goal
+        )
+        let breakdown = tracker.drinkBreakdown
+        let waterBreakdown = tracker.drinkBreakdown.first { drinkBreakdown in
+            drinkBreakdown.type == .water
+        }
+        
+        let rawTotal = waterBreakdown?.totalVolume.converted(to: .milliliters)
+        let hydrationTotal = waterBreakdown?.totalHydrationVolume?.converted(to: .milliliters)
+        
+        #expect(rawTotal?.value == 750)
+        #expect(hydrationTotal?.value == 750)
+    }
+    
+    // Given a juice entry in the drink log, when the tracker creates a drink breakdown,
+    // then the juice breakdown reports full raw liquid volume and a lower estimated
+    // hydration volume based on the juice water-content ratio.
+    @MainActor
+    @Test func hydrationTrackerDrinkBreakdownIncludesHydrationVolumeForJuice() async throws {
+        let juice = DrinkEntry(
+            type: .juice,
+            amount: DrinkAmount(value: 300, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [juice],
+            dailyGoal: goal
+        )
+        let breakdown = tracker.drinkBreakdown
+        let juiceBreakdown = tracker.drinkBreakdown.first { drinkBreakdown in
+            drinkBreakdown.type == .juice
+        }
+        
+        let rawTotal = juiceBreakdown?.totalVolume.converted(to: .milliliters)
+        let hydrationTotal = juiceBreakdown?.totalHydrationVolume?.converted(to: .milliliters)
+        
+        #expect(rawTotal?.value == 300)
+        #expect(hydrationTotal?.value == 267)
+    }
+    
+    // Given an other drink entry in the drink log, when the tracker creates a drink
+    // breakdown, then the raw liquid volume is still known but estimated hydration
+    // volume remains unknown.
+    @MainActor
+    @Test func hydrationTrackerDrinkBreakdownIncludesTotalVolumeForOther() async throws {
+        let other = DrinkEntry(
+            type: .other,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        
+        let tracker = HydrationTracker(
+            entries: [other],
+            dailyGoal: goal
+        )
+        
+        let breakdown = tracker.drinkBreakdown
+        let otherBreakdown = tracker.drinkBreakdown.first { drinkBreakdown in
+            drinkBreakdown.type == .other
+        }
+        
+        let rawTotal = otherBreakdown?.totalVolume.converted(to: .milliliters)
+        
+        #expect(rawTotal?.value == 250)
+        #expect(otherBreakdown?.totalHydrationVolume == nil)
+    }
+    
     // Given drink entries for only one drink type, when the tracker creates a drink
     // breakdown, then drink types with no entries are left out of the result.
     @MainActor
@@ -410,7 +508,8 @@ struct WateredTests {
             drinkBreakdown: [
                 DrinkBreakdown(
                     type: .juice,
-                    totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters)
+                    totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters,),
+                    totalHydrationVolume: Measurement(value: 890, unit: UnitVolume.milliliters,)
                 )
             ]
         )
@@ -444,7 +543,8 @@ struct WateredTests {
             drinkBreakdown: [
                 DrinkBreakdown(
                     type: .other,
-                    totalVolume: Measurement(value: 250, unit: UnitVolume.milliliters)
+                    totalVolume: Measurement(value: 250, unit: UnitVolume.milliliters),
+                    totalHydrationVolume: nil
                 )
             ]
         )
@@ -475,7 +575,8 @@ struct WateredTests {
             drinkBreakdown: [
                 DrinkBreakdown(
                     type: .water,
-                    totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters)
+                    totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters),
+                    totalHydrationVolume: Measurement(value: 1000, unit: UnitVolume.milliliters)
                 )
             ]
         )

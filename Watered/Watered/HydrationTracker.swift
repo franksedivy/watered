@@ -85,24 +85,55 @@ struct HydrationTracker {
     // This intentionally returns raw liquid volume only. Hydration contribution
     // by drink type will be handled separately when the model needs it.
     var drinkBreakdown: [DrinkBreakdown] {
-        DrinkType.allCases.compactMap { type in
+        var breakdowns: [DrinkBreakdown] = []
+        
+        for type in DrinkType.allCases {
             let entriesForType = entries.filter { entry in
                 entry.type == type
             }
-        
+            
             guard !entriesForType.isEmpty else {
-                return nil
+                continue
             }
             
-            let totalBaseValue = entriesForType.reduce(0.0) { total, entry in
-                total + VolumeCalculation.baseValue(from: entry.amount.volume)
+            var totalBaseValue = 0.0
+            
+            for entry in entriesForType {
+                totalBaseValue += VolumeCalculation.baseValue(from: entry.amount.volume)
             }
             
-            return DrinkBreakdown(
+            var totalHydrationBaseValue = 0.0
+            var hasUnknownHydrationContribution = false
+            
+            for entry in entriesForType {
+                guard let waterVolume = entry.waterVolume else {
+                    hasUnknownHydrationContribution = true
+                    break
+                }
+                
+                totalHydrationBaseValue += VolumeCalculation.baseValue(from: waterVolume)
+            }
+            
+            let totalHydrationVolume: Measurement<UnitVolume>?
+            
+            if hasUnknownHydrationContribution {
+                totalHydrationVolume = nil
+            } else {
+                totalHydrationVolume = VolumeCalculation.measurement(
+                    fromBaseValue: totalHydrationBaseValue
+                )
+            }
+            
+            let breakdown = DrinkBreakdown(
                 type: type,
-                totalVolume: VolumeCalculation.measurement(fromBaseValue: totalBaseValue)
+                totalVolume: VolumeCalculation.measurement(fromBaseValue: totalBaseValue),
+                totalHydrationVolume: totalHydrationVolume
             )
+            
+            breakdowns.append(breakdown)
         }
+        
+        return breakdowns
     }
     
     // MARK: - Remaining Hydration Volume

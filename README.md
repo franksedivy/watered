@@ -51,8 +51,8 @@ Example:
 
 The daily goal should be understood as a hydration target, not simply a raw liquid-volume target.
 
-Alcohol handling is intentionally out of scope for `0.1`.
-Alcohol may need a separate model later because it can affect hydration differently from simple physical water content.
+Alcohol handling is tracked separately in ticket `#17`.
+Alcohol may need a richer model because it can affect hydration differently from simple physical water content.
 
 ## Current App State
 The app currently has a simple read-only screen.
@@ -158,12 +158,12 @@ It exposes the amount as `Measurement<UnitVolume>`, which is the system-backed v
 It also has a simple text description so it can be printed or logged in a readable way.
 
 ### DrinkBreakdown.swift
-`DrinkBreakdown` represents a grouped drink total for one drink type.
+`DrinkBreakdown` represents grouped drink totals for one drink type.
 
 It stores:
-
 - drink type
 - total raw liquid volume for that drink type
+- total estimated hydration volume for that drink type, when known
 
 Example:
 
@@ -175,10 +175,19 @@ If today's entries are:
 
 The drink breakdown can represent:
 
-- Water, 750 ml
-- Juice, 300 ml
+- Water, 750 ml raw liquid, 750 ml estimated hydration
+- Juice, 300 ml raw liquid, 267 ml estimated hydration
 
-This lets the app move from individual logged drinks to simple grouped totals for the Today screen.
+This lets the app group individual logged drinks into simple drink-type totals for the Today screen.
+
+The raw liquid total answers:
+How much of this drink type did the user consume?
+
+The estimated hydration total answers:
+How much did this drink type contribute toward the hydration target?
+
+The estimated hydration total is optional.
+For example, `Other` currently has unknown hydration contribution, so its breakdown can still show raw liquid volume while leaving hydration contribution as unknown.
 
 ### DrinkType.swift
 `DrinkType` defines what kind of drink was logged.
@@ -224,7 +233,7 @@ It calculates:
 - total estimated water volume consumed
 - remaining hydration volume
 - a hydration snapshot
-- drink breakdown grouped by drink type
+- drink breakdown grouped by drink type, including both raw volume and estimated hydration volume
 
 It does not format text for the UI. It works with `Measurement<UnitVolume>` values.
 
@@ -237,7 +246,7 @@ It stores:
 - total estimated water volume
 - goal volume
 - remaining hydration volume
-- drink breakdown grouped by drink type
+- drink breakdown grouped by drink type, including both raw volume and estimated hydration volume
 
 It calculates one progress value:
 - `hydrationProgress`, based on estimated water contribution
