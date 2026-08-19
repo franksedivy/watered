@@ -323,7 +323,7 @@ struct WateredTests {
             dailyGoal: goal
         )
         let breakdown = tracker.drinkBreakdown
-        let waterBreakdown = tracker.drinkBreakdown.first { drinkBreakdown in
+        let waterBreakdown = breakdown.first { drinkBreakdown in
             drinkBreakdown.type == .water
         }
         
@@ -354,7 +354,7 @@ struct WateredTests {
             dailyGoal: goal
         )
         let breakdown = tracker.drinkBreakdown
-        let juiceBreakdown = tracker.drinkBreakdown.first { drinkBreakdown in
+        let juiceBreakdown = breakdown.first { drinkBreakdown in
             drinkBreakdown.type == .juice
         }
         
@@ -386,7 +386,7 @@ struct WateredTests {
         )
         
         let breakdown = tracker.drinkBreakdown
-        let otherBreakdown = tracker.drinkBreakdown.first { drinkBreakdown in
+        let otherBreakdown = breakdown.first { drinkBreakdown in
             drinkBreakdown.type == .other
         }
         
@@ -508,8 +508,8 @@ struct WateredTests {
             drinkBreakdown: [
                 DrinkBreakdown(
                     type: .juice,
-                    totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters,),
-                    totalHydrationVolume: Measurement(value: 890, unit: UnitVolume.milliliters,)
+                    totalVolume: Measurement(value: 1000, unit: UnitVolume.milliliters),
+                    totalHydrationVolume: Measurement(value: 890, unit: UnitVolume.milliliters)
                 )
             ]
         )
