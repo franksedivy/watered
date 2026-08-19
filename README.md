@@ -1,5 +1,5 @@
 # Watered
-Watered is an iOS hydration tracker built as a learning project in Swift and SwiftUI where i'm guided by Codex, but acitvely learn all the patterns and code that makes the app. It's not code vibing and letting Codex do all the work, it's codex playing a role of the tutor, guiding, explaining but not doing any of the hands on work, however a dood amount of automation by the GPT happens in the background to ensure documentation (such as this file) and tests are kept up to date and in sync with latest code.
+Watered is an iOS hydration tracker built as a learning project in Swift and SwiftUI. I am guided by Codex, but I actively write and understand the code myself. The point is not to let Codex build the app for me, but to use Codex as a tutor: guiding, explaining, checking documentation, and helping keep tests aligned with the latest code.
 
 The current focus is the core model layer: representing drinks, calculating intake, and keeping the code clean before building out the UI.
 
@@ -10,7 +10,7 @@ That means we are starting with the core ideas of the app before making the UI m
 2. Represent drink amounts
 3. Represent drink types
 4. Represent one logged drink
-5. Calculate total intake and remaining intake
+5. Calculate total liquid intake, estimated hydration contribution, and remaining hydration
 6. Format that state for display
 7. Show a simple SwiftUI summary view
 
@@ -61,8 +61,10 @@ It can show:
 - progress bar
 - total liquid consumed
 - daily hydration goal
-- remaining estimated water contribution
+- remaining hydration volume
 - number of drinks logged
+- drink breakdown rows grouped by drink type
+- display-unit formatting through the summary view data layer
 
 The data is still sample data created in code. There is no real add-drink button, persistence, HealthKit, Watch app, or user settings yet.
 
@@ -102,10 +104,12 @@ This is the current SwiftUI screen.
 Right now it creates sample hydration data directly in the view:
 - one water entry
 - one juice entry
+- one coffee entry
 - one daily goal
 - one hydration tracker
 - one hydration snapshot
 - one hydration summary view data object
+- one explicit display unit
 
 It then displays values from `HydrationSummaryViewData`.
 
@@ -165,18 +169,21 @@ The drink breakdown can represent:
 This lets the app move from individual logged drinks to simple grouped totals for the Today screen.
 
 ### DrinkType.swift
-`DrinkType` defines what kind of drink was logged.
+Each drink type can define a `waterContentRatio`.
 
-Current types:
-- water
-- coffee
-- tea
-- juice
-- other
-Each case has a readable string value for simple display and debugging.
+Current ratios:
+- water: `1.0`
+- coffee: `0.99`
+- tea: `0.99`
+- juice: `0.89`
+- other: unknown
+
+`other` is intentionally unknown so the app does not silently guess hydration contribution for a custom drink.
 
 ### DrinkEntry.swift
 `DrinkEntry` represents one logged drink.
+It can expose an estimated `waterVolume` when the drink type has a known water-content ratio.
+If the drink type is `other`, `waterVolume` is `nil`.
 
 It combines:
 - drink type
@@ -188,7 +195,7 @@ Water, 250 ml, logged today
 This is the basic unit of hydration history.
 
 ### HydrationGoal.swift
-`HydrationGoal` represents the user's target liquid intake for a day.
+`HydrationGoal` represents the user's daily hydration target.
 It currently wraps a `DrinkAmount`.
 This is deliberately separate from `HydrationTracker` so that the goal is a named app concept, not just a loose number.
 
