@@ -656,7 +656,8 @@ struct WateredTests {
         #expect(viewData.drinkCountText == "Drinks logged: 1")
         #expect(viewData.progressText == "45%")
         #expect(viewData.progressValue == 0.445)
-        #expect(viewData.drinkBreakdownTexts == ["1000 ml of juice"])
+        #expect(viewData.drinkBreakdownRows.first?.consumedText == "1000 ml of juice")
+        #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: 890 ml")
     }
     
     // Given a snapshot with unknown estimated water contribution, when view data is
@@ -689,7 +690,8 @@ struct WateredTests {
         #expect(viewData.remainingText == "Remaining hydration: Unknown")
         #expect(viewData.progressText == "Hydration progress unknown")
         #expect(viewData.progressValue == 0.0)
-        #expect(viewData.drinkBreakdownTexts == ["250 ml of other"])
+        #expect(viewData.drinkBreakdownRows.first?.consumedText == "250 ml of other")
+        #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: Unknown")
     }
     
     // Given a supported display unit, when summary view data is created, then volume
@@ -721,6 +723,7 @@ struct WateredTests {
         #expect(viewData.totalText == "Total liquid: 34 US fl oz")
         #expect(viewData.goalText == "Hydration goal: 68 US fl oz")
         #expect(viewData.remainingText == "Remaining hydration: 34 US fl oz")
-        #expect(viewData.drinkBreakdownTexts == ["34 US fl oz of water"])
+        #expect(viewData.drinkBreakdownRows.first?.consumedText == "34 US fl oz of water")
+        #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: 34 US fl oz")
     }
 }

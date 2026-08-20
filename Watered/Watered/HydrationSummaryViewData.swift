@@ -7,6 +7,12 @@
 
 import Foundation
 
+//Display-ready values for one drink breakdown row
+struct DrinkBreakdownViewData {
+    let consumedText: String
+    let hydrationImpactText: String
+}
+
 // Display-ready values for the hydration summary screen.
 struct HydrationSummaryViewData {
     let totalText: String
@@ -15,7 +21,7 @@ struct HydrationSummaryViewData {
     let drinkCountText: String
     let progressText: String
     let progressValue: Double
-    let drinkBreakdownTexts: [String]
+    let drinkBreakdownRows: [DrinkBreakdownViewData]
     
     // MARK: - Initialisation
     
@@ -74,14 +80,30 @@ struct HydrationSummaryViewData {
             progressValue = 0.0
         }
         
-        drinkBreakdownTexts = snapshot.drinkBreakdown.map { drinkBreakdown in
+        drinkBreakdownRows = snapshot.drinkBreakdown.map { drinkBreakdown in
             let amount = volumeFormatter.wholeNumberString(
                 from: drinkBreakdown.totalVolume,
                 displayedAs: displayUnit
             )
             let drinkType = drinkBreakdown.type.rawValue.lowercased()
+            let consumedText = "\(amount) of \(drinkType)"
             
-            return "\(amount) of \(drinkType)"
+            let hydrationImpactText: String
+            
+            if let totalHydrationVolume = drinkBreakdown.totalHydrationVolume {
+                let hydrationImpact = volumeFormatter.wholeNumberString(
+                    from: totalHydrationVolume,
+                    displayedAs: displayUnit
+                )
+                hydrationImpactText = "Hydration impact: \(hydrationImpact)"
+            } else {
+                hydrationImpactText = "Hydration impact: Unknown"
+            }
+            
+            return DrinkBreakdownViewData(
+                consumedText: consumedText,
+                hydrationImpactText: hydrationImpactText
+            )
         }
     }
 }

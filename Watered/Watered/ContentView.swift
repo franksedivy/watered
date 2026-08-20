@@ -23,6 +23,11 @@ struct ContentView: View {
                     date: Date()
                 ),
                 DrinkEntry(
+                    type: .wine,
+                    amount: DrinkAmount(value: 150, unit: .milliliters),
+                    date: Date()
+                ),
+                DrinkEntry(
                     type: .coffee,
                     amount: DrinkAmount(value: 200, unit: .milliliters),
                     date: Date()
@@ -34,7 +39,7 @@ struct ContentView: View {
         ).snapshot,
         volumeFormatter: VolumeFormatter(),
         progressFormatter: ProgressFormatter(),
-        displayUnit: .imperialFluidOunces
+        displayUnit: .milliliters
     )
     
     // MARK: - Body
@@ -80,8 +85,13 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Drink breakdown")
                 .font(.headline)
-            ForEach(summary.drinkBreakdownTexts, id: \.self) { drinkBreakdownText in
-                Text(drinkBreakdownText)
+            ForEach(summary.drinkBreakdownRows, id: \.consumedText) { drinkBreakdownRow in
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(drinkBreakdownRow.consumedText)
+                    Text(drinkBreakdownRow.hydrationImpactText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
     }
