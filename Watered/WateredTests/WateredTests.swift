@@ -39,25 +39,41 @@ struct WateredTests {
     }
     
     // MARK: - DrinkType
-    
-    @Test func drinkTypeWaterHasFullWaterContent() async throws {
-        #expect(DrinkType.water.hydrationContributionRatio == 1)
+
+    @Test func drinkTypeWaterUsesFullHydrationContributionRatio() async throws {
+        #expect(DrinkType.water.hydrationContributionRule == HydrationContributionRule.ratio(1.0))
     }
-    
-    @Test func drinkTypeTeaHasEstimatedWaterContent() async throws {
-        #expect(DrinkType.tea.hydrationContributionRatio == 0.99)
+
+    @Test func drinkTypeTeaUsesEstimatedHydrationContributionRatio() async throws {
+        #expect(DrinkType.tea.hydrationContributionRule == HydrationContributionRule.ratio(0.99))
     }
-    
-    @Test func drinkTypeJuiceHasEstimatedWaterContent() async throws {
-        #expect(DrinkType.juice.hydrationContributionRatio == 0.89)
+
+    @Test func drinkTypeJuiceUsesEstimatedHydrationContributionRatio() async throws {
+        #expect(DrinkType.juice.hydrationContributionRule == HydrationContributionRule.ratio(0.89))
     }
-    
-    @Test func drinkTypeCoffeeHasEstimatedWaterContent() async throws {
-        #expect(DrinkType.coffee.hydrationContributionRatio == 0.99)
+
+    @Test func drinkTypeCoffeeUsesEstimatedHydrationContributionRatio() async throws {
+        #expect(DrinkType.coffee.hydrationContributionRule == HydrationContributionRule.ratio(0.99))
     }
-    
-    @Test func drinkTypeOtherHasUnknownWaterContent() async throws {
-        #expect(DrinkType.other.hydrationContributionRatio == nil)
+
+    @Test func drinkTypeBeerUsesDefaultAlcoholRule() async throws {
+        #expect(DrinkType.beer.hydrationContributionRule == HydrationContributionRule.alcohol(defaultABV: 0.05))
+    }
+
+    @Test func drinkTypeCiderUsesDefaultAlcoholRule() async throws {
+        #expect(DrinkType.cider.hydrationContributionRule == HydrationContributionRule.alcohol(defaultABV: 0.05))
+    }
+
+    @Test func drinkTypeWineUsesDefaultAlcoholRule() async throws {
+        #expect(DrinkType.wine.hydrationContributionRule == HydrationContributionRule.alcohol(defaultABV: 0.13))
+    }
+
+    @Test func drinkTypeSpiritsUsesDefaultAlcoholRule() async throws {
+        #expect(DrinkType.spirits.hydrationContributionRule == HydrationContributionRule.alcohol(defaultABV: 0.40))
+    }
+
+    @Test func drinkTypeOtherUsesUnknownHydrationContributionRule() async throws {
+        #expect(DrinkType.other.hydrationContributionRule == HydrationContributionRule.unknown)
     }
     
     // MARK: - DrinkEntry
@@ -119,6 +135,42 @@ struct WateredTests {
         )
         
         #expect(await entry.hydrationContributionVolume == nil)
+    }
+    
+    @Test func drinkEntryBeerHydrationContributionIsPositiveButReduced() async throws {
+        let entry = DrinkEntry(
+            type: .beer,
+            amount: DrinkAmount(value: 330, unit: .milliliters),
+            date: Date()
+        )
+        
+        let hydrationContributionVolume = await entry.hydrationContributionVolume?.converted(to: .milliliters)
+        
+        #expect(hydrationContributionVolume?.value == 165)
+    }
+    
+    @Test func drinkEntrySpiritsHydrationContributionIsNegative() async throws {
+        let entry = DrinkEntry(
+            type: .spirits,
+            amount: DrinkAmount(value: 25, unit: .milliliters),
+            date: Date()
+        )
+        
+        let hydrationContributionVolume = await entry.hydrationContributionVolume?.converted(to: .milliliters)
+        
+        #expect(hydrationContributionVolume?.value == -75)
+    }
+    
+    @Test func drinkEntryWineHydrationContributionIsNegative() async throws {
+        let entry = DrinkEntry(
+            type: .wine,
+            amount: DrinkAmount(value: 150, unit: .milliliters),
+            date: Date()
+        )
+        
+        let hydrationContributionVolume = await entry.hydrationContributionVolume?.converted(to: .milliliters)
+        
+        #expect(hydrationContributionVolume?.value == -45)
     }
     
     // MARK: - HydrationTracker
@@ -445,6 +497,58 @@ struct WateredTests {
         let totalHydration = await tracker.totalHydrationVolume?.converted(to: .milliliters)
         
         #expect(totalHydration?.value == 339)
+    }
+    
+    @Test func hydrationTrackerCountsAlcoholInRawTotalAndHydrationContribution() async throws {
+        let water = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 500, unit: .milliliters),
+            date: Date()
+        )
+        let beer = DrinkEntry(
+            type: .beer,
+            amount: DrinkAmount(value: 330, unit: .milliliters),
+            date: Date()
+        )
+        let wine = DrinkEntry(
+            type: .wine,
+            amount: DrinkAmount(value: 150, unit: .milliliters),
+            date: Date()
+        )
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 2000, unit: .milliliters)
+        )
+        let tracker = HydrationTracker(
+            entries: [water, beer, wine],
+            dailyGoal: goal
+        )
+        
+        let totalVolume = await tracker.totalVolume.converted(to: .milliliters)
+        let totalHydrationVolume = await tracker.totalHydrationVolume?.converted(to: .milliliters)
+        
+        #expect(totalVolume.value == 980)
+        #expect(totalHydrationVolume?.value == 620)
+    }
+    
+    @Test func hydrationTrackerNegativeAlcoholContributionIncreasesRemainingHydration() async throws {
+        let spirits = DrinkEntry(
+            type: .spirits,
+            amount: DrinkAmount(value: 25, unit: .milliliters),
+            date: Date()
+        )
+        let goal = HydrationGoal(
+            amount: DrinkAmount(value: 500, unit: .milliliters)
+        )
+        let tracker = HydrationTracker(
+            entries: [spirits],
+            dailyGoal: goal
+        )
+        
+        let totalHydrationVolume = await tracker.totalHydrationVolume?.converted(to: .milliliters)
+        let remainingHydrationVolume = await tracker.remainingHydrationVolume?.converted(to: .milliliters)
+        
+        #expect(totalHydrationVolume?.value == -75)
+        #expect(remainingHydrationVolume?.value == 575)
     }
     
     // MARK: - HydrationSnapshot
