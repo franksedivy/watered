@@ -13,7 +13,7 @@ struct HydrationSnapshot {
     
     let drinkCount: Int
     let totalVolume: Measurement<UnitVolume>
-    let totalWaterVolume: Measurement<UnitVolume>?
+    let totalHydrationVolume: Measurement<UnitVolume>?
     let goalVolume: Measurement<UnitVolume>
     let remainingHydrationVolume: Measurement<UnitVolume>?
     let drinkBreakdown: [DrinkBreakdown]
@@ -22,26 +22,22 @@ struct HydrationSnapshot {
 
     // Purpose: Calculates progress toward the daily hydration target.
     //
-    // Input: Uses totalWaterVolume and goalVolume.
+    // Input: Uses totalHydrationVolume and goalVolume.
     //
     // Returns:
     // An optional Double where 0 means no progress and 1 means the goal is complete.
-    // Returns nil if totalWaterVolume is unknown.
+    // Returns nil if totalHydrationVolume is unknown.
     //
     // Behavior:
-    // If totalWaterVolume exists, converts totalWaterVolume and goalVolume to the
-    // model's base calculation unit, divides estimated water volume by goal, and
-    // caps the result at 1.
-    //
-    // Notes:
-    // This is the progress value most closely aligned with the Today screen's
-    // hydration target.
+    // If totalHydrationVolume exists, converts totalHydrationVolume and goalVolume
+    // to the model's base calculation unit, divides hydration contribution by goal,
+    // and caps the result at 1.
     var hydrationProgress: Double? {
-        guard let totalWaterVolume = totalWaterVolume else {
+        guard let totalHydrationVolume = totalHydrationVolume else {
             return nil
         }
         
-        let totalBaseValue = VolumeCalculation.baseValue(from: totalWaterVolume)
+        let totalBaseValue = VolumeCalculation.baseValue(from: totalHydrationVolume)
         let goalBaseValue = VolumeCalculation.baseValue(from: goalVolume)
         
         guard goalBaseValue > 0 else {

@@ -35,32 +35,30 @@ struct HydrationTracker {
         return VolumeCalculation.measurement(fromBaseValue: totalBaseValue)
     }
     
-    // MARK: - Total Water Volume
-    // Purpose: Calculates the estimated physical water volume from all logged drink entries.
+    // MARK: - Total Hydration Volume
+
+    // Purpose: Calculates the estimated hydration contribution from all logged drink entries.
     //
-    // Input: Uses the tracker's entries array and each entry's waterVolume.
+    // Input: Uses the tracker's entries array and each entry's hydrationContributionVolume.
     //
     // Returns:
     // An optional Measurement<UnitVolume> in the model's base calculation unit.
-    // Returns nil if any entry has unknown water content.
+    // Returns nil if any entry has unknown hydration contribution.
     //
     // Behavior:
-    // Loops through entries one by one. If an entry has waterVolume, it is
-    // converted to the model's base calculation unit and added to the total. If an
-    // entry has nil waterVolume, the calculation stops and returns nil.
-    //
-    // Notes:
-    // Returning nil is deliberate. It prevents the app from silently guessing
-    // water contribution for unknown drink types.
-    var totalWaterVolume: Measurement<UnitVolume>? {
+    // Loops through entries one by one. If an entry has hydrationContributionVolume,
+    // it is converted to the model's base calculation unit and added to the total.
+    // If an entry has nil hydrationContributionVolume, the calculation stops and
+    // returns nil.
+    var totalHydrationVolume: Measurement<UnitVolume>? {
         var totalBaseValue = 0.0
         
         for entry in entries {
-            guard let waterVolume = entry.waterVolume else {
+            guard let hydrationContributionVolume = entry.hydrationContributionVolume else {
                 return nil
             }
             
-            totalBaseValue += VolumeCalculation.baseValue(from: waterVolume)
+            totalBaseValue += VolumeCalculation.baseValue(from: hydrationContributionVolume)
         }
         
         return VolumeCalculation.measurement(fromBaseValue: totalBaseValue)
@@ -106,12 +104,12 @@ struct HydrationTracker {
             var hasUnknownHydrationContribution = false
             
             for entry in entriesForType {
-                guard let waterVolume = entry.waterVolume else {
+                guard let hydrationContributionVolume = entry.hydrationContributionVolume else {
                     hasUnknownHydrationContribution = true
                     break
                 }
                 
-                totalHydrationBaseValue += VolumeCalculation.baseValue(from: waterVolume)
+                totalHydrationBaseValue += VolumeCalculation.baseValue(from: hydrationContributionVolume)
             }
             
             let totalHydrationVolume: Measurement<UnitVolume>?
@@ -139,30 +137,30 @@ struct HydrationTracker {
     // MARK: - Remaining Hydration Volume
         
     // Purpose:
-    // Calculates how much estimated water volume is left before the daily
+    // Calculates how much hydration contribution is left before the daily
     // hydration target is met.
     //
-    // Input: Uses dailyGoal.volume and totalWaterVolume.
+    // Input: Uses dailyGoal.volume and totalHydrationVolume.
     //
     // Returns:
     // An optional Measurement<UnitVolume> in the model's base calculation unit.
-    // Returns nil if totalWaterVolume is nil.
+    // Returns nil if totalHydrationVolume is nil.
     //
     // Behavior:
-    // Converts the goal and estimated water volume to the model's base calculation
-    // unit, subtracts estimated water consumed from the goal, and clamps the result
+    // Converts the goal and hydration contribution to the model's base calculation
+    // unit, subtracts hydration contribution from the goal, and clamps the result
     // at zero.
     //
     // Notes:
     // This is likely to become the main "remaining" value for the Today screen,
     // because the daily goal is understood as a hydration target.
     var remainingHydrationVolume: Measurement<UnitVolume>? {
-        guard let totalWaterVolume = totalWaterVolume else {
+        guard let totalHydrationVolume = totalHydrationVolume else {
             return nil
         }
         
         let goalBaseValue = VolumeCalculation.baseValue(from: dailyGoal.volume)
-        let totalBaseValue = VolumeCalculation.baseValue(from: totalWaterVolume)
+        let totalBaseValue = VolumeCalculation.baseValue(from: totalHydrationVolume)
         let remainingBaseValue = max(goalBaseValue - totalBaseValue, 0)
         
         return VolumeCalculation.measurement(fromBaseValue: remainingBaseValue)
@@ -189,7 +187,7 @@ struct HydrationTracker {
         HydrationSnapshot(
             drinkCount: entries.count,
             totalVolume: totalVolume,
-            totalWaterVolume: totalWaterVolume,
+            totalHydrationVolume: totalHydrationVolume,
             goalVolume: dailyGoal.volume,
             remainingHydrationVolume: remainingHydrationVolume,
             drinkBreakdown: drinkBreakdown
