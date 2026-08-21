@@ -726,4 +726,67 @@ struct WateredTests {
         #expect(viewData.drinkBreakdownRows.first?.consumedText == "34 US fl oz of water")
         #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: 34 US fl oz")
     }
+    
+    // MARK: - TodayDemoDrinkSource
+    
+    @MainActor
+    @Test func todayDemoDrinkCreatesDrinkEntry() async throws {
+        let date = Date(timeIntervalSinceReferenceDate: 0)
+        let demoDrink = TodayDemoDrink(
+            type: .water,
+            amount: DrinkAmount(value: 300, unit: .milliliters)
+        )
+        
+        let entry = demoDrink.entry(date: date)
+        
+        #expect(entry.type == .water)
+        #expect(entry.amount.value == 300)
+        #expect(entry.amount.unit == .milliliters)
+        #expect(entry.date == date)
+    }
+    
+    @MainActor
+    @Test func todayDemoDrinkSourceContainsExpectedDefaultDrinks() async throws {
+        let source = TodayDemoDrinkSource()
+        let availableDrinks = source.availableDrinks
+        
+        #expect(availableDrinks.count == 9)
+        
+        #expect(availableDrinks.contains { drink in
+            drink.type == .water && drink.amount.value == 250
+        })
+        
+        #expect(availableDrinks.contains { drink in
+            drink.type == .beer && drink.amount.value == 330
+        })
+        
+        #expect(availableDrinks.contains { drink in
+            drink.type == .spirits && drink.amount.value == 50
+        })
+    }
+    
+    @MainActor
+    @Test func todayDemoDrinkSourceReturnsNilWhenNoDrinksAreAvailable() async throws {
+        let source = TodayDemoDrinkSource(availableDrinks: [])
+        let entry = source.randomEntry()
+        
+        #expect(entry == nil)
+    }
+    
+    @MainActor
+    @Test func todayDemoDrinkSourceCreatesEntryFromAvailableDrink() async throws {
+        let date = Date(timeIntervalSinceReferenceDate: 0)
+        let demoDrink = TodayDemoDrink(
+            type: .coffee,
+            amount: DrinkAmount(value: 200, unit: .milliliters)
+        )
+        let source = TodayDemoDrinkSource(availableDrinks: [demoDrink])
+        
+        let entry = source.randomEntry(date: date)
+        
+        #expect(entry?.type == .coffee)
+        #expect(entry?.amount.value == 200)
+        #expect(entry?.amount.unit == .milliliters)
+        #expect(entry?.date == date)
+    }
 }
