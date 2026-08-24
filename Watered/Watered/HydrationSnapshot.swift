@@ -39,11 +39,12 @@ struct HydrationSnapshot {
         
         let totalBaseValue = VolumeCalculation.baseValue(from: totalHydrationVolume)
         let goalBaseValue = VolumeCalculation.baseValue(from: goalVolume)
+        let progress = min(totalBaseValue / goalBaseValue, 1)
         
         guard goalBaseValue > 0 else {
             return 0
         }
         
-        return min(totalBaseValue / goalBaseValue, 1)
+        return min(max(progress, 0), 1)
     }
 }

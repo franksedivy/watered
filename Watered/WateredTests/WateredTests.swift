@@ -578,6 +578,19 @@ struct WateredTests {
         #expect(snapshot.hydrationProgress == nil)
     }
     
+    @Test func hydrationSnapshotCapsNegativeProgressAtZero() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 1,
+            totalVolume: Measurement(value: 25, unit: UnitVolume.milliliters),
+            totalHydrationVolume: Measurement(value: -75, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingHydrationVolume: Measurement(value: 2075, unit: UnitVolume.milliliters),
+            drinkBreakdown: []
+        )
+        
+        #expect(snapshot.hydrationProgress == 0)
+    }
+    
     // MARK: - VolumeCalculation
     
     @Test func volumeCalculationConvertsMeasurementToBaseValue() async throws {
