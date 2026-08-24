@@ -11,7 +11,7 @@ struct ContentView: View {
     // MARK: - Temporary State
     @State private var entries: [DrinkEntry] = []
     
-    // MARK: = Temporary Configuration
+    // MARK: - Temporary Configuration
     private let dailyGoal = HydrationGoal(
         amount: DrinkAmount(value: 2700, unit: .milliliters)
     )
@@ -19,8 +19,9 @@ struct ContentView: View {
     private let volumeFormatter = VolumeFormatter()
     private let progressFormatter = ProgressFormatter()
     private let displayUnit: LiquidUnit = .milliliters
+    private let demoDrinkSource = TodayDemoDrinkSource()
     
-    // MARK: Derived Model Values
+    // MARK: - Derived Model Values
     private var tracker: HydrationTracker {
         HydrationTracker(
             entries: entries,
@@ -37,6 +38,22 @@ struct ContentView: View {
         )
     }
     
+    // MARK: - Prototype Actions
+    
+    // Purpose:
+    // Adds one temporary random demo drink to the Today screen prototype.
+    //
+    // Behavior:
+    // Asks TodayDemoDrinkSource for a random DrinkEntry. If one is returned, the
+    // entry is appended to the view's temporary entries state. SwiftUI then
+    // recalculates the derived tracker, snaposhot and summary.
+    private func addDemoDrink() {
+        guard let entry = demoDrinkSource.randomEntry() else {
+            return
+        }
+        
+        entries.append(entry)
+    }
     
     // MARK: - Body
     var body: some View {
@@ -44,6 +61,7 @@ struct ContentView: View {
             headerSection
             summarySection
             drinkBreakdownSection
+            prototypeControlsSection
             
             Spacer()
         }
@@ -92,6 +110,12 @@ struct ContentView: View {
         }
     }
     
+    private var prototypeControlsSection: some View {
+        Button(action: addDemoDrink) {
+            Label("Add random drink", systemImage: "plus")
+        }
+        .buttonStyle(.borderedProminent)
+    }
 }
 
 #Preview {
