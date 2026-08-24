@@ -243,7 +243,7 @@ struct ContentView: View {
     // model or creating a real drink logging flow.
     private var firstDrinkStateSection: some View {
         VStack(alignment: .leading, spacing: 24) {
-            Text("You  downed your frist drink! Nice")
+            Text("You  downed your first drink! Nice")
                 .font(.title3)
                 .foregroundStyle(.secondary)
             
@@ -261,9 +261,29 @@ struct ContentView: View {
     // UI role:
     // Represents the main ongoing Today screen mode. This keeps the multiple-drink
     // state separate from first-drink and goal-reached presentation.
-    private var inProgreessStateSection: some View {
+    private var inProgressStateSection: some View {
         VStack(alignment: .leading, spacing: 24) {
             Text("You consumed \(entries.count) drinks:")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+            
+            summarySection
+            drinkBreakdownSection
+        }
+    }
+    
+    // Purpose:
+    // Displays the goal-reached state once the user reaches 100% of their hydration target.
+    //
+    // Input:
+    // Uses summary values calculated from the current temporary drink entries.
+    //
+    // UI role:
+    // Gives reaching 100% of the daily goal a distinct moment without changing the
+    // underlying model or creating a real drink logging flow.
+    private var goalReachedStateSection: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            Text("You hit your goal! Fully watered.")
                 .font(.title3)
                 .foregroundStyle(.secondary)
             
@@ -331,10 +351,9 @@ struct ContentView: View {
         case .firstDrink:
             firstDrinkStateSection
         case .inProgress:
-            inProgreessStateSection
+            inProgressStateSection
         case .goalReached:
-            summarySection
-            drinkBreakdownSection
+            goalReachedStateSection
         }
     }
 }
