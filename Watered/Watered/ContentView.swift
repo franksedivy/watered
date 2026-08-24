@@ -8,39 +8,35 @@
 import SwiftUI
 
 struct ContentView: View {
-    // MARK: - TEMPORARY Sample data
-    private let summary = HydrationSummaryViewData(
-        snapshot: HydrationTracker(
-            entries: [
-                DrinkEntry(
-                    type: .water,
-                    amount: DrinkAmount(value: 250, unit: .milliliters),
-                    date: Date()
-                ),
-                DrinkEntry(
-                    type: .juice,
-                    amount: DrinkAmount(value: 8, unit: .imperialFluidOunces),
-                    date: Date()
-                ),
-                DrinkEntry(
-                    type: .wine,
-                    amount: DrinkAmount(value: 150, unit: .milliliters),
-                    date: Date()
-                ),
-                DrinkEntry(
-                    type: .coffee,
-                    amount: DrinkAmount(value: 200, unit: .milliliters),
-                    date: Date()
-                )
-            ],
-            dailyGoal: HydrationGoal(
-                amount: DrinkAmount(value: 2000, unit: .milliliters)
-            )
-        ).snapshot,
-        volumeFormatter: VolumeFormatter(),
-        progressFormatter: ProgressFormatter(),
-        displayUnit: .milliliters
+    // MARK: - Temporary State
+    @State private var entries: [DrinkEntry] = []
+    
+    // MARK: = Temporary Configuration
+    private let dailyGoal = HydrationGoal(
+        amount: DrinkAmount(value: 2700, unit: .milliliters)
     )
+    
+    private let volumeFormatter = VolumeFormatter()
+    private let progressFormatter = ProgressFormatter()
+    private let displayUnit: LiquidUnit = .milliliters
+    
+    // MARK: Derived Model Values
+    private var tracker: HydrationTracker {
+        HydrationTracker(
+            entries: entries,
+            dailyGoal: dailyGoal
+        )
+    }
+    
+    private var summary: HydrationSummaryViewData {
+        HydrationSummaryViewData(
+            snapshot: tracker.snapshot,
+            volumeFormatter: volumeFormatter,
+            progressFormatter: progressFormatter,
+            displayUnit: displayUnit
+        )
+    }
+    
     
     // MARK: - Body
     var body: some View {
