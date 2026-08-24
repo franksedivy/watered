@@ -9,9 +9,23 @@ import SwiftUI
 
 struct ContentView: View {
     // MARK: - Temporary State
+    
+    // Purpose:
+    // Stores the temporary drink entries shown by the 0.2 Today screen prototype.
+    //
+    // UI role:
+    // This is the only mutable source of truth in this view. When entries changes,
+    // SwiftUI recalculates the tracker, summary and visible screen content.
     @State private var entries: [DrinkEntry] = []
     
     // MARK: - Temporary Configuration
+    
+    // Purpose:
+    // Stores fixed values used by the temporary 0.2 prototype.
+    //
+    // Notes:
+    // These values are not user settings yet. The daily goal, display unit and demo
+    // drink source are hardcoded while the Today screen prototype is being built.
     private let dailyGoal = HydrationGoal(
         amount: DrinkAmount(value: 2700, unit: .milliliters)
     )
@@ -21,7 +35,20 @@ struct ContentView: View {
     private let displayUnit: LiquidUnit = .milliliters
     private let demoDrinkSource = TodayDemoDrinkSource()
     
-    // MARK: - Derived Model Values
+    // MARK: - Calculated Display Data
+
+    // Purpose:
+    // Builds the hydration tracker for the current temporary Today entries.
+    //
+    // Input:
+    // Uses entries from the view's temporary screen state and the prototype daily goal.
+    //
+    // Returns:
+    // A HydrationTracker containing the current entries and goal.
+    //
+    // UI role:
+    // The view does not calculate hydration totals directly. It asks the tracker to
+    // produce the model state that will later be converted into display-ready text.
     private var tracker: HydrationTracker {
         HydrationTracker(
             entries: entries,
@@ -29,6 +56,20 @@ struct ContentView: View {
         )
     }
     
+    // Purpose:
+    // Converts the current tracker snapshot into display-ready values.
+    //
+    // Input:
+    // Uses the tracker snapshot, volume formatter, progress formatter and selected
+    // display unit.
+    //
+    // Returns:
+    // HydrationSummaryViewData containing text and progress values the SwiftUI view
+    // can render directly.
+    //
+    // UI role:
+    // Keeps formatting out of the visible SwiftUI sections so the screen can display
+    // simple values rather than building labels and percentages inline.
     private var summary: HydrationSummaryViewData {
         HydrationSummaryViewData(
             snapshot: tracker.snapshot,
@@ -39,14 +80,28 @@ struct ContentView: View {
     }
     
     // MARK: - Today Screen State
-    private enum TodayScreenState {
-        case empty
-        case firstDrink
-        case inProgress
-        case goalReached
+    
+    // The main display modes the Today screen currently knows how to show.
+    private enum TodayScreenMode {
+        case empty          // Empty screen when no drinks have been logged
+        case firstDrink     // First drink has been logged, mostly used to celebrate engagement
+        case inProgress     // Most common use when drinks are logged during the day
+        case goalReached    // Used for when the user's hydration goal has been reached
     }
     
-    private var todayScreenState: TodayScreenState {
+    // Purpose:
+    // Decides which Today screen mode should be displayed.
+    //
+    // Input:
+    // Uses the temporary entries count and the calculated hydration progress.
+    //
+    // Returns:
+    // A TodayScreenMode value.
+    //
+    // UI role:
+    // Keeps state selection in one place so the body can render from a clear mode
+    // rather than scattering if statements through the layout.
+    private var todayScreenMode: TodayScreenMode {
         if entries.isEmpty {
             return .empty
         }
@@ -62,24 +117,14 @@ struct ContentView: View {
         return .inProgress
     }
     
-    // MARK: - Prototype Actions
+    // MARK: - Body
     
     // Purpose:
-    // Adds one temporary random demo drink to the Today screen prototype.
+    // Defines the high-level shell for the Today screen.
     //
-    // Behavior:
-    // Asks TodayDemoDrinkSource for a random DrinkEntry. If one is returned, the
-    // entry is appended to the view's temporary entries state. SwiftUI then
-    // recalculates the derived tracker, snaposhot and summary.
-    private func addDemoDrink() {
-        guard let entry = demoDrinkSource.randomEntry() else {
-            return
-        }
-        
-        entries.append(entry)
-    }
-    
-    // MARK: - Body
+    // UI role:
+    // Keeps the page structure in one place: scrollable content at the top and the
+    // temporary prototype control pinned to the bottom safe area.
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -97,6 +142,13 @@ struct ContentView: View {
     }
     
     // MARK: - View Sections
+    
+    // Purpose:
+    // Displays the fixed Today screen header.
+    //
+    // UI role:
+    // Gives the screen its current app/title context. This section is shown for all
+    // Today screen modes.
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Watered")
@@ -110,6 +162,15 @@ struct ContentView: View {
         }
     }
     
+    // Purpose:
+    // Displays the current hydration summary.
+    //
+    // Input:
+    // Uses HydrationSummaryViewData built from the current entries.
+    //
+    // UI role:
+    // Shows display-ready values only. This section does not calculate totals,
+    // progress or remaining hydration directly.
     private var summarySection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(summary.progressText)
@@ -124,6 +185,15 @@ struct ContentView: View {
         }
     }
     
+    // Purpose:
+    // Displays grouped drink breakdown rows.
+    //
+    // Input:
+    // Uses summary.drinkBreakdownRows.
+    //
+    // UI role:
+    // Shows the model-backed drink breakdown once drinks exist. This section is
+    // hidden while the screen is in the empty mode.
     private var drinkBreakdownSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Drink breakdown")
@@ -139,6 +209,14 @@ struct ContentView: View {
         }
     }
     
+    // Purpose:
+    // Displays the dedicated empty state when no drinks have been logged.
+    //
+    // Input:
+    // Shown when todayScreenMode is .empty.
+    //
+    // UI role:
+    // Replaces zero-value debug-style summary data with intentional empty-state copy.
     private var emptyStateSection: some View {
         VStack(alignment: .center, spacing: 12) {
             Text("Pretty dry so far")
@@ -154,6 +232,13 @@ struct ContentView: View {
         .padding(.top, 120)
     }
     
+    // MARK: - Prototype Controls
+
+    // Purpose:
+    // Displays temporary controls used while building the 0.2 prototype.
+    //
+    // UI role:
+    // Lets the prototype create demo drinks without building the real add-drink flow.
     private var prototypeControlsSection: some View {
         Button(action: addDemoDrink) {
             Label("Add random drink", systemImage: "plus")
@@ -161,9 +246,46 @@ struct ContentView: View {
         .buttonStyle(.borderedProminent)
     }
     
+    // MARK: - Prototype Actions
+    
+    // Purpose:
+    // Adds one temporary random demo drink to the Today screen prototype.
+    //
+    // Input:
+    // Uses TodayDemoDrinkSource to create a random demo entry.
+    //
+    // Behavior:
+    // If the source returns an entry, the entry is appended to the temporary entries
+    // state. SwiftUI then recalculates the tracker, snapshot and summary.
+    //
+    // Notes:
+    // This is prototype-only behaviour. It is not persistence and not the final
+    // drink logging flow.
+    private func addDemoDrink() {
+        guard let entry = demoDrinkSource.randomEntry() else {
+            return
+        }
+        
+        entries.append(entry)
+    }
+    
+    // MARK: - Screen Content
+
+    // Purpose:
+    // Selects the main content section for the current Today screen mode.
+    //
+    // Input:
+    // Uses todayScreenMode.
+    //
+    // Returns:
+    // The SwiftUI content for the selected mode.
+    //
+    // UI role:
+    // Keeps conditional screen routing out of body. Each mode can gradually get its
+    // own section without turning body into a chain of if statements.
     @ViewBuilder
     private var todayContentSection: some View {
-        switch todayScreenState {
+        switch todayScreenMode {
         case .empty:
             emptyStateSection
         case .firstDrink:
