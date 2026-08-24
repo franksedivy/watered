@@ -252,6 +252,26 @@ struct ContentView: View {
         }
     }
     
+    // Purpose:
+    // Displays the normal Today state once multiple dirnks have been logged.
+    //
+    // Input:
+    // Uses summary value calculated form the current temporary drink entries.
+    //
+    // UI role:
+    // Represents the main ongoing Today screen mode. This keeps the multiple-drink
+    // state separate from first-drink and goal-reached presentation.
+    private var inProgreessStateSection: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            Text("You consumed \(entries.count) drinks:")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+            
+            summarySection
+            drinkBreakdownSection
+        }
+    }
+    
     // MARK: - Prototype Controls
 
     // Purpose:
@@ -311,8 +331,7 @@ struct ContentView: View {
         case .firstDrink:
             firstDrinkStateSection
         case .inProgress:
-            summarySection
-            drinkBreakdownSection
+            inProgreessStateSection
         case .goalReached:
             summarySection
             drinkBreakdownSection
