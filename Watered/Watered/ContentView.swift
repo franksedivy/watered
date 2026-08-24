@@ -232,6 +232,26 @@ struct ContentView: View {
         .padding(.top, 120)
     }
     
+    // Purpose:
+    // Displays the first-drink state after the user logs their first drink.
+    //
+    // Input:
+    // Uses summary values calculated from the single temporary drink entry.
+    //
+    // UI role:
+    // Gives the first logged drink a distinct moment without changing the underlying
+    // model or creating a real drink logging flow.
+    private var firstDrinkStateSection: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            Text("You  downed your frist drink! Nice")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+            
+            summarySection
+            drinkBreakdownSection
+        }
+    }
+    
     // MARK: - Prototype Controls
 
     // Purpose:
@@ -289,8 +309,7 @@ struct ContentView: View {
         case .empty:
             emptyStateSection
         case .firstDrink:
-            summarySection
-            drinkBreakdownSection
+            firstDrinkStateSection
         case .inProgress:
             summarySection
             drinkBreakdownSection
