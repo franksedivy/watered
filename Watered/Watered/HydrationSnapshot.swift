@@ -39,12 +39,24 @@ struct HydrationSnapshot {
         
         let totalBaseValue = VolumeCalculation.baseValue(from: totalHydrationVolume)
         let goalBaseValue = VolumeCalculation.baseValue(from: goalVolume)
-        let progress = min(totalBaseValue / goalBaseValue, 1)
         
         guard goalBaseValue > 0 else {
             return 0
         }
         
-        return min(max(progress, 0), 1)
+        return totalBaseValue / goalBaseValue
+    }
+    
+    // Purpose:
+    // Provides a progress value that is safe for SwiftUI ProgressView.
+    //
+    // Returns:
+    // Hydration progress clamped to the visual range 0...1.
+    var clampedHydrationProgress: Double? {
+        guard let hydrationProgress = hydrationProgress else {
+            return nil
+        }
+        
+        return min(max(hydrationProgress,0), 1)
     }
 }

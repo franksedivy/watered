@@ -563,6 +563,7 @@ struct WateredTests {
         )
         
         #expect(snapshot.hydrationProgress == 0.445)
+        #expect(snapshot.clampedHydrationProgress == 0.445)
     }
     
     @Test func hydrationSnapshotHydrationProgressIsUnknownWhenHydrationContributionVolumeIsUnknown() async throws {
@@ -576,9 +577,10 @@ struct WateredTests {
         )
         
         #expect(snapshot.hydrationProgress == nil)
+        #expect(snapshot.clampedHydrationProgress == nil)
     }
     
-    @Test func hydrationSnapshotCapsNegativeProgressAtZero() async throws {
+    @Test func hydrationSnapshotKeepsActualNegativeProgressButClampsVisualProgress() async throws {
         let snapshot = HydrationSnapshot(
             drinkCount: 1,
             totalVolume: Measurement(value: 25, unit: UnitVolume.milliliters),
@@ -588,7 +590,22 @@ struct WateredTests {
             drinkBreakdown: []
         )
         
-        #expect(snapshot.hydrationProgress == 0)
+        #expect(snapshot.hydrationProgress == -0.0375)
+        #expect(snapshot.clampedHydrationProgress == 0)
+    }
+    
+    @Test func hydrationSnapshotKeepsActualProgressAboveOne() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 1,
+            totalVolume: Measurement(value: 2500, unit: UnitVolume.milliliters),
+            totalHydrationVolume: Measurement(value: 2500, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingHydrationVolume: Measurement(value: 0, unit: UnitVolume.milliliters),
+            drinkBreakdown: []
+        )
+        
+        #expect(snapshot.hydrationProgress == 1.25)
+        #expect(snapshot.clampedHydrationProgress == 1)
     }
     
     // MARK: - VolumeCalculation
@@ -668,7 +685,8 @@ struct WateredTests {
         #expect(viewData.remainingText == "Remaining hydration: 1110 ml")
         #expect(viewData.drinkCountText == "Drinks logged: 1")
         #expect(viewData.progressText == "45%")
-        #expect(viewData.progressValue == 0.445)
+        #expect(viewData.actualProgressValue == 0.445)
+        #expect(viewData.visualProgressValue == 0.445)
         #expect(viewData.drinkBreakdownRows.first?.consumedText == "1000 ml of juice")
         #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: 890 ml")
     }
@@ -702,7 +720,8 @@ struct WateredTests {
         #expect(viewData.totalText == "Total liquid: 250 ml")
         #expect(viewData.remainingText == "Remaining hydration: Unknown")
         #expect(viewData.progressText == "Hydration progress unknown")
-        #expect(viewData.progressValue == 0.0)
+        #expect(viewData.actualProgressValue == nil)
+        #expect(viewData.visualProgressValue == 0.0)
         #expect(viewData.drinkBreakdownRows.first?.consumedText == "250 ml of other")
         #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: Unknown")
     }

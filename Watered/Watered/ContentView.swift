@@ -106,8 +106,10 @@ struct ContentView: View {
             return .empty
         }
         
-        if summary.progressValue >= 1 {
-            return .goalReached
+        if let actualProgressValue = summary.actualProgressValue {
+            if actualProgressValue >= 1 {
+                return .goalReached
+            }
         }
         
         if entries.count == 1 {
@@ -176,7 +178,7 @@ struct ContentView: View {
             Text(summary.progressText)
                 .font(.system(size: 48, weight: .bold))
             
-            ProgressView(value: summary.progressValue)
+            ProgressView(value: summary.visualProgressValue)
             
             Text(summary.totalText)
             Text(summary.goalText)

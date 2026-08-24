@@ -20,7 +20,8 @@ struct HydrationSummaryViewData {
     let remainingText: String
     let drinkCountText: String
     let progressText: String
-    let progressValue: Double
+    let actualProgressValue: Double?
+    let visualProgressValue: Double
     let drinkBreakdownRows: [DrinkBreakdownViewData]
     
     // MARK: - Initialisation
@@ -73,11 +74,15 @@ struct HydrationSummaryViewData {
         }
         
         if let hydrationProgress = snapshot.hydrationProgress {
-            progressText = progressFormatter.percentageString(from: hydrationProgress)
-            progressValue = hydrationProgress
+            let textProgress = max(hydrationProgress, 0)
+            
+            progressText = progressFormatter.percentageString(from: textProgress)
+            actualProgressValue = hydrationProgress
+            visualProgressValue = snapshot.clampedHydrationProgress ?? 0.0
         } else {
             progressText = "Hydration progress unknown"
-            progressValue = 0.0
+            actualProgressValue = nil
+            visualProgressValue = 0.0
         }
         
         drinkBreakdownRows = snapshot.drinkBreakdown.map { drinkBreakdown in
