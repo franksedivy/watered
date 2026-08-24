@@ -57,13 +57,19 @@ struct ContentView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            headerSection
-            summarySection
-            drinkBreakdownSection
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                headerSection
+                summarySection
+                drinkBreakdownSection
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+        }
+        .safeAreaInset(edge: .bottom) {
             prototypeControlsSection
-            
-            Spacer()
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding()
         }
     }
     
