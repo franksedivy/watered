@@ -38,6 +38,30 @@ struct ContentView: View {
         )
     }
     
+    // MARK: - Today Screen State
+    private enum TodayScreenState {
+        case empty
+        case firstDrink
+        case inProgress
+        case goalReached
+    }
+    
+    private var todayScreenState: TodayScreenState {
+        if entries.isEmpty {
+            return .empty
+        }
+        
+        if summary.progressValue >= 1 {
+            return .goalReached
+        }
+        
+        if entries.count == 1 {
+            return .firstDrink
+        }
+        
+        return .inProgress
+    }
+    
     // MARK: - Prototype Actions
     
     // Purpose:
@@ -60,8 +84,7 @@ struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 headerSection
-                summarySection
-                drinkBreakdownSection
+                todayContentSection
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
@@ -116,11 +139,43 @@ struct ContentView: View {
         }
     }
     
+    private var emptyStateSection: some View {
+        VStack(alignment: .center, spacing: 12) {
+            Text("Pretty dry so far")
+                .font(.system(size: 44, weight: .light))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+            
+            Text("No drinks logged yet today.")
+                .font(.body)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 120)
+    }
+    
     private var prototypeControlsSection: some View {
         Button(action: addDemoDrink) {
             Label("Add random drink", systemImage: "plus")
         }
         .buttonStyle(.borderedProminent)
+    }
+    
+    @ViewBuilder
+    private var todayContentSection: some View {
+        switch todayScreenState {
+        case .empty:
+            emptyStateSection
+        case .firstDrink:
+            summarySection
+            drinkBreakdownSection
+        case .inProgress:
+            summarySection
+            drinkBreakdownSection
+        case .goalReached:
+            summarySection
+            drinkBreakdownSection
+        }
     }
 }
 
