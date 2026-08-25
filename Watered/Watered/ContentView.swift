@@ -35,6 +35,15 @@ struct ContentView: View {
     private let displayUnit: LiquidUnit = .milliliters
     private let demoDrinkSource = TodayDemoDrinkSource()
     
+    // MARK: - Prototype Styling
+    
+    // Purpose:
+    // Defines key color treatment for core states of Today view
+    private let screenHorizontalPadding: CGFloat = 16
+    private let activeBackgroundColor = Color(red: 0.36, green: 0.66, blue: 0.92)
+    private let emptyBackgroundColor = Color(red: 0.86, green: 0.68, blue: 0.14)
+    private let controlBackgroundColor = Color.black.opacity(0.22)
+    
     // MARK: - Calculated Display Data
 
     // Purpose:
@@ -89,6 +98,15 @@ struct ContentView: View {
         case goalReached    // Used for when the user's hydration goal has been reached
     }
     
+    private var screenBackgroundColor: Color {
+        switch todayScreenMode {
+        case .empty:
+            return emptyBackgroundColor
+        case .firstDrink, .inProgress, .goalReached:
+            return activeBackgroundColor
+        }
+    }
+    
     // Purpose:
     // Decides which Today screen mode should be displayed.
     //
@@ -128,18 +146,26 @@ struct ContentView: View {
     // Keeps the page structure in one place: scrollable content at the top and the
     // temporary prototype control pinned to the bottom safe area.
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                headerSection
-                todayContentSection
+        ZStack {
+            screenBackgroundColor
+                .ignoresSafeArea()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    headerSection
+                    todayContentSection
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, screenHorizontalPadding)
+                .padding(.top, 16)
+                .padding(.bottom, 120)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
         }
+        .foregroundStyle(.white)
         .safeAreaInset(edge: .bottom) {
             prototypeControlsSection
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .padding()
+                .padding(.horizontal, 22)
+                .padding(.bottom, 8)
         }
     }
     
@@ -152,15 +178,23 @@ struct ContentView: View {
     // Gives the screen its current app/title context. This section is shown for all
     // Today screen modes.
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Watered")
+        HStack(alignment: .top) {
+            Text("Today")
                 .font(.largeTitle)
                 .fontWeight(.bold)
+            Spacer()
             
-            Text("Today")
+            Text("FS")
                 .font(.headline)
-                .foregroundStyle(.secondary)
-            
+                .frame(width: 44, height: 44)
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                )
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.25), lineWidth: 1)
+                )
         }
     }
     
@@ -302,10 +336,57 @@ struct ContentView: View {
     // UI role:
     // Lets the prototype create demo drinks without building the real add-drink flow.
     private var prototypeControlsSection: some View {
-        Button(action: addDemoDrink) {
-            Label("Add random drink", systemImage: "plus")
+        HStack {
+            todayTabPlaceholder
+            
+            Spacer()
+            
+            Button(action: addDemoDrink) {
+                Image(systemName: "plus")
+                    .font(.system(size: 32, weight: .regular))
+                    .foregroundStyle(.white)
+                    .frame(width: 64, height: 64)
+                    .background(
+                        Circle()
+                            .fill(controlBackgroundColor)
+                    )
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(0.25), lineWidth: 1)
+                    )
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.borderedProminent)
+    }
+    
+    // Purpose:
+    // Builds the SF Symbol name for today's calendar day.
+    //
+    // Returns:
+    // A symbol name such as "1.calendar", "24.calendar", or "31.calendar".
+    //
+    // UI role:
+    // Keeps the temporary Today tab placeholder matched to the actual day of the month.
+    private var todayCalendarSymbolName: String {
+        let dayOfMonth = Calendar.current.component(.day, from: Date())
+        return "\(dayOfMonth).calendar"
+    }
+    
+    private var todayTabPlaceholder: some View {
+        VStack(spacing: 3) {
+            ZStack {
+                Image(systemName: todayCalendarSymbolName)
+                    .font(.system(size: 32, weight: .regular))
+            }
+            Text("Today")
+                .font(.system(size: 11, weight: .bold))
+        }
+        .foregroundStyle(.white)
+        .frame(width: 120, height: 64)
+        .background(
+            Capsule()
+                .fill(controlBackgroundColor)
+        )
     }
     
     // MARK: - Prototype Actions
