@@ -56,7 +56,7 @@ struct ContentView: View {
         startPoint: .top,
         endPoint: .bottom
     )
-    private let controlGlassTint = Color.black.opacity(0.66)
+    private let controlGlassTint = Color.black.opacity(0.60)
     
     // MARK: - Calculated Display Data
 
@@ -215,16 +215,42 @@ struct ContentView: View {
     // Shows display-ready values only. This section does not calculate totals,
     // progress or remaining hydration directly.
     private var summarySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .center, spacing: 14) {
+            Text(summary.totalAmountText)
+                .font(.system(size: 96, weight: .light))
+            
+            Text("Daily goal: \(summary.goalAmountText)")
+                .font(.title3)
+            
+            progressSection
+        }
+    }
+    
+    // Purpose:
+    // Displays hydration progress using a safe visual progress value.
+    //
+    // UI role:
+    // Keeps the progress bar close to the committed design while using prepared
+    // summary values rather than calculating progress inside the view.
+    private var progressSection: some View {
+        VStack(spacing: 4) {
+            HStack(spacing: 8) {
+                Text("0%")
+                    .font(.caption)
+                    .shadow(color: .black.opacity(0.20), radius: 4, x: 1, y: 1)
+                
+                ProgressView(value: summary.visualProgressValue)
+                    .tint(.white)
+                
+                Text("100%")
+                    .font(.caption)
+                    .shadow(color: .black.opacity(0.20), radius: 4, x: 1, y: 1)
+            }
+            
             Text(summary.progressText)
-                .font(.system(size: 48, weight: .bold))
-            
-            ProgressView(value: summary.visualProgressValue)
-            
-            Text(summary.totalText)
-            Text(summary.goalText)
-            Text(summary.remainingText)
-            Text(summary.drinkCountText)
+                .font(.title2)
+                .fontWeight(.semibold)
+                .shadow(color: .black.opacity(0.20), radius: 4, x: 1, y: 1)
         }
     }
     
@@ -288,7 +314,9 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 24) {
             Text("You downed your first drink! Nice")
                 .font(.title3)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .multilineTextAlignment(.center)
             
             summarySection
             drinkBreakdownSection
@@ -308,7 +336,9 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 24) {
             Text("You consumed \(entries.count) drinks:")
                 .font(.title3)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .multilineTextAlignment(.center)
             
             summarySection
             drinkBreakdownSection
@@ -328,7 +358,9 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 24) {
             Text("You hit your goal! Fully watered.")
                 .font(.title3)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .multilineTextAlignment(.center)
             
             summarySection
             drinkBreakdownSection

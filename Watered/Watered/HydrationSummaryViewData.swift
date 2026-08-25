@@ -15,8 +15,10 @@ struct DrinkBreakdownViewData {
 
 // Display-ready values for the hydration summary screen.
 struct HydrationSummaryViewData {
-    let totalText: String
-    let goalText: String
+    let totalText: String                               // Labelled total text for simple/debug UI, such as "Total liquid: 300 ml".
+    let totalAmountText: String                         // Unlabelled total amount for prominent Today UI, such as "300 ml".
+    let goalText: String                                // Labelled goal text for simple/debug UI, such as "Hydration goal: 2700 ml".
+    let goalAmountText: String                          // Unlabelled goal amount for compact Today UI, such as "2700 ml".
     let remainingText: String
     let drinkCountText: String
     let progressText: String
@@ -60,7 +62,9 @@ struct HydrationSummaryViewData {
         )
         
         totalText = "Total liquid: \(totalLiquid)"
+        totalAmountText = totalLiquid
         goalText = "Hydration goal: \(goal)"
+        goalAmountText = goal
         drinkCountText = "Drinks logged: \(snapshot.drinkCount)"
         
         if let remainingHydrationVolume = snapshot.remainingHydrationVolume {
