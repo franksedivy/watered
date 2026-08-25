@@ -40,9 +40,23 @@ struct ContentView: View {
     // Purpose:
     // Defines key color treatment for core states of Today view
     private let screenHorizontalPadding: CGFloat = 16
-    private let activeBackgroundColor = Color(red: 0.36, green: 0.66, blue: 0.92)
-    private let emptyBackgroundColor = Color(red: 0.86, green: 0.68, blue: 0.14)
-    private let controlBackgroundColor = Color.black.opacity(0.22)
+    private let activeBackgroundGradient = LinearGradient(
+        colors: [
+            Color(red: 128.0 / 255.0, green: 195.0 / 255.0, blue: 243.0 / 255.0),   // #80C3F3
+            Color(red:  74.0 / 255.0, green: 144.0 / 255.0, blue: 226.0 / 255.0)    // #4A90E2
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+    )
+    private let emptyBackgroundGradient = LinearGradient(
+        colors: [
+            Color(red: 226.0 / 255.0, green: 196.0 / 255.0, blue: 84.0 / 255.0),    // #E2C454
+            Color(red: 211.0 / 255.0, green: 166.0 / 255.0, blue: 41.0 / 255.0)     // #D3A629
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+    )
+    private let controlGlassTint = Color.black.opacity(0.66)
     
     // MARK: - Calculated Display Data
 
@@ -98,12 +112,12 @@ struct ContentView: View {
         case goalReached    // Used for when the user's hydration goal has been reached
     }
     
-    private var screenBackgroundColor: Color {
+    private var screenBackgroundGradient: LinearGradient {
         switch todayScreenMode {
         case .empty:
-            return emptyBackgroundColor
+            return emptyBackgroundGradient
         case .firstDrink, .inProgress, .goalReached:
-            return activeBackgroundColor
+            return activeBackgroundGradient
         }
     }
     
@@ -147,7 +161,7 @@ struct ContentView: View {
     // temporary prototype control pinned to the bottom safe area.
     var body: some View {
         ZStack {
-            screenBackgroundColor
+            screenBackgroundGradient
                 .ignoresSafeArea()
             
             ScrollView {
@@ -187,14 +201,7 @@ struct ContentView: View {
             Text("FS")
                 .font(.headline)
                 .frame(width: 44, height: 44)
-                .background(
-                    Circle()
-                        .fill(Color.black.opacity(0.25))
-                )
-                .overlay(
-                    Circle()
-                        .stroke(Color.white.opacity(0.25), lineWidth: 1)
-                )
+                .glassEffect(.regular.tint(controlGlassTint), in: Circle())
         }
     }
     
@@ -279,7 +286,7 @@ struct ContentView: View {
     // model or creating a real drink logging flow.
     private var firstDrinkStateSection: some View {
         VStack(alignment: .leading, spacing: 24) {
-            Text("You  downed your first drink! Nice")
+            Text("You downed your first drink! Nice")
                 .font(.title3)
                 .foregroundStyle(.secondary)
             
@@ -345,15 +352,8 @@ struct ContentView: View {
                 Image(systemName: "plus")
                     .font(.system(size: 32, weight: .regular))
                     .foregroundStyle(.white)
-                    .frame(width: 64, height: 64)
-                    .background(
-                        Circle()
-                            .fill(controlBackgroundColor)
-                    )
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(0.25), lineWidth: 1)
-                    )
+                    .frame(width: 62, height: 62)
+                    .glassEffect(.regular.tint(controlGlassTint).interactive(), in: Circle())
             }
             .buttonStyle(.plain)
         }
@@ -379,14 +379,11 @@ struct ContentView: View {
                     .font(.system(size: 32, weight: .regular))
             }
             Text("Today")
-                .font(.system(size: 11, weight: .bold))
+                .font(.system(size: 12, weight: .bold))
         }
         .foregroundStyle(.white)
-        .frame(width: 120, height: 64)
-        .background(
-            Capsule()
-                .fill(controlBackgroundColor)
-        )
+        .frame(width: 120, height: 62)
+        .glassEffect(.regular.tint(controlGlassTint), in: Capsule())
     }
     
     // MARK: - Prototype Actions
