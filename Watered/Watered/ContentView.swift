@@ -385,9 +385,11 @@ struct ContentView: View {
                     .font(.system(size: 32, weight: .regular))
                     .foregroundStyle(.white)
                     .frame(width: 62, height: 62)
+                    .contentShape(Circle())
                     .glassEffect(.regular.tint(controlGlassTint).interactive(), in: Circle())
             }
             .buttonStyle(.plain)
+            .contentShape(Circle())
         }
     }
     
@@ -434,10 +436,13 @@ struct ContentView: View {
     // This is prototype-only behaviour. It is not persistence and not the final
     // drink logging flow.
     private func addDemoDrink() {
+        wateredLog("Add demo drink button tapped")
+        
         guard let entry = demoDrinkSource.randomEntry() else {
             return
         }
         
+        wateredLog("Adding demo drink: \(entry.type)")
         entries.append(entry)
     }
     
