@@ -159,7 +159,7 @@ struct TodayView: View {
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    headerSection
+                    TodayHeaderView(glassTint: controlGlassTint)
                     todayContentSection
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -181,26 +181,6 @@ struct TodayView: View {
     }
     
     // MARK: - View Sections
-    
-    // Purpose:
-    // Displays the fixed Today screen header.
-    //
-    // UI role:
-    // Gives the screen its current app/title context. This section is shown for all
-    // Today screen modes.
-    private var headerSection: some View {
-        HStack(alignment: .top) {
-            Text("Today")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            Spacer()
-            
-            Text("FS")
-                .font(.headline)
-                .frame(width: 44, height: 44)
-                .glassEffect(.regular.tint(controlGlassTint), in: Circle())
-        }
-    }
     
     // Purpose:
     // Displays the current hydration summary.
