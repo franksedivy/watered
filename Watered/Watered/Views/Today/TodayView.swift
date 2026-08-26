@@ -369,7 +369,11 @@ struct TodayView: View {
     // Lets the prototype create demo drinks without building the real add-drink flow.
     private var prototypeControlsSection: some View {
         HStack {
-            todayTabPlaceholder
+            WateredTabBarItem(
+                systemImageName: todayCalendarSymbolName,
+                title: "Today",
+                glassTint: controlGlassTint
+            )
             
             Spacer()
             
@@ -391,20 +395,6 @@ struct TodayView: View {
     private var todayCalendarSymbolName: String {
         let dayOfMonth = Calendar.current.component(.day, from: Date())
         return "\(dayOfMonth).calendar"
-    }
-    
-    private var todayTabPlaceholder: some View {
-        VStack(spacing: 3) {
-            ZStack {
-                Image(systemName: todayCalendarSymbolName)
-                    .font(.system(size: 32, weight: .regular))
-            }
-            Text("Today")
-                .font(.system(size: 12, weight: .bold))
-        }
-        .foregroundStyle(.white)
-        .frame(width: 120, height: 62)
-        .glassEffect(.regular.tint(controlGlassTint), in: Capsule())
     }
     
     // MARK: - Prototype Actions
