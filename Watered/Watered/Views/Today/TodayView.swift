@@ -170,9 +170,13 @@ struct TodayView: View {
         }
         .foregroundStyle(.white)
         .safeAreaInset(edge: .bottom) {
-            prototypeControlsSection
-                .padding(.horizontal, 22)
-                .padding(.bottom, 8)
+            WateredTabBar(
+                todaySymbolName: todayCalendarSymbolName,
+                glassTint: controlGlassTint,
+                onAddDrink: addDemoDrink
+            )
+            .padding(.horizontal, 22)
+            .padding(.bottom, 8)
         }
     }
     
@@ -361,28 +365,6 @@ struct TodayView: View {
     }
     
     // MARK: - Prototype Controls
-
-    // Purpose:
-    // Displays temporary controls used while building the 0.2 prototype.
-    //
-    // UI role:
-    // Lets the prototype create demo drinks without building the real add-drink flow.
-    private var prototypeControlsSection: some View {
-        HStack {
-            WateredTabBarItem(
-                systemImageName: todayCalendarSymbolName,
-                title: "Today",
-                glassTint: controlGlassTint
-            )
-            
-            Spacer()
-            
-            AddDrinkButton(
-                glassTint: controlGlassTint,
-                onAddDrink: addDemoDrink
-            )
-        }
-    }
     
     // Purpose:
     // Builds the SF Symbol name for today's calendar day.
