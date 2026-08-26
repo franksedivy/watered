@@ -105,14 +105,6 @@ struct TodayView: View {
     
     // MARK: - Today Screen State
     
-    // The main display modes the Today screen currently knows how to show.
-    private enum TodayScreenMode {
-        case empty          // Empty screen when no drinks have been logged
-        case firstDrink     // First drink has been logged, mostly used to celebrate engagement
-        case inProgress     // Most common use when drinks are logged during the day
-        case goalReached    // Used for when the user's hydration goal has been reached
-    }
-    
     private var screenBackgroundGradient: LinearGradient {
         switch todayScreenMode {
         case .empty:
