@@ -373,16 +373,10 @@ struct TodayView: View {
             
             Spacer()
             
-            Button(action: addDemoDrink) {
-                Image(systemName: "plus")
-                    .font(.system(size: 32, weight: .regular))
-                    .foregroundStyle(.white)
-                    .frame(width: 62, height: 62)
-                    .contentShape(Circle())
-                    .glassEffect(.regular.tint(controlGlassTint).interactive(), in: Circle())
-            }
-            .buttonStyle(.plain)
-            .contentShape(Circle())
+            AddDrinkButton(
+                glassTint: controlGlassTint,
+                onAddDrink: addDemoDrink
+            )
         }
     }
     
