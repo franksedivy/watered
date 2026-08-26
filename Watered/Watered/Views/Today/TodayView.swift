@@ -153,30 +153,38 @@ struct TodayView: View {
     // Keeps the page structure in one place: scrollable content at the top and the
     // temporary prototype control pinned to the bottom safe area.
     var body: some View {
-        ZStack {
-            screenBackgroundGradient
-                .ignoresSafeArea()
-            
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    TodayHeaderView(glassTint: controlGlassTint)
-                    todayContentSection
+        NavigationStack {
+            ZStack {
+                screenBackgroundGradient
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        todayContentSection
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, screenHorizontalPadding)
+                    .padding(.top, 16)
+                    .padding(.bottom, 120)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, screenHorizontalPadding)
-                .padding(.top, 16)
-                .padding(.bottom, 120)
             }
-        }
-        .foregroundStyle(.white)
-        .safeAreaInset(edge: .bottom) {
-            WateredTabBar(
-                todaySymbolName: todayCalendarSymbolName,
-                glassTint: controlGlassTint,
-                onAddDrink: addDemoDrink
-            )
-            .padding(.horizontal, 22)
-            .padding(.bottom, 8)
+            .foregroundStyle(.white)
+            .navigationTitle("Today")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                TodayToolbar(glassTint: controlGlassTint)
+            }
+            .toolbarBackground(Color.clear, for: .navigationBar)
+            
+            .safeAreaInset(edge: .bottom) {
+                WateredTabBar(
+                    todaySymbolName: todayCalendarSymbolName,
+                    glassTint: controlGlassTint,
+                    onAddDrink: addDemoDrink
+                )
+                .padding(.horizontal, 22)
+                .padding(.bottom, 8)
+            }
         }
     }
     
