@@ -288,14 +288,14 @@ struct ContentView: View {
     // Replaces zero-value debug-style summary data with intentional empty-state copy.
     private var emptyStateSection: some View {
         VStack(alignment: .center, spacing: 12) {
-            Text("Pretty dry so far")
-                .font(.system(size: 44, weight: .light))
+            Text(".. has been pretty dry so far")
+                .font(.system(size: 44, weight: .light).leading(.tight))
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
             
             Text("No drinks logged yet today.")
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 120)
