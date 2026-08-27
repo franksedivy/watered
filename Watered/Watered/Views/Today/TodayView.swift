@@ -191,79 +191,6 @@ struct TodayView: View {
     // MARK: - View Sections
     
     // Purpose:
-    // Displays the current hydration summary.
-    //
-    // Input:
-    // Uses HydrationSummaryViewData built from the current entries.
-    //
-    // UI role:
-    // Shows display-ready values only. This section does not calculate totals,
-    // progress or remaining hydration directly.
-    private var summarySection: some View {
-        VStack(alignment: .center, spacing: 14) {
-            Text(summary.totalAmountText)
-                .font(.system(size: 96, weight: .light))
-            
-            Text("Daily goal: \(summary.goalAmountText)")
-                .font(.title3)
-            
-            progressSection
-        }
-    }
-    
-    // Purpose:
-    // Displays hydration progress using a safe visual progress value.
-    //
-    // UI role:
-    // Keeps the progress bar close to the committed design while using prepared
-    // summary values rather than calculating progress inside the view.
-    private var progressSection: some View {
-        VStack(spacing: 4) {
-            HStack(spacing: 8) {
-                Text("0%")
-                    .font(.caption)
-                    .shadow(color: .black.opacity(0.20), radius: 4, x: 1, y: 1)
-                
-                ProgressView(value: summary.visualProgressValue)
-                    .tint(.white)
-                
-                Text("100%")
-                    .font(.caption)
-                    .shadow(color: .black.opacity(0.20), radius: 4, x: 1, y: 1)
-            }
-            
-            Text(summary.progressText)
-                .font(.title2)
-                .fontWeight(.semibold)
-                .shadow(color: .black.opacity(0.20), radius: 4, x: 1, y: 1)
-        }
-    }
-    
-    // Purpose:
-    // Displays grouped drink breakdown rows.
-    //
-    // Input:
-    // Uses summary.drinkBreakdownRows.
-    //
-    // UI role:
-    // Shows the model-backed drink breakdown once drinks exist. This section is
-    // hidden while the screen is in the empty mode.
-    private var drinkBreakdownSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Drink breakdown")
-                .font(.headline)
-            ForEach(summary.drinkBreakdownRows, id: \.consumedText) { drinkBreakdownRow in
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(drinkBreakdownRow.consumedText)
-                    Text(drinkBreakdownRow.hydrationImpactText)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-    }
-    
-    // Purpose:
     // Displays the dedicated empty state when no drinks have been logged.
     //
     // Input:
@@ -303,8 +230,8 @@ struct TodayView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .multilineTextAlignment(.center)
             
-            summarySection
-            drinkBreakdownSection
+            TodaySummaryView(summary: summary)
+            TodayDrinkBreakdownView(rows: summary.drinkBreakdownRows)
         }
     }
     
@@ -325,8 +252,8 @@ struct TodayView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .multilineTextAlignment(.center)
             
-            summarySection
-            drinkBreakdownSection
+            TodaySummaryView(summary: summary)
+            TodayDrinkBreakdownView(rows: summary.drinkBreakdownRows)
         }
     }
     
@@ -347,8 +274,8 @@ struct TodayView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .multilineTextAlignment(.center)
             
-            summarySection
-            drinkBreakdownSection
+            TodaySummaryView(summary: summary)
+            TodayDrinkBreakdownView(rows: summary.drinkBreakdownRows)
         }
     }
     
