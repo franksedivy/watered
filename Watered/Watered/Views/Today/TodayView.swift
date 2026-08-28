@@ -189,95 +189,7 @@ struct TodayView: View {
     }
     
     // MARK: - View Sections
-    
-    // Purpose:
-    // Displays the dedicated empty state when no drinks have been logged.
-    //
-    // Input:
-    // Shown when todayScreenMode is .empty.
-    //
-    // UI role:
-    // Replaces zero-value debug-style summary data with intentional empty-state copy.
-    private var emptyStateSection: some View {
-        VStack(alignment: .center, spacing: 12) {
-            Text(".. has been pretty dry so far")
-                .font(.system(size: 44, weight: .light).leading(.tight))
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-            
-            Text("No drinks logged yet today.")
-                .font(.body)
-                .foregroundStyle(.primary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 120)
-    }
-    
-    // Purpose:
-    // Displays the first-drink state after the user logs their first drink.
-    //
-    // Input:
-    // Uses summary values calculated from the single temporary drink entry.
-    //
-    // UI role:
-    // Gives the first logged drink a distinct moment without changing the underlying
-    // model or creating a real drink logging flow.
-    private var firstDrinkStateSection: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text("You downed your first drink! Nice")
-                .font(.title3)
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.center)
-            
-            TodaySummaryView(summary: summary)
-            TodayDrinkBreakdownView(rows: summary.drinkBreakdownRows)
-        }
-    }
-    
-    // Purpose:
-    // Displays the normal Today state once multiple dirnks have been logged.
-    //
-    // Input:
-    // Uses summary value calculated form the current temporary drink entries.
-    //
-    // UI role:
-    // Represents the main ongoing Today screen mode. This keeps the multiple-drink
-    // state separate from first-drink and goal-reached presentation.
-    private var inProgressStateSection: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text("You consumed \(entries.count) drinks:")
-                .font(.title3)
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.center)
-            
-            TodaySummaryView(summary: summary)
-            TodayDrinkBreakdownView(rows: summary.drinkBreakdownRows)
-        }
-    }
-    
-    // Purpose:
-    // Displays the goal-reached state once the user reaches 100% of their hydration target.
-    //
-    // Input:
-    // Uses summary values calculated from the current temporary drink entries.
-    //
-    // UI role:
-    // Gives reaching 100% of the daily goal a distinct moment without changing the
-    // underlying model or creating a real drink logging flow.
-    private var goalReachedStateSection: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text("You hit your goal! Fully watered.")
-                .font(.title3)
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.center)
-            
-            TodaySummaryView(summary: summary)
-            TodayDrinkBreakdownView(rows: summary.drinkBreakdownRows)
-        }
-    }
+
     
     // MARK: - Prototype Controls
     
@@ -338,13 +250,13 @@ struct TodayView: View {
     private var todayContentSection: some View {
         switch todayScreenMode {
         case .empty:
-            emptyStateSection
+            EmptyTodayView()
         case .firstDrink:
-            firstDrinkStateSection
+            FirstDrinkTodayView(summary: summary)
         case .inProgress:
-            inProgressStateSection
+            InProgressTodayView(drinkCount: entries.count, summary: summary)
         case .goalReached:
-            goalReachedStateSection
+            GoalReachedTodayView(summary: summary)
         }
     }
 }
