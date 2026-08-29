@@ -9,7 +9,7 @@
 // Purpose: Describes the main presentation states the Today screen can show
 //
 // Input:
-// This type doe snot accept input directly. TodayView decides which case to use
+// This type does not accept input directly. TodayView decides which case to use
 // by looking at the current drink entries and hydration progress.
 //
 // Returns:

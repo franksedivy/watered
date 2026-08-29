@@ -12,7 +12,7 @@ struct TodayView: View {
     // MARK: - Temporary State
     
     // Purpose:
-    // Stores the temporary drink entries shown by the 0.2 Today screen prototype.
+    // Stores the temporary drink entries shown by the 0.2 Today screen.
     //
     // UI role:
     // This is the only mutable source of truth in this view. When entries changes,
@@ -21,11 +21,11 @@ struct TodayView: View {
     
     // MARK: - Temporary Configuration
     
-    // Purpose: Stores fixed values used by the temporary 0.2 prototype.
+    // Purpose: Stores fixed values used by the temporary 0.2 release.
     //
     // Notes:
     // These values are not user settings yet. The daily goal, display unit and demo
-    // drink source are hardcoded while the Today screen prototype is being built.
+    // drink source are hardcoded while the Today screen is being built.
     private let dailyGoal = HydrationGoal(
         amount: DrinkAmount(value: 2700, unit: .milliliters)
     )
@@ -51,7 +51,7 @@ struct TodayView: View {
     // Builds the hydration tracker for the current temporary Today entries.
     //
     // Input:
-    // Uses entries from the view's temporary screen state and the prototype daily goal.
+    // Uses entries from the view's temporary screen state and daily goal.
     //
     // Returns:
     // A HydrationTracker containing the current entries and goal.
@@ -66,8 +66,7 @@ struct TodayView: View {
         )
     }
     
-    // Purpose:
-    // Converts the current tracker snapshot into display-ready values.
+    // Purpose: Converts the current tracker snapshot into display-ready values.
     //
     // Input:
     // Uses the tracker snapshot, volume formatter, progress formatter and selected
@@ -126,7 +125,7 @@ struct TodayView: View {
     //
     // UI role:
     // Keeps the page structure in one place: scrollable content at the top and the
-    // temporary prototype control pinned to the bottom safe area.
+    // temporary control pinned to the bottom safe area.
     var body: some View {
         NavigationStack {
             ZStack {
@@ -147,7 +146,7 @@ struct TodayView: View {
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                TodayToolbar(glassTint: appearance.controlGlassTint)
+                TodayToolbar()
             }
             .toolbarBackground(Color.clear, for: .navigationBar)
             
@@ -162,10 +161,10 @@ struct TodayView: View {
         }
     }
 
-    // MARK: - Prototype Actions
+    // MARK: - Actions
     
     // Purpose:
-    // Adds one temporary random demo drink to the Today screen prototype.
+    // Adds one temporary random demo drink.
     //
     // Input:
     // Uses TodayDemoDrinkSource to create a random demo entry.
@@ -175,7 +174,7 @@ struct TodayView: View {
     // state. SwiftUI then recalculates the tracker, snapshot and summary.
     //
     // Notes:
-    // This is prototype-only behaviour. It is not persistence and not the final
+    // This is temporary behaviour. It is not persistence and not the final
     // drink logging flow.
     private func addDemoDrink() {
         wateredLog("Add demo drink button tapped")
@@ -184,7 +183,7 @@ struct TodayView: View {
             return
         }
         
-        wateredLog("Adding demo drink: \(entry.type)")
+        wateredLog("Adding demo drink: \(entry.amount) of \(entry.type)")
         entries.append(entry)
     }
     

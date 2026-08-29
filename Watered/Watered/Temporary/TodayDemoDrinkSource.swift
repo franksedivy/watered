@@ -49,7 +49,7 @@ struct TodayDemoDrinkSource {
     //
     // Returns:
     // A fixed list of demo drinks covering full, reduced and negative hydration
-    // contribution behavioiur
+    // contribution behaviour
     static let defaultDrinks: [TodayDemoDrink] = [
         TodayDemoDrink(type: .water, amount: DrinkAmount(value: 250, unit: .milliliters)),
         TodayDemoDrink(type: .water, amount: DrinkAmount(value: 300, unit: .milliliters)),

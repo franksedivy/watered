@@ -13,7 +13,7 @@ import SwiftUI
 // Stores parent-level visual values used by the Today screen.
 //
 // Input:
-// This type doe snot accept model data. Some values are fixed screen constants,
+// This type does not accept model data. Some values are fixed screen constants,
 // while backgroundGradient(for:) accepts a TodayScreenMode.
 //
 // Returns:
@@ -29,7 +29,7 @@ struct TodayAppearance {
     let bottomBarBottomPadding: CGFloat = 8
     let controlGlassTint = Color.black.opacity(0.6)
     
-    // Purpose: Chooses the background gradeint for a Today mode.
+    // Purpose: Chooses the background gradient for a Today mode.
     //
     // Input: Accepts the current TodayScreenMode.
     //

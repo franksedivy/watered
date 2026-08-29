@@ -65,23 +65,28 @@ struct HydrationTracker {
     }
     
     // MARK: - Drink Breakdown
-    // Purpose: Creates grouped raw liquid totals by drink type.
+    // Purpose:
+    // Creates grouped drink totals by drink type.
     //
-    // Input: Uses the tracker's entries array and DrinkType.allCases.
+    // Input:
+    // Uses the tracker's entries array and DrinkType.allCases.
     //
     // Returns:
     // An array of DrinkBreakdown values.
     // Each DrinkBreakdown represents one drink type that has at least one entry.
+    // Each breakdown includes the raw liquid total and, when known, the estimated
+    // hydration contribution total for that drink type.
     //
     // Behavior:
-    // Loops through every known DrinkType, filters the entries down to the
-    // current type, skips the type when there are no matching entries, adds the
-    // matching entry volumes together in the base calculation unit, and returns one
-    // grouped result for each drink type found.
+    // Loops through every known DrinkType, filters the entries down to the current
+    // type, skips the type when there are no matching entries, adds the matching
+    // raw entry volumes together, then separately adds the matching hydration
+    // contribution volumes together.
     //
     // Notes:
-    // This intentionally returns raw liquid volume only. Hydration contribution
-    // by drink type will be handled separately when the model needs it.
+    // If any entry for a drink type has unknown hydration contribution, that
+    // drink type still returns a raw liquid total, but its hydration contribution
+    // total is nil.
     var drinkBreakdown: [DrinkBreakdown] {
         var breakdowns: [DrinkBreakdown] = []
         
