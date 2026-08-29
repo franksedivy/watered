@@ -21,8 +21,7 @@ struct TodayView: View {
     
     // MARK: - Temporary Configuration
     
-    // Purpose:
-    // Stores fixed values used by the temporary 0.2 prototype.
+    // Purpose: Stores fixed values used by the temporary 0.2 prototype.
     //
     // Notes:
     // These values are not user settings yet. The daily goal, display unit and demo
@@ -36,28 +35,15 @@ struct TodayView: View {
     private let displayUnit: LiquidUnit = .milliliters
     private let demoDrinkSource = TodayDemoDrinkSource()
     
-    // MARK: - Prototype Styling
-    
+    // MARK: - Appearance
+    //
     // Purpose:
-    // Defines key color treatment for core states of Today view
-    private let screenHorizontalPadding: CGFloat = 16
-    private let activeBackgroundGradient = LinearGradient(
-        colors: [
-            Color(red: 128.0 / 255.0, green: 195.0 / 255.0, blue: 243.0 / 255.0),   // #80C3F3
-            Color(red:  74.0 / 255.0, green: 144.0 / 255.0, blue: 226.0 / 255.0)    // #4A90E2
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-    )
-    private let emptyBackgroundGradient = LinearGradient(
-        colors: [
-            Color(red: 226.0 / 255.0, green: 196.0 / 255.0, blue: 84.0 / 255.0),    // #E2C454
-            Color(red: 211.0 / 255.0, green: 166.0 / 255.0, blue: 41.0 / 255.0)     // #D3A629
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-    )
-    private let controlGlassTint = Color.black.opacity(0.60)
+    // Stores parent-level styling values for the Today screen
+    //
+    // UI role/:
+    // TodayView applies these values, but TodayAppearance owns the actual visual
+    // constants such as background gradients, screen padding and shared control tint.
+    private let appearance = TodayAppearance()
     
     // MARK: - Calculated Display Data
 
@@ -106,22 +92,12 @@ struct TodayView: View {
     // MARK: - Today Screen State
     
     private var screenBackgroundGradient: LinearGradient {
-        switch todayScreenMode {
-        case .empty:
-            return emptyBackgroundGradient
-        case .firstDrink, .inProgress, .goalReached:
-            return activeBackgroundGradient
-        }
+        appearance.backgroundGradient(for: todayScreenMode)
     }
     
-    // Purpose:
-    // Decides which Today screen mode should be displayed.
-    //
-    // Input:
-    // Uses the temporary entries count and the calculated hydration progress.
-    //
-    // Returns:
-    // A TodayScreenMode value.
+    // Purpose: Decides which Today screen mode should be displayed.
+    // Input: Uses the temporary entries count and the calculated hydration progress.
+    // Returns: A TodayScreenMode value.
     //
     // UI role:
     // Keeps state selection in one place so the body can render from a clear mode
@@ -146,8 +122,7 @@ struct TodayView: View {
     
     // MARK: - Body
     
-    // Purpose:
-    // Defines the high-level shell for the Today screen.
+    // Purpose: Defines the high-level shell for the Today screen.
     //
     // UI role:
     // Keeps the page structure in one place: scrollable content at the top and the
@@ -163,7 +138,7 @@ struct TodayView: View {
                         todayContentSection
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, screenHorizontalPadding)
+                    .padding(.horizontal, appearance.screenHorizontalPadding)
                     .padding(.top, 16)
                     .padding(.bottom, 120)
                 }
@@ -172,40 +147,21 @@ struct TodayView: View {
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                TodayToolbar(glassTint: controlGlassTint)
+                TodayToolbar(glassTint: appearance.controlGlassTint)
             }
             .toolbarBackground(Color.clear, for: .navigationBar)
             
             .safeAreaInset(edge: .bottom) {
                 WateredTabBar(
-                    todaySymbolName: todayCalendarSymbolName,
-                    glassTint: controlGlassTint,
+                    glassTint: appearance.controlGlassTint,
                     onAddDrink: addDemoDrink
                 )
-                .padding(.horizontal, 22)
-                .padding(.bottom, 8)
+                .padding(.horizontal, appearance.bottomBarHorizontalPadding)
+                .padding(.bottom, appearance.bottomBarBottomPadding)
             }
         }
     }
-    
-    // MARK: - View Sections
 
-    
-    // MARK: - Prototype Controls
-    
-    // Purpose:
-    // Builds the SF Symbol name for today's calendar day.
-    //
-    // Returns:
-    // A symbol name such as "1.calendar", "24.calendar", or "31.calendar".
-    //
-    // UI role:
-    // Keeps the temporary Today tab placeholder matched to the actual day of the month.
-    private var todayCalendarSymbolName: String {
-        let dayOfMonth = Calendar.current.component(.day, from: Date())
-        return "\(dayOfMonth).calendar"
-    }
-    
     // MARK: - Prototype Actions
     
     // Purpose:
@@ -234,14 +190,9 @@ struct TodayView: View {
     
     // MARK: - Screen Content
 
-    // Purpose:
-    // Selects the main content section for the current Today screen mode.
-    //
-    // Input:
-    // Uses todayScreenMode.
-    //
-    // Returns:
-    // The SwiftUI content for the selected mode.
+    // Purpose: Selects the main content section for the current Today screen mode.
+    // Input: Uses todayScreenMode.
+    // Returns: The SwiftUI content for the selected mode.
     //
     // UI role:
     // Keeps conditional screen routing out of body. Each mode can gradually get its
