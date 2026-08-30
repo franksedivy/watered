@@ -22,12 +22,15 @@ Model-first, small commits, tests, clean separation of concerns.
 Link to Wiki:
 - [Architecture Overview](https://github.com/franksedivy/watered/wiki/Architecture-Overview)
 - [Decision Log](https://github.com/franksedivy/watered/wiki/Decision-Log)
+- [Drink Types & Contributions](https://github.com/franksedivy/watered/wiki/Drink-Types-And-Contributions)
 - [Hydration Model](https://github.com/franksedivy/watered/wiki/Hydration-Model)
 - [Research Notes](https://github.com/franksedivy/watered/wiki/Research-Notes)
 - [Testing Approach](https://github.com/franksedivy/watered/wiki/Testing-Approach)
+
 You can also read about the overall progress in my [Design Engineer's diary](https://github.com/franksedivy/watered/wiki/Design-Engineer's-Diary).
 
 ## Current Milestones & Releases
-- `0.1` [Core Model](https://github.com/franksedivy/watered/releases/tag/0.1_Core-model)
-- `0.2` Basic Today UI
+- `0.1` [Core-model](https://github.com/franksedivy/watered/milestone/1), [Release notes](https://github.com/franksedivy/watered/releases/tag/0.1_Core-model)
+- `0.2` [Basic Today UI](https://github.com/franksedivy/watered/milestone/2)
 - `0.3` Add Drink Flow
+- `0.4` Persistence
