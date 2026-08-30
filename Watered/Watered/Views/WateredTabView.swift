@@ -23,6 +23,24 @@ import SwiftUI
 // Add Drink will be presented as a sheet from the tab bar area.
 struct WateredTabView: View {
     
+    // MARK: - Tabs
+    //
+    // Purpose: Defines the top-level app tabs that Watered currently supports.
+    //
+    // UI role:
+    // Gives the TabView a typed selection value so app-level overlays, such as the
+    // empty-state add-drink prompt, can react to the currently selected tab.
+    private enum WateredTab {
+        case today
+        case learn
+    }
+    
+    // Purpose: Stores the currently selected top-level app tab.
+    //
+    // UI role: Lets WateredTabView show app-level UI only when it belongs to the
+    // active tab.
+    @State private var selectedTab: WateredTab = .today
+    
     // MARK: - Temporary State
     //
     // Purpose: Stores temporary drink entries while the 0.2 UI is being built.
@@ -65,29 +83,52 @@ struct WateredTabView: View {
         return "\(dayOfMonth).calendar"
     }
     
+    // MARK: - Empty Today Prompt
+    //
+    // Purpose: Decide whether the first-drink prompt should be visible
+    // Returns: true when the user is on Today and has not logged any drinks
+    //
+    // UI role:
+    // Keeps the prompt attached to the app-level add-drink action without showing
+    // it over unrelated tabs such as Learn.
+    private var shouldShowFirstDrinkPrompt: Bool {
+        let isTodaySelected = selectedTab == .today
+        let hasNoDrinks = entries.isEmpty
+        
+        return isTodaySelected && hasNoDrinks
+    }
+    
     // MARK: - Body
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            TabView {
+            TabView(selection: $selectedTab) {
                 
                 TodayView(entries: entries, onOpenProfile: openProfile)
                     .tabItem {
                         Label("Today", systemImage: todayCalendarSymbolName)
                     }
+                    .tag(WateredTab.today)
                 
                 LearnView(onOpenProfile: openProfile)
                     .tabItem {
                         Label("Learn", systemImage: "lightbulb")
                     }
+                    .tag(WateredTab.learn)
             }
             
             AddDrinkActionButton {
                 isShowingAddDrinkSheet = true
             }
             .padding(.trailing, 24)
-            .padding(.bottom, -13
-            )
+            .padding(.bottom, -13)
+            
+            if shouldShowFirstDrinkPrompt {
+                FirstDrinkPrompt()
+                    .allowsHitTesting(false)
+                    .padding(.trailing, 88)
+                    .padding(.bottom, 64)
+            }
         }
         .sheet(isPresented: $isShowingAddDrinkSheet) {
             AddDrinkView(onAddDrink: addDemoDrink)
