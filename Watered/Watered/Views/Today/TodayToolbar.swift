@@ -27,12 +27,12 @@ import SwiftUI
 // values should be added as explicit inputs.
 struct TodayToolbar: ToolbarContent {
     
+    
+    
     var body: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Text("FS")
                 .font(.headline)
-                .foregroundStyle(.white)
-                .frame(width: 44, height: 44)
         }
     }
 }

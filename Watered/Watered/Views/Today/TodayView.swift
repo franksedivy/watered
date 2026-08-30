@@ -12,12 +12,15 @@ struct TodayView: View {
     // MARK: - Temporary State
     
     // Purpose:
-    // Stores the temporary drink entries shown by the 0.2 Today screen.
+    // Stores the drink entries that Today should display.
+    //
+    // Input:
+    // Supplied by WateredTabView, which currently owns the temporary 0.2 demo state.
     //
     // UI role:
-    // This is the only mutable source of truth in this view. When entries changes,
-    // SwiftUI recalculates the tracker, summary and visible screen content.
-    @State private var entries: [DrinkEntry] = []
+    // Makes TodayView a read-only summary screen. It displays the current entries,
+    // but it no longer owns or changes them.
+    let entries: [DrinkEntry]
     
     // MARK: - Temporary Configuration
     
@@ -33,7 +36,6 @@ struct TodayView: View {
     private let volumeFormatter = VolumeFormatter()
     private let progressFormatter = ProgressFormatter()
     private let displayUnit: LiquidUnit = .milliliters
-    private let demoDrinkSource = TodayDemoDrinkSource()
     
     // MARK: - Appearance
     //
@@ -149,42 +151,7 @@ struct TodayView: View {
                 TodayToolbar()
             }
             .toolbarBackground(Color.clear, for: .navigationBar)
-            
-            .safeAreaInset(edge: .bottom) {
-                WateredTabBar(
-                    glassTint: appearance.controlGlassTint,
-                    onAddDrink: addDemoDrink
-                )
-                .padding(.horizontal, appearance.bottomBarHorizontalPadding)
-                .padding(.bottom, appearance.bottomBarBottomPadding)
-            }
         }
-    }
-
-    // MARK: - Actions
-    
-    // Purpose:
-    // Adds one temporary random demo drink.
-    //
-    // Input:
-    // Uses TodayDemoDrinkSource to create a random demo entry.
-    //
-    // Behavior:
-    // If the source returns an entry, the entry is appended to the temporary entries
-    // state. SwiftUI then recalculates the tracker, snapshot and summary.
-    //
-    // Notes:
-    // This is temporary behaviour. It is not persistence and not the final
-    // drink logging flow.
-    private func addDemoDrink() {
-        wateredLog("Add demo drink button tapped")
-        
-        guard let entry = demoDrinkSource.randomEntry() else {
-            return
-        }
-        
-        wateredLog("Adding demo drink: \(entry.amount) of \(entry.type)")
-        entries.append(entry)
     }
     
     // MARK: - Screen Content
@@ -212,5 +179,5 @@ struct TodayView: View {
 }
 
 #Preview {
-    TodayView()
+    TodayView(entries: [])
 }

@@ -18,12 +18,12 @@ import SwiftUI
 // screen or navigation structure the app should show.
 //
 // Notes:
-// TodayView is the only active screen for now. When watered grows real tabs,
-// onboarding, settings, or authentication, this is the place where that top-level
-// app structure should begin.
+// WateredTabView currently owns the top-level app structure. Today is the main
+// read-only summary screen, while Add Drink is a temporary placeholder the
+// future 0.3 drink loggin flow.
 struct WateredRootView: View {
     var body: some View {
-        TodayView()
+        WateredTabView()
     }
 }
 
