@@ -688,7 +688,7 @@ struct WateredTests {
         #expect(viewData.actualProgressValue == 0.445)
         #expect(viewData.visualProgressValue == 0.445)
         #expect(viewData.drinkBreakdownRows.first?.consumedText == "1000 ml of juice")
-        #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: 890 ml")
+        #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: 89%")
     }
     
     // Given a snapshot with unknown estimated water contribution, when view data is
@@ -756,7 +756,36 @@ struct WateredTests {
         #expect(viewData.goalText == "Hydration goal: 68 US fl oz")
         #expect(viewData.remainingText == "Remaining hydration: 34 US fl oz")
         #expect(viewData.drinkBreakdownRows.first?.consumedText == "34 US fl oz of water")
-        #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: 34 US fl oz")
+        #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: 100%")
+    }
+    
+    // Given a drink breakdown with negative hydration contribution, when view data is
+    // created, then hydration impact is shown as a negative percentage.
+    @MainActor
+    @Test func hydrationSummaryViewDataFormatsNegativeHydrationImpactPercentage() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 1,
+            totalVolume: Measurement(value: 50, unit: UnitVolume.milliliters),
+            totalHydrationVolume: Measurement(value: -150, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingHydrationVolume: Measurement(value: 2150, unit: UnitVolume.milliliters),
+            drinkBreakdown: [
+                DrinkBreakdown(
+                    type: .spirits,
+                    totalVolume: Measurement(value: 50, unit: UnitVolume.milliliters),
+                    totalHydrationVolume: Measurement(value: -150, unit: UnitVolume.milliliters)
+                )
+            ]
+        )
+        
+        let viewData = HydrationSummaryViewData(
+            snapshot: snapshot,
+            volumeFormatter: VolumeFormatter(),
+            progressFormatter: ProgressFormatter()
+        )
+        
+        #expect(viewData.drinkBreakdownRows.first?.consumedText == "50 ml of spirits")
+        #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: -300%")
     }
     
     // MARK: - TodayDemoDrinkSource

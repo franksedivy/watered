@@ -15,10 +15,10 @@ struct DrinkBreakdownViewData {
 
 // Display-ready values for the hydration summary screen.
 struct HydrationSummaryViewData {
-    let totalText: String                               // Labelled total text for simple/debug UI, such as "Total liquid: 300 ml".
-    let totalAmountText: String                         // Unlabelled total amount for prominent Today UI, such as "300 ml".
-    let goalText: String                                // Labelled goal text for simple/debug UI, such as "Hydration goal: 2700 ml".
-    let goalAmountText: String                          // Unlabelled goal amount for compact Today UI, such as "2700 ml".
+    let totalText: String
+    let totalAmountText: String
+    let goalText: String
+    let goalAmountText: String
     let remainingText: String
     let drinkCountText: String
     let progressText: String
@@ -100,10 +100,9 @@ struct HydrationSummaryViewData {
             let hydrationImpactText: String
             
             if let totalHydrationVolume = drinkBreakdown.totalHydrationVolume {
-                let hydrationImpact = volumeFormatter.wholeNumberString(
-                    from: totalHydrationVolume,
-                    displayedAs: displayUnit
-                )
+                let hydrationImpactProgress = totalHydrationVolume.value / drinkBreakdown.totalVolume.value
+                let hydrationImpact = progressFormatter.percentageString(from: hydrationImpactProgress)
+                
                 hydrationImpactText = "Hydration impact: \(hydrationImpact)"
             } else {
                 hydrationImpactText = "Hydration impact: Unknown"
