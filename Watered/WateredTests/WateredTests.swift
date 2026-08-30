@@ -788,6 +788,53 @@ struct WateredTests {
         #expect(viewData.drinkBreakdownRows.first?.hydrationImpactText == "Hydration impact: -300%")
     }
     
+    // Given drink breakdown rows with different hydration constribution ratios, when
+    // summary view data is created, then each row recieves the expected semantic
+    // hydration impact style.
+    @MainActor
+    @Test func hydrationSummaryViewDataAssignsHydrationImpactStyles() async throws {
+        let snapshot = HydrationSnapshot(
+            drinkCount: 4,
+            totalVolume: Measurement(value: 0, unit: UnitVolume.milliliters),
+            totalHydrationVolume: Measurement(value: 0, unit: UnitVolume.milliliters),
+            goalVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            remainingHydrationVolume: Measurement(value: 2000, unit: UnitVolume.milliliters),
+            drinkBreakdown: [
+                DrinkBreakdown(
+                    type: .water,
+                    totalVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
+                    totalHydrationVolume: Measurement(value: 100, unit: UnitVolume.milliliters)
+                ),
+                DrinkBreakdown(
+                    type: .beer,
+                    totalVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
+                    totalHydrationVolume: Measurement(value: 50, unit: UnitVolume.milliliters)
+                ),
+                DrinkBreakdown(
+                    type: .wine,
+                    totalVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
+                    totalHydrationVolume: Measurement(value: -30, unit: UnitVolume.milliliters)
+                ),
+                DrinkBreakdown(
+                    type: .other,
+                    totalVolume: Measurement(value: 100, unit: UnitVolume.milliliters),
+                    totalHydrationVolume: nil
+                )
+            ]
+        )
+        
+        let viewData = HydrationSummaryViewData(
+            snapshot: snapshot,
+            volumeFormatter: VolumeFormatter(),
+            progressFormatter: ProgressFormatter()
+        )
+        
+        #expect(viewData.drinkBreakdownRows[0].hydrationImpactStyle == .positive)
+        #expect(viewData.drinkBreakdownRows[1].hydrationImpactStyle == .reduced)
+        #expect(viewData.drinkBreakdownRows[2].hydrationImpactStyle == .negative)
+        #expect(viewData.drinkBreakdownRows[3].hydrationImpactStyle == .unknown)
+    }
+    
     // MARK: - TodayDemoDrinkSource
     
     @MainActor

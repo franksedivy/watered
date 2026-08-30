@@ -7,10 +7,60 @@
 
 import Foundation
 
+// MARK: - Drink Breakdown Hydration Impact Style
+//
+// Purpose:
+// Describes how a drink breakdown row should visually communicate its hydration
+// impact.
+//
+// Values:
+// - positive: the drink contributes its full consumed volume as hydration.
+// - reduced: the drink contributes hydration, but less than its raw consudemd volume.
+// - negative: the drink reduces the user's net hydration progress.
+// - unknown: Watered deos not know the drink's hydration contribution.
+//
+// UI role:
+// Gives SwiftUI a semantic styling value without making the view parse display
+// text or repeat hydration calculation logic.
+enum HydrationImpactStyle {
+    case positive
+    case reduced
+    case negative
+    case unknown
+}
+
+extension HydrationImpactStyle {
+    // MARK: - Initialisation
+    //
+    // Purpose:
+    // Creates a semantic hydration impact style from a hydration contribution
+    // percentage.
+    //
+    // Input:
+    // Accepts hydrationImpactProgress as a decimal value, where 1.0 means 100%.
+    //
+    // Returns:
+    // A HydrationImpactStyle bucket used by the UI.
+    //
+    // Behavior:
+    // 80% and above is strong, 30% to 79% is reduced, and anything below 30%
+    // is low or negative.
+    init(hydrationImpactProgress: Double) {
+        if hydrationImpactProgress >= 0.8 {
+            self = .positive
+        } else if hydrationImpactProgress >= 0.3 {
+            self = .reduced
+        } else {
+            self = .negative
+        }
+    }
+}
+
 //Display-ready values for one drink breakdown row
 struct DrinkBreakdownViewData {
     let consumedText: String
     let hydrationImpactText: String
+    let hydrationImpactStyle: HydrationImpactStyle
 }
 
 // Display-ready values for the hydration summary screen.
@@ -98,19 +148,26 @@ struct HydrationSummaryViewData {
             let consumedText = "\(amount) of \(drinkType)"
             
             let hydrationImpactText: String
+            let hydrationImpactStyle: HydrationImpactStyle
             
             if let totalHydrationVolume = drinkBreakdown.totalHydrationVolume {
+                let totalLiquidBaseValue = VolumeCalculation.baseValue(from: drinkBreakdown.totalVolume)
+                let totalHydrationBaseValue = VolumeCalculation.baseValue(from: totalHydrationVolume)
+                
                 let hydrationImpactProgress = totalHydrationVolume.value / drinkBreakdown.totalVolume.value
                 let hydrationImpact = progressFormatter.percentageString(from: hydrationImpactProgress)
                 
                 hydrationImpactText = "Hydration impact: \(hydrationImpact)"
+                hydrationImpactStyle = HydrationImpactStyle(hydrationImpactProgress: hydrationImpactProgress)
             } else {
                 hydrationImpactText = "Hydration impact: Unknown"
+                hydrationImpactStyle = .unknown
             }
             
             return DrinkBreakdownViewData(
                 consumedText: consumedText,
-                hydrationImpactText: hydrationImpactText
+                hydrationImpactText: hydrationImpactText,
+                hydrationImpactStyle: hydrationImpactStyle
             )
         }
     }

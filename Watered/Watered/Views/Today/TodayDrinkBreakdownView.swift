@@ -47,11 +47,13 @@ struct TodayDrinkBreakdownView: View {
         rows: [
             DrinkBreakdownViewData(
                 consumedText: "1200 ml of water",
-                hydrationImpactText: "Hydration impact: 1200 ml"
+                hydrationImpactText: "Hydration impact: 100%",
+                hydrationImpactStyle: .positive
             ),
             DrinkBreakdownViewData(
                 consumedText: "330 ml of beer",
-                hydrationImpactText: "Hydration impact: 165 ml"
+                hydrationImpactText: "Hydration impact: 50%",
+                hydrationImpactStyle: .reduced
             )
         ]
     )
