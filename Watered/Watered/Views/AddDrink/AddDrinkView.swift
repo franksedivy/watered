@@ -43,7 +43,6 @@ struct AddDrinkView: View {
                 Button(action: onAddDrink) {
                     Label("Add demo drink", systemImage: "plus")
                 }
-                .buttonStyle(.borderedProminent)
             }
         }
         .navigationTitle("Add Drink")

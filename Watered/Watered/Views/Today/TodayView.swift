@@ -22,6 +22,14 @@ struct TodayView: View {
     // but it no longer owns or changes them.
     let entries: [DrinkEntry]
     
+    // Purpose: Stores the action that opens the persistent profile sheet.
+    // Input: Supplied by WateredTabView, which owns the profile sheet state.
+    //
+    // UI role:
+    // Lets TodayView show the stared profile toolbar without owning profile
+    // presentation itself.
+    let onOpenProfile: () -> Void
+    
     // MARK: - Temporary Configuration
     
     // Purpose: Stores fixed values used by the temporary 0.2 release.
@@ -144,11 +152,10 @@ struct TodayView: View {
                     .padding(.bottom, 120)
                 }
             }
-            .foregroundStyle(.white)
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                TodayToolbar()
+                ProfileToolbar(onOpenProfile: onOpenProfile)
             }
             .toolbarBackground(Color.clear, for: .navigationBar)
         }
@@ -179,5 +186,5 @@ struct TodayView: View {
 }
 
 #Preview {
-    TodayView(entries: [])
+    TodayView(entries: [], onOpenProfile: {})
 }

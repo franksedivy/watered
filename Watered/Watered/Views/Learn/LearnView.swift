@@ -20,14 +20,19 @@ import SwiftUI
 // multi-section iOS app. The content is intentionally empty for now because
 // learning content is outside the current 0.2 UI foundation work.
 struct LearnView: View {
+    let onOpenProfile: () -> Void
+    
     var body: some View {
         NavigationStack {
             Color.clear
                 .navigationTitle("Learn")
+                .toolbar {
+                    ProfileToolbar(onOpenProfile: onOpenProfile)
+                }
         }
     }
 }
 
 #Preview {
-    LearnView()
+    LearnView(onOpenProfile: {})
 }

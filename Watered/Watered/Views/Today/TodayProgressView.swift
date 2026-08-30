@@ -30,20 +30,15 @@ struct TodayProgressView: View {
         VStack(spacing: 4) {
             Text("0%")
                 .font(.caption)
-                .shadow(color: .black.opacity(0.20), radius: 4, x: 1, y: 1)
         
             ProgressView(value: visualProgressValue)
-                .tint(.white)
             
             Text("100%")
                 .font(.caption)
-                .shadow(color: .black.opacity(0.20), radius: 4, x: 1, y: 1)
             
             Text(progressText)
                 .font(.title2)
                 .fontWeight(.semibold)
-                .shadow(color: .black.opacity(0.20), radius: 4, x: 1, y: 1)
-                
         }
     }
 }

@@ -32,6 +32,20 @@ struct WateredTabView: View {
     // and AddDrinkView can add entries.
     @State private var entries: [DrinkEntry] = []
     
+    // Purpose: Controls whether the temporary Add Drink sheet is visible.
+    //
+    // UI role:
+    // Keeps AddDrinkView out of the tab bar while still allowing it to appear as a
+    // focused add-drink flow above the current tab.
+    @State private var isShowingAddDrinkSheet = false
+    
+    // Purpose: Controls whether the temporary Profile sheet is visible.
+    //
+    // UI role:
+    // Keeps profile presentation at the app-tab level so the same profile button
+    // can appear on multiple top-level screens.
+    @State private var isShowingProfileSheet = false
+    
     // MARK: - Temporary Demo Data
     // Creates temporary drinks for the prototype add-drink action.
     //
@@ -54,16 +68,32 @@ struct WateredTabView: View {
     // MARK: - Body
     
     var body: some View {
-        TabView {
-            TodayView(entries: entries)
-                .tabItem {
-                    Label("Today", systemImage: todayCalendarSymbolName)
-                }
+        ZStack(alignment: .bottomTrailing) {
+            TabView {
+                
+                TodayView(entries: entries, onOpenProfile: openProfile)
+                    .tabItem {
+                        Label("Today", systemImage: todayCalendarSymbolName)
+                    }
+                
+                LearnView(onOpenProfile: openProfile)
+                    .tabItem {
+                        Label("Learn", systemImage: "lightbulb")
+                    }
+            }
             
-            LearnView()
-                .tabItem {
-                    Label("Learn", systemImage: "lightbulb")
-                }
+            AddDrinkActionButton {
+                isShowingAddDrinkSheet = true
+            }
+            .padding(.trailing, 24)
+            .padding(.bottom, -13
+            )
+        }
+        .sheet(isPresented: $isShowingAddDrinkSheet) {
+            AddDrinkView(onAddDrink: addDemoDrink)
+        }
+        .sheet(isPresented: $isShowingProfileSheet) {
+            ProfileView()
         }
     }
     
@@ -84,6 +114,15 @@ struct WateredTabView: View {
         wateredLog("Adding demo drink: \(entry.amount) of \(entry.type)")
         entries.append(entry)
         
+    }
+    
+    // Purpose: Open the temporary profile sheet.
+    //
+    // UI role:
+    // Gives every top-level tab the same persistent profile destination.
+    private func openProfile() {
+        wateredLog( "Profile button tapped")
+        isShowingProfileSheet = true
     }
 }
 
