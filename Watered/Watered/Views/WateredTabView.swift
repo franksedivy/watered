@@ -15,12 +15,12 @@ import SwiftUI
 // A native SwiftUI TabView containing the main app areas.
 //
 // UI role:
-// This view owns the temporary -.2 drink entries because both TodayView and
-// AddDrinkView need access to the same demo data.
+// This view owns the temporary 0.2 drink entries because TodayView needs to
+// display them and the future add-drink sheet will need to create them.
 //
 // Notes:
-// Today is the read-only summary screen. Add Drink is currently a temporary
-// placeholder, but it gives the future 0.3 add-drink flow a real home.
+// Today is the read-only summary screen. Learn is a temporary placeholder tab.
+// Add Drink will be presented as a sheet from the tab bar area.
 struct WateredTabView: View {
     
     // MARK: - Temporary State
@@ -60,9 +60,9 @@ struct WateredTabView: View {
                     Label("Today", systemImage: todayCalendarSymbolName)
                 }
             
-            AddDrinkView(onAddDrink: addDemoDrink)
+            LearnView()
                 .tabItem {
-                    Label("Add Drink", systemImage: "plus")
+                    Label("Learn", systemImage: "lightbulb")
                 }
         }
     }
