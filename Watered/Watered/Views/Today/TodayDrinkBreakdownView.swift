@@ -35,9 +35,36 @@ struct TodayDrinkBreakdownView: View {
                     
                     Text(drinkBreakdownRow.hydrationImpactText)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .fontWeight(fontWeight(for: drinkBreakdownRow.hydrationImpactStyle))
                 }
             }
+        }
+    }
+    
+    // MARK: - Hydration Impact Styling
+    //
+    // Purpose:
+    // Chooses a basic visual weight for a breakdown row's hydration impact.
+    //
+    // Input:
+    // Accepts the semantic hydration impact style prepared by
+    // HydrationSummaryViewData.
+    //
+    // Returns: A SwiftUI Font.Weight used by the hydration impact label.
+    //
+    // UI role:
+    // Gives the UI a visible distinction between known and unknown impact states
+    // without introducing hardcoded colours before the app has semantic color tokens.
+    private func fontWeight(for style: HydrationImpactStyle) -> Font.Weight {
+        switch style {
+        case .positive:
+            return .regular
+        case .reduced:
+            return .semibold
+        case .negative:
+            return .bold
+        case .unknown:
+            return .regular
         }
     }
 }
