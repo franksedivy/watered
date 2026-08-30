@@ -25,17 +25,14 @@ import SwiftUI
 // owning raw color and spacing values.
 struct TodayAppearance {
     let screenHorizontalPadding: CGFloat = 16
-    let bottomBarHorizontalPadding: CGFloat = 22
-    let bottomBarBottomPadding: CGFloat = 8
-    let controlGlassTint = Color.black.opacity(0.6)
     
     // Purpose: Chooses the background gradient for a Today mode.
     //
     // Input: Accepts the current TodayScreenMode.
     //
     // Returns:
-    // The yellow empty-state gradient for .empty, otherwise the blue active-state
-    // gradient.
+    // SwiftUI styling values used by TodayView, such as gradients and screen
+    // padding.
     //
     // UI role:
     // Keeps state-based background styling outside TodayView while still keeping
