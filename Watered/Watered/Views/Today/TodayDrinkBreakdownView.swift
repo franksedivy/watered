@@ -27,8 +27,6 @@ struct TodayDrinkBreakdownView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Drink breakdown")
-                .font(.headline)
             ForEach(rows, id: \.consumedText) { drinkBreakdownRow in
                 VStack(alignment: .leading, spacing: 2) {
                     Text(drinkBreakdownRow.consumedText)
@@ -40,6 +38,9 @@ struct TodayDrinkBreakdownView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
     
     // Purpose: Choses the color used for a breakdown row's hydration impact
