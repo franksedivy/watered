@@ -30,9 +30,9 @@ struct WateredTabView: View {
     // UI role:
     // Gives the TabView a typed selection value so app-level overlays, such as the
     // empty-state add-drink prompt, can react to the currently selected tab.
-    private enum WateredTab {
-        case today
-        case learn
+    private enum WateredTab: String {
+        case today = "Today"
+        case learn = "Learn"
     }
     
     // Purpose: Stores the currently selected top-level app tab.
@@ -116,8 +116,17 @@ struct WateredTabView: View {
                     }
                     .tag(WateredTab.learn)
             }
+            .onChange(of: selectedTab) { previousTab, newTab in
+                // Purpose: Logs top-level navigation changes
+                //
+                // Behavior:
+                // This records when the selected tab changes. It does not record repeat taps
+                // on the tab that is already active.
+                wateredLog("Selected tab changed from \(previousTab.rawValue) to \(newTab.rawValue)")
+            }
             
             AddDrinkActionButton {
+                wateredLog("Add drink button tapped")
                 isShowingAddDrinkSheet = true
             }
             .padding(.trailing, 24)
@@ -146,8 +155,6 @@ struct WateredTabView: View {
     // If the demo source returns an entry, it is appended to the shared temporary
     // entries state. SwiftUI then refreshes TodayView with the updated entries.
     private func addDemoDrink() {
-        wateredLog("Add drink button tapped")
-        
         guard let entry = demoDrinkSource.randomEntry() else {
             return
         }
