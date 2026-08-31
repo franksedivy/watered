@@ -43,6 +43,17 @@ struct WateredTabView: View {
     
     // MARK: - Temporary State
     //
+    // Purpose: Stores the temporary display unit selected for the app.
+    //
+    // UI role:
+    // WateredTabView owns this because it sits above both TodayView, which displays
+    // volumes, and ProfileView, which will later let the user change the unit.
+    //
+    // Notes:
+    // This is temporary 0.2 state. It will reset when the app relaunches until a
+    // proper settings/persisstence layer exists.
+    @State private var displayUnit: LiquidUnit = .milliliters
+    
     // Purpose: Stores temporary drink entries while the 0.2 UI is being built.
     //
     // UI role:
@@ -104,7 +115,11 @@ struct WateredTabView: View {
         ZStack(alignment: .bottomTrailing) {
             TabView(selection: $selectedTab) {
                 
-                TodayView(entries: entries, onOpenProfile: openProfile)
+                TodayView(
+                    entries: entries,
+                    displayUnit: displayUnit,
+                    onOpenProfile: openProfile
+                )
                     .tabItem {
                         Label("Today", systemImage: todayCalendarSymbolName)
                     }
@@ -116,13 +131,15 @@ struct WateredTabView: View {
                     }
                     .tag(WateredTab.learn)
             }
+            .onChange(of: displayUnit) { previousUnit, newUnit in
+                wateredLog("Display unit changed from \(previousUnit.rawValue) to \(newUnit.rawValue)")
+            }
             .onChange(of: selectedTab) { previousTab, newTab in
-                // Purpose: Logs top-level navigation changes
-                //
-                // Behavior:
-                // This records when the selected tab changes. It does not record repeat taps
-                // on the tab that is already active.
                 wateredLog("Selected tab changed from \(previousTab.rawValue) to \(newTab.rawValue)")
+            }
+            
+            .onChange(of: displayUnit) { previousUnit, newUnit in
+                wateredLog("Display unit changed from \(previousUnit.rawValue) to \(newUnit.rawValue)")
             }
             
             AddDrinkActionButton {
@@ -143,7 +160,7 @@ struct WateredTabView: View {
             AddDrinkView(onAddDrink: addDemoDrink)
         }
         .sheet(isPresented: $isShowingProfileSheet) {
-            ProfileView()
+            ProfileView(displayUnit: $displayUnit)
         }
     }
     

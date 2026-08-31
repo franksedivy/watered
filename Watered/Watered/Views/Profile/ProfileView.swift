@@ -20,8 +20,30 @@ import SwiftUI
 // empty sheet, but later it can grow into account details, preferences, HealthKit
 // permissions, display units, and other profile-level settings.
 struct ProfileView: View {
+    
+    // Purpose: Stores the selected display unit for volume values.
+    //
+    // Input:
+    // Supplied as a binding from WateredTabView, where temporary app-level display
+    // unit state currently lives.
+    //
+    // UI role:
+    // Allows Profile to change the app's display unit without owning the setting.
+    @Binding var displayUnit: LiquidUnit
+    
     var body: some View {
         NavigationStack {
+            Form {
+                Section("Display units") {
+                    Picker("Volume unit", selection: $displayUnit) {
+                        ForEach(LiquidUnit.allCases) { liquidUnit in
+                            Text(liquidUnit.rawValue)
+                                .tag(liquidUnit)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+            }
             Color.clear
                 .navigationTitle("Profile")
         }
@@ -29,5 +51,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView()
+    ProfileView(displayUnit: .constant(.milliliters))
 }

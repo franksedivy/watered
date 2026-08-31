@@ -22,6 +22,17 @@ struct TodayView: View {
     // but it no longer owns or changes them.
     let entries: [DrinkEntry]
     
+    // Purpose:
+    // Stores the liquid unit Today should use when displaying volume values.
+    //
+    // Input:
+    // Supplied by WaterdTabView, which owns the temporary app-level display unit.
+    //
+    // UI role:
+    // Lets Today display the same hydration model in different supported units
+    // without owning the setting itself.
+    let displayUnit: LiquidUnit
+    
     // Purpose: Stores the action that opens the persistent profile sheet.
     // Input: Supplied by WateredTabView, which owns the profile sheet state.
     //
@@ -40,10 +51,8 @@ struct TodayView: View {
     private let dailyGoal = HydrationGoal(
         amount: DrinkAmount(value: 2700, unit: .milliliters)
     )
-    
     private let volumeFormatter = VolumeFormatter()
     private let progressFormatter = ProgressFormatter()
-    private let displayUnit: LiquidUnit = .milliliters
     
     // MARK: - Appearance
     //
@@ -90,7 +99,7 @@ struct TodayView: View {
     // Keeps formatting out of the visible SwiftUI sections so the screen can display
     // simple values rather than building labels and percentages inline.
     private var summary: HydrationSummaryViewData {
-        HydrationSummaryViewData(
+        return HydrationSummaryViewData(
             snapshot: tracker.snapshot,
             volumeFormatter: volumeFormatter,
             progressFormatter: progressFormatter,
@@ -187,5 +196,5 @@ struct TodayView: View {
 }
 
 #Preview {
-    TodayView(entries: [], onOpenProfile: {})
+    TodayView(entries: [], displayUnit: .milliliters, onOpenProfile: {})
 }
