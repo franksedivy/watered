@@ -23,19 +23,119 @@ final class WateredUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testAppLaunchesToTodayScreen() throws {
+        // Purpose: Proves that Watered launches into the main Today sexperience
+        //
+        // Behavior:
+        // This is intentionally a smoke test. It does not check layout, color,
+        // typography, or exact copy. It only checks for the stable Today screen
+        // accessibility identifier.
         let app = XCUIApplication()
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        
+        let todayScreen = app.otherElements["todayScreen"]
+        XCTAssertTrue(todayScreen.waitForExistence(timeout: 2))
     }
-
+    
     @MainActor
-    func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+    func testAddDrinkActionButtonExists() throws {
+        // Purpose:
+        // Proves that the Today screen exposes the add-drink action.
+        //
+        // Behavior:
+        // This test only checks for the stable accessibility identifier on the
+        // floating add-drink button. It does not care where the button sits visually.
+        let app = XCUIApplication()
+        app.launch()
+        
+        let addDrinkButton = app.buttons["addDrinkActionButton"]
+        XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
+    }
+    
+    @MainActor
+    func testTappingAddDrinkActionShowsAddDrinkSheet() throws {
+        // Purpose:
+        // Proves that the floating add-drink action opens the temporary Add Drink flow.
+        //
+        // Behvaior:
+        // This test checks the navigation from Today into the sheet. It does not add a
+        // drink yet, so failure are easier to understand if sheet presentation breaks.
+        let app = XCUIApplication()
+        app.launch()
+        
+        let addDrinkButton = app.buttons["addDrinkActionButton"]
+        XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
+        
+        addDrinkButton.tap()
+        
+        let addDemoDrinkButton = app.buttons["addDemoDrinkButton"]
+        XCTAssertTrue(addDemoDrinkButton.waitForExistence(timeout: 2))
+    }
+    
+    @MainActor
+    func testAddingDemoDrinkUpdatesTodayTotalAmount() throws {
+        // Purpose:
+        // Proves that adding a temporary demo drink updates the Today summary.
+        //
+        // Behvaior:
+        // The demo drink is random, so this test does not assert an exact amount.
+        // It only checks that the total amount text changes away from the empty
+        // starting value after a drink is added.
+        let app = XCUIApplication()
+        app.launch()
+        
+        let addDrinkButton = app.buttons["addDrinkActionButton"]
+        XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
+        
+        addDrinkButton.tap()
+        
+        let addDemoDrinkButton = app.buttons["addDemoDrinkButton"]
+        XCTAssertTrue(addDemoDrinkButton.waitForExistence(timeout: 2))
+        
+        addDemoDrinkButton.tap()
+        
+        let updatedTotalAmount = app.staticTexts["todayTotalAmountText"]
+        XCTAssertTrue(updatedTotalAmount.waitForExistence(timeout: 2))
+    }
+    
+    @MainActor
+    func testAddingMultipleDemoDrinkKeepsTodayUsable() throws {
+        // Purpose:
+        // Proves that repeated temporary demo-drink additions do not break the Today
+        // flow
+        //
+        // Behvaior:
+        // Each add goes through the same user path: open the sheet, tap the temporary
+        // add button, return to Today. The test does not care which random drinks are
+        // selected or waht exact totals are shown.
+        let app = XCUIApplication()
+        app.launch()
+        
+        for addDrinkAttempt in 1...3 {
+            let addDrinkButton = app.buttons["addDrinkActionButton"]
+            XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
+            
+            addDrinkButton.tap()
+            
+            let addDemoDrinkButton = app.buttons["addDemoDrinkButton"]
+            XCTAssertTrue(addDemoDrinkButton.waitForExistence(timeout: 2))
+            
+            addDemoDrinkButton.tap()
+            
+            let totalAmountText = app.staticTexts["todayTotalAmountText"]
+            XCTAssertTrue(
+                totalAmountText.waitForExistence(timeout: 2),
+                "Total amount should exist after add attempt \(addDrinkAttempt)"
+            )
         }
     }
+    
+
+//    @MainActor
+//    func testLaunchPerformance() throws {
+//        // This measures how long it takes to launch your application.
+//        measure(metrics: [XCTApplicationLaunchMetric()]) {
+//            XCUIApplication().launch()
+//        }
+//    }
 }

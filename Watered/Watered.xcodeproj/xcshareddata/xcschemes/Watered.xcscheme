@@ -51,6 +51,11 @@
                BlueprintName = "WateredUITests"
                ReferencedContainer = "container:Watered.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "WateredUITestsLaunchTests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

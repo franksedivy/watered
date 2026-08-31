@@ -30,6 +30,7 @@ struct TodaySummaryView: View {
         VStack(alignment: .center, spacing: 14) {
             Text(summary.totalAmountText)
                 .font(.system(size: 96, weight: .light))
+                .accessibilityIdentifier("todayTotalAmountText")
             
             Text("Daily goal: \(summary.goalAmountText)")
                 .font(.title3)

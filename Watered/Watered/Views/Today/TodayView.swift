@@ -159,6 +159,7 @@ struct TodayView: View {
             }
             .toolbarBackground(Color.clear, for: .navigationBar)
         }
+        .accessibilityIdentifier("todayScreen")
     }
     
     // MARK: - Screen Content

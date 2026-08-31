@@ -154,7 +154,7 @@ struct WateredTabView: View {
         
         wateredLog("Adding demo drink: \(entry.amount) of \(entry.type)")
         entries.append(entry)
-        
+        isShowingAddDrinkSheet = false
     }
     
     // Purpose: Open the temporary profile sheet.

@@ -40,6 +40,7 @@ struct AddDrinkActionButton: View {
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
         .accessibilityLabel("Add drink")
+        .accessibilityIdentifier("addDrinkActionButton")
     }
 }
 
