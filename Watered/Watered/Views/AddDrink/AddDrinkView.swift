@@ -29,10 +29,24 @@ struct AddDrinkView: View {
     // Supplied by the parent view that owns the current drink entries.
     private let onAddDrink: () -> Void
     
+    // Purpose:
+    // Stores the app-level display unit when the Add Drink form opens.
+    //
+    // Input:
+    // Supplied by WateredTabView from the temporary display unit selected in
+    // Profile
+    //
+    // UI role:
+    // Lets Add Drink defaults its volume selection to the same unit Today
+    // is using.
+    private let defaultUnit: LiquidUnit
+    
     // MARK: - Initialisation
     
-    init(onAddDrink: @escaping () -> Void) {
+    init(defaultUnit: LiquidUnit, onAddDrink: @escaping () -> Void) {
+        self.defaultUnit = defaultUnit
         self.onAddDrink = onAddDrink
+        _selectedUnit = State(initialValue : defaultUnit)
     }
     
     // MARK: - Form State
@@ -48,6 +62,17 @@ struct AddDrinkView: View {
     // This is local form state. It does not update Today until a later ticket
     // wires the submitted form into the app state.
     @State private var selectedDrinkType: DrinkType = .water
+    
+    // Purpose:
+    // Stores the unit currently selected in the Add Drink form.
+    //
+    // Input:
+    // Initially created from the app-level default unit passed into the view.
+    //
+    // UI role:
+    // Lets the Add Drink form use the same unit as Today be default, while still
+    // allowing this form to manage its own selected unit before submission.
+    @State private var selectedUnit: LiquidUnit
     
     // MARK: - Body
     
@@ -82,6 +107,14 @@ struct AddDrinkView: View {
                 Section("Volume") {
                     Text("Volume input will go here")
                         .foregroundStyle(.secondary)
+                    Picker("Unit", selection: $selectedUnit) {
+                        ForEach(LiquidUnit.allCases) { liquidUnit in
+                            Text(liquidUnit.rawValue)
+                                .tag(liquidUnit)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityIdentifier("addDrinkUnitPicker")
                 }
                 
                 Section("Temporary action") {
@@ -97,5 +130,5 @@ struct AddDrinkView: View {
 }
 
 #Preview {
-    AddDrinkView(onAddDrink: {})
+    AddDrinkView(defaultUnit: .milliliters, onAddDrink: {})
 }

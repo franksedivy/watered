@@ -157,7 +157,10 @@ struct WateredTabView: View {
             }
         }
         .sheet(isPresented: $isShowingAddDrinkSheet) {
-            AddDrinkView(onAddDrink: addDemoDrink)
+            AddDrinkView(
+                defaultUnit: displayUnit,
+                onAddDrink: addDemoDrink
+            )
         }
         .sheet(isPresented: $isShowingProfileSheet) {
             ProfileView(displayUnit: $displayUnit)
