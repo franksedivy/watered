@@ -1,13 +1,12 @@
 # Watered
-Watered is an iOS hydration tracker built as a learning project in Swift and SwiftUI. I am guided by Codex, but I actively write and understand the code myself. The point is not to let Codex build the app for me, but to use Codex as a tutor: guiding, explaining, checking documentation, and helping keep tests aligned with the latest code.
-
-The current focus is the core model layer: representing drinks, calculating intake, and keeping the code clean before building out the UI.
+The current focus is the early Today screen UI: showing model-driven hydration data, testing basic interaction, and keeping the SwiftUI structure clean enough to evolve.
 
 TLDR; Hydration tracker, learning project, model-first SwiftUI app.
 
 ## Current Status
-Watered has a working core hydration model and an early Today screen UI.
-Sample data only.
+Watered has a working core hydration model and an early Today screen built with native SwiftUI navigation.
+Temporary in-memory demo drinks can be added through the Add Drink sheet.
+Profile includes a temporary display-unit picker.
 No persistence / HealthKit / Watch yet.
 
 ## Getting Started
@@ -31,6 +30,6 @@ You can also read about the overall progress in my [Design Engineer's diary](htt
 
 ## Current Milestones & Releases
 - `0.1` [Core-model](https://github.com/franksedivy/watered/milestone/1), [Release notes](https://github.com/franksedivy/watered/releases/tag/0.1_Core-model)
-- `0.2` [Basic Today UI](https://github.com/franksedivy/watered/milestone/2)
+- `0.2` [Basic Today UI](https://github.com/franksedivy/watered/milestone/2), [Release notes](https://github.com/franksedivy/watered/releases/tag/0.2_Today-UI)
 - `0.3` Add Drink Flow
 - `0.4` Persistence
