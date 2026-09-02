@@ -46,13 +46,14 @@ struct AddDrinkView: View {
     init(defaultUnit: LiquidUnit, onAddDrink: @escaping () -> Void) {
         self.defaultUnit = defaultUnit
         self.onAddDrink = onAddDrink
-        _selectedUnit = State(initialValue : defaultUnit)
+        _selectedVolumeValue = State(
+            initialValue: AddDrinkView.defaultVolumeValue(for: defaultUnit)
+        )
     }
     
     // MARK: - Form State
     //
-    // Purpose:
-    // Stores the drink tyep currently selected in the Add Drink form.
+    // Purpose: Stores the drink tyep currently selected in the Add Drink form.
     //
     // UI role:
     // Lets the form remember the user's selected drink type before the real
@@ -63,17 +64,46 @@ struct AddDrinkView: View {
     // wires the submitted form into the app state.
     @State private var selectedDrinkType: DrinkType = .water
     
-    // Purpose:
-    // Stores the unit currently selected in the Add Drink form.
+    // Purpose: Stores the selected volume amount inside the Add Drink form.
     //
     // Input:
-    // Initially created from the app-level default unit passed into the view.
+    // Gives the form a concrete volume value before the real DrinkEntry creation
+    // step exists.
+    @State private var selectedVolumeValue: Double
+    
+    // MARK: - Volume Options
+    //
+    // Purpose: Provides the first predefined volume options for the Add Drink form.
+    //
+    // Returns: A list of common drink volumes in the currently selected unit.
     //
     // UI role:
-    // Lets the Add Drink form use the same unit as Today be default, while still
-    // allowing this form to manage its own selected unit before submission.
-    @State private var selectedUnit: LiquidUnit
+    // Keeps the Volume picker simple while avoiding free numeric input for the first
+    // real Add Drink flow.
+    private var volumeOptions: [Double] {
+        switch defaultUnit {
+        case .milliliters:
+            return [150, 200, 250, 300, 330, 500, 600, 750, 1000]
+        case .usFluidOunces:
+            return [6, 8, 10, 12, 16, 20, 24, 32]
+        case .imperialFluidOunces:
+            return [5, 8, 10, 12, 16, 20, 24, 32]
+        }
+    }
     
+    // Purpose: Provides the default volumes for the form's selected unit.
+    //
+    // Input: Accepts the unit that Add Drink recieved from the app-level setting.
+    //
+    // Returns: A sensible starting volume from the predefined options
+    private static func defaultVolumeValue(for unit: LiquidUnit) -> Double {
+        switch unit {
+        case .milliliters:          return 330
+        case .usFluidOunces:        return 12
+        case .imperialFluidOunces:  return 8
+        }
+    }
+
     // MARK: - Body
     
     var body: some View {
@@ -97,6 +127,10 @@ struct AddDrinkView: View {
                         }
                     }
                     .accessibilityIdentifier("addDrinkTypePicker")
+                    .onChange(of: selectedDrinkType) { previousValue, newValue in
+                        wateredLog("Selected drink type changed from \(previousValue) to \(newValue)")
+                        
+                    }
                 }
                 
                 Section("Recents") {
@@ -105,16 +139,16 @@ struct AddDrinkView: View {
                 }
                 
                 Section("Volume") {
-                    Text("Volume input will go here")
-                        .foregroundStyle(.secondary)
-                    Picker("Unit", selection: $selectedUnit) {
-                        ForEach(LiquidUnit.allCases) { liquidUnit in
-                            Text(liquidUnit.rawValue)
-                                .tag(liquidUnit)
+                    Picker("Volume", selection: $selectedVolumeValue) {
+                        ForEach(volumeOptions, id: \.self) { volumeOption in
+                            Text("\(Int(volumeOption)) \(defaultUnit.rawValue)")
+                                .tag(volumeOption)
                         }
                     }
-                    .pickerStyle(.segmented)
-                    .accessibilityIdentifier("addDrinkUnitPicker")
+                    .accessibilityIdentifier("addDrinkVolumePicker")
+                    .onChange(of: selectedVolumeValue) { previousValue, newValue in
+                        wateredLog("Add Drink volume changed from \(previousValue) to \(newValue) \(defaultUnit.rawValue)")
+                    }
                 }
                 
                 Section("Temporary action") {
@@ -123,6 +157,10 @@ struct AddDrinkView: View {
                     }
                     .accessibilityIdentifier("addDemoDrinkButton")
                 }
+            }
+            .onAppear {
+                wateredLog(
+                    "Add Drink opened with default unit \(defaultUnit.rawValue) and default volume:\(selectedVolumeValue) \(defaultUnit.rawValue)")
             }
         }
         .navigationTitle("Add Drink")

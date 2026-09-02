@@ -138,10 +138,6 @@ struct WateredTabView: View {
                 wateredLog("Selected tab changed from \(previousTab.rawValue) to \(newTab.rawValue)")
             }
             
-            .onChange(of: displayUnit) { previousUnit, newUnit in
-                wateredLog("Display unit changed from \(previousUnit.rawValue) to \(newUnit.rawValue)")
-            }
-            
             AddDrinkActionButton {
                 wateredLog("Add drink button tapped")
                 isShowingAddDrinkSheet = true
