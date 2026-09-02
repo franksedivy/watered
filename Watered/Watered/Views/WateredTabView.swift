@@ -155,7 +155,7 @@ struct WateredTabView: View {
         .sheet(isPresented: $isShowingAddDrinkSheet) {
             AddDrinkView(
                 defaultUnit: displayUnit,
-                onAddDrink: addDemoDrink
+                onAddDrink: addDrinkEntry
             )
         }
         .sheet(isPresented: $isShowingProfileSheet) {
@@ -164,7 +164,22 @@ struct WateredTabView: View {
     }
     
     // MARK: - Actions
+    
+    // Purpose: Adds a real drink entry submitted from the Add Drink form.
     //
+    // Input:
+    // Recieves the DrinkEntry created by AddDrinkView from the selected drink type,
+    // selected volume, selected unit, and current date.
+    //
+    // Behavior:
+    // Appends the entry to temporary app state, logs the added drink, and closes the
+    // Add Drink sheet so Today can refresh with the new total.
+    private func addDrinkEntry(_ entry: DrinkEntry) {
+        wateredLog("Adding drink entry: \(entry)")
+        entries.append(entry)
+        isShowingAddDrinkSheet = false
+    }
+    
     // Purpose: Adds one temporary random demo drink.
     //
     // Behavior:

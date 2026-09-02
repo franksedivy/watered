@@ -23,11 +23,11 @@ struct AddDrinkView: View {
     // MARK: - Actions
     
     // Purpose:
-    // Stores the action that runs when the user taps the add-drink button.
+    // Stores the action taht recieves teh complete dirnk entry when the user
+    // submits the Add Drink form.
     //
-    // Input:
-    // Supplied by the parent view that owns the current drink entries.
-    private let onAddDrink: () -> Void
+    // Input: Supplied by the parent view that owns the current drink entries.
+    private let onAddDrink: (DrinkEntry) -> Void
     
     // Purpose:
     // Stores the app-level display unit when the Add Drink form opens.
@@ -43,7 +43,7 @@ struct AddDrinkView: View {
     
     // MARK: - Initialisation
     
-    init(defaultUnit: LiquidUnit, onAddDrink: @escaping () -> Void) {
+    init(defaultUnit: LiquidUnit, onAddDrink: @escaping (DrinkEntry) -> Void) {
         self.defaultUnit = defaultUnit
         self.onAddDrink = onAddDrink
         _selectedVolumeValue = State(
@@ -103,7 +103,35 @@ struct AddDrinkView: View {
         case .imperialFluidOunces:  return 8
         }
     }
-
+    
+    // MARK: - Submission
+    //
+    // Purpose: Converts the current Add Drink form state into a real DrinkEntry.
+    //
+    // Input:
+    // Reads the selected drink type, selected volume value, and default display unit
+    // currently held by the form.
+    //
+    // Behavior:
+    // Creates a DrinkAmount from the selected volume, wraps it in a DrinkEntry with
+    // the current date, logs the submitted values, and hands the entry back to the
+    // parent view.
+    private func submitDrink() {
+        let drinkAmount = DrinkAmount(
+            value: selectedVolumeValue,
+            unit: defaultUnit
+        )
+        
+        let drinkEntry = DrinkEntry(
+            type: selectedDrinkType,
+            amount: drinkAmount,
+            date: Date()
+        )
+        
+        wateredLog("Submitting drink entry: \(drinkEntry)")
+        onAddDrink(drinkEntry)
+    }
+    
     // MARK: - Body
     
     var body: some View {
@@ -152,7 +180,7 @@ struct AddDrinkView: View {
                 }
                 
                 Section("Temporary action") {
-                    Button(action: onAddDrink) {
+                    Button(action: submitDrink) {
                         Label("Add demo drink", systemImage: "plus")
                     }
                     .accessibilityIdentifier("addDemoDrinkButton")
@@ -168,5 +196,7 @@ struct AddDrinkView: View {
 }
 
 #Preview {
-    AddDrinkView(defaultUnit: .milliliters, onAddDrink: {})
+    AddDrinkView(defaultUnit: .milliliters) { drinkEntry in
+        wateredLog("Preview submitted drink entry: \(drinkEntry)")
+    }
 }
