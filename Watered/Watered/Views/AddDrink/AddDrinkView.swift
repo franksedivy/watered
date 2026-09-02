@@ -179,11 +179,11 @@ struct AddDrinkView: View {
                     }
                 }
                 
-                Section("Temporary action") {
+                Section("Action") {
                     Button(action: submitDrink) {
-                        Label("Add demo drink", systemImage: "plus")
+                        Label("Add drink", systemImage: "plus")
                     }
-                    .accessibilityIdentifier("addDemoDrinkButton")
+                    .accessibilityIdentifier("addDrinkSubmitButton")
                 }
             }
             .onAppear {

@@ -68,17 +68,17 @@ final class WateredUITests: XCTestCase {
         
         addDrinkButton.tap()
         
-        let addDemoDrinkButton = app.buttons["addDemoDrinkButton"]
-        XCTAssertTrue(addDemoDrinkButton.waitForExistence(timeout: 2))
+        let addDrinkSubmitButton = app.buttons["addDrinkSubmitButton"]
+        XCTAssertTrue(addDrinkSubmitButton.waitForExistence(timeout: 2))
     }
     
     @MainActor
-    func testAddingDemoDrinkUpdatesTodayTotalAmount() throws {
+    func testAddingDrinkUpdatesTodayTotalAmount() throws {
         // Purpose:
-        // Proves that adding a temporary demo drink updates the Today summary.
+        // Proves that adding a drink updates the Today summary.
         //
         // Behvaior:
-        // The demo drink is random, so this test does not assert an exact amount.
+        // This test does not yet assert an exact amount.
         // It only checks that the total amount text changes away from the empty
         // starting value after a drink is added.
         let app = XCUIApplication()
@@ -89,20 +89,18 @@ final class WateredUITests: XCTestCase {
         
         addDrinkButton.tap()
         
-        let addDemoDrinkButton = app.buttons["addDemoDrinkButton"]
-        XCTAssertTrue(addDemoDrinkButton.waitForExistence(timeout: 2))
+        let addDrinkSubmitButton = app.buttons["addDrinkSubmitButton"]
+        XCTAssertTrue(addDrinkSubmitButton.waitForExistence(timeout: 2))
         
-        addDemoDrinkButton.tap()
+        addDrinkSubmitButton.tap()
         
         let updatedTotalAmount = app.staticTexts["todayTotalAmountText"]
         XCTAssertTrue(updatedTotalAmount.waitForExistence(timeout: 2))
     }
     
     @MainActor
-    func testAddingMultipleDemoDrinkKeepsTodayUsable() throws {
-        // Purpose:
-        // Proves that repeated temporary demo-drink additions do not break the Today
-        // flow
+    func testAddingMultipleDrinksKeepsTodayUsable() throws {
+        // Purpose: Proves that repeated drink additions do not break the Today flow
         //
         // Behvaior:
         // Each add goes through the same user path: open the sheet, tap the temporary
@@ -117,10 +115,10 @@ final class WateredUITests: XCTestCase {
             
             addDrinkButton.tap()
             
-            let addDemoDrinkButton = app.buttons["addDemoDrinkButton"]
-            XCTAssertTrue(addDemoDrinkButton.waitForExistence(timeout: 2))
+            let addDrinkSubmitButton = app.buttons["addDrinkSubmitButton"]
+            XCTAssertTrue(addDrinkSubmitButton.waitForExistence(timeout: 2))
             
-            addDemoDrinkButton.tap()
+            addDrinkSubmitButton.tap()
             
             let totalAmountText = app.staticTexts["todayTotalAmountText"]
             XCTAssertTrue(

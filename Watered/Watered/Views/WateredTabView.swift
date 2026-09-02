@@ -75,13 +75,6 @@ struct WateredTabView: View {
     // can appear on multiple top-level screens.
     @State private var isShowingProfileSheet = false
     
-    // MARK: - Temporary Demo Data
-    // Creates temporary drinks for the prototype add-drink action.
-    //
-    // Notes:
-    // This will be replaced by the real add-drink flow in the 0.3 milestone.
-    private let demoDrinkSource = TodayDemoDrinkSource()
-    
     // MARK: - Tab Icons
     // Builds the SF Symbol name for today's calendar day.
     //
@@ -176,21 +169,6 @@ struct WateredTabView: View {
     // Add Drink sheet so Today can refresh with the new total.
     private func addDrinkEntry(_ entry: DrinkEntry) {
         wateredLog("Adding drink entry: \(entry)")
-        entries.append(entry)
-        isShowingAddDrinkSheet = false
-    }
-    
-    // Purpose: Adds one temporary random demo drink.
-    //
-    // Behavior:
-    // If the demo source returns an entry, it is appended to the shared temporary
-    // entries state. SwiftUI then refreshes TodayView with the updated entries.
-    private func addDemoDrink() {
-        guard let entry = demoDrinkSource.randomEntry() else {
-            return
-        }
-        
-        wateredLog("Adding demo drink: \(entry.amount) of \(entry.type)")
         entries.append(entry)
         isShowingAddDrinkSheet = false
     }
