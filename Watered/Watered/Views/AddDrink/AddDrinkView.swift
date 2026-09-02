@@ -39,11 +39,38 @@ struct AddDrinkView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                Button(action: onAddDrink) {
-                    Label("Add demo drink", systemImage: "plus")
+            Form {
+                Section {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Add drink")
+                            .font(.headline)
+                        Text("Now, change time")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                .accessibilityIdentifier("addDemoDrinkButton")
+                
+                Section("Type") {
+                    Text("Drink type selection will go here")
+                        .foregroundStyle(.secondary)
+                }
+                
+                Section("Recents") {
+                    Text("Recent drinks will go here")
+                        .foregroundStyle(.secondary)
+                }
+                
+                Section("Volume") {
+                    Text("Volume input will go here")
+                        .foregroundStyle(.secondary)
+                }
+                
+                Section("Temporary action") {
+                    Button(action: onAddDrink) {
+                        Label("Add demo drink", systemImage: "plus")
+                    }
+                    .accessibilityIdentifier("addDemoDrinkButton")
+                }
             }
         }
         .navigationTitle("Add Drink")
