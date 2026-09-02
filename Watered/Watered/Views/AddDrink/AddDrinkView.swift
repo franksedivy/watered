@@ -35,6 +35,20 @@ struct AddDrinkView: View {
         self.onAddDrink = onAddDrink
     }
     
+    // MARK: - Form State
+    //
+    // Purpose:
+    // Stores the drink tyep currently selected in the Add Drink form.
+    //
+    // UI role:
+    // Lets the form remember the user's selected drink type before the real
+    // DrinkEntry creation step exists.
+    //
+    // Notes:
+    // This is local form state. It does not update Today until a later ticket
+    // wires the submitted form into the app state.
+    @State private var selectedDrinkType: DrinkType = .water
+    
     // MARK: - Body
     
     var body: some View {
@@ -51,8 +65,13 @@ struct AddDrinkView: View {
                 }
                 
                 Section("Type") {
-                    Text("Drink type selection will go here")
-                        .foregroundStyle(.secondary)
+                    Picker("Drink type", selection: $selectedDrinkType) {
+                        ForEach(DrinkType.allCases, id: \.self) { drinkType in
+                            Text(drinkType.rawValue)
+                                .tag(drinkType)
+                        }
+                    }
+                    .accessibilityIdentifier("addDrinkTypePicker")
                 }
                 
                 Section("Recents") {
