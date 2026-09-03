@@ -102,6 +102,46 @@ final class WateredUITests: XCTestCase {
     }
     
     @MainActor
+    func testAddingDrinkWithSelectedVolumeUpdatesTodayTotalAmount() throws {
+        // Purpose:
+        // Proves that the Add Drink form uses the selected volume, not only the
+        // default form value.
+        //
+        // Behavior:
+        // Opens Add Drink, changes the volume picker form its default value to
+        // 500 ml, submits the drink, and checks that Today shows the selected
+        // amount.
+        let app = XCUIApplication()
+        app.launch()
+        
+        let addDrinkButton = app.buttons["addDrinkActionButton"]
+        XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
+        
+        addDrinkButton.tap()
+        
+        let volumePicker = app.buttons["addDrinkVolumePicker"]
+        XCTAssertTrue(volumePicker.waitForExistence(timeout: 2))
+        
+        volumePicker.tap()
+        
+        let fiveHundredMillilitersOption = app.buttons["500 ml"]
+        XCTAssertTrue(fiveHundredMillilitersOption.waitForExistence(timeout: 2))
+        
+        fiveHundredMillilitersOption.tap()
+        
+        let addDrinkSubmitButton = app.buttons["addDrinkSubmitButton"]
+        XCTAssertTrue(addDrinkSubmitButton.waitForExistence(timeout: 2))
+        
+        addDrinkSubmitButton.tap()
+        
+        let updatedTotalAmount = app.staticTexts["500 ml"]
+        XCTAssertTrue(
+            updatedTotalAmount.waitForExistence(timeout: 2),
+            "Today should show the manually selected Add Drink volume as 500 ml"
+        )
+    }
+    
+    @MainActor
     func testAddingMultipleDrinksKeepsTodayUsable() throws {
         // Purpose: Proves that repeated drink additions do not break the Today flow
         //
