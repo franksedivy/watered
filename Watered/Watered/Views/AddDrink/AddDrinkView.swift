@@ -134,16 +134,6 @@ struct AddDrinkView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Add drink")
-                            .font(.headline)
-                        Text("Now, change time")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                
                 Section("Type") {
                     Picker("Drink type", selection: $selectedDrinkType) {
                         ForEach(DrinkType.allCases, id: \.self) { drinkType in
@@ -154,7 +144,6 @@ struct AddDrinkView: View {
                     .accessibilityIdentifier("addDrinkTypePicker")
                     .onChange(of: selectedDrinkType) { previousValue, newValue in
                         wateredLog("Selected drink type changed from \(previousValue) to \(newValue)")
-                        
                     }
                 }
                 
@@ -175,11 +164,20 @@ struct AddDrinkView: View {
                         wateredLog("Add Drink volume changed from \(previousValue) to \(newValue) \(defaultUnit.rawValue)")
                     }
                 }
-                
-                Section("Action") {
-                    Button(action: submitDrink) {
-                        Label("Add drink", systemImage: "plus")
+            }
+            
+            .navigationTitle("Add drink")
+            .navigationSubtitle("Now, change time")
+            .navigationBarTitleDisplayMode(.inline)
+            
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action :submitDrink) {
+                        Image(systemName: "checkmark")
                     }
+                    .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.circle)
+                    .accessibilityLabel("Save drink")
                     .accessibilityIdentifier("addDrinkSubmitButton")
                 }
             }
@@ -188,7 +186,6 @@ struct AddDrinkView: View {
                     "Add Drink opened with default unit \(defaultUnit.rawValue) and default volume:\(selectedVolumeValue) \(defaultUnit.rawValue)")
             }
         }
-        .navigationTitle("Add Drink")
     }
 }
 
