@@ -94,8 +94,11 @@ final class WateredUITests: XCTestCase {
         
         addDrinkSubmitButton.tap()
         
-        let updatedTotalAmount = app.staticTexts["todayTotalAmountText"]
-        XCTAssertTrue(updatedTotalAmount.waitForExistence(timeout: 2))
+        let updatedTotalAmount = app.staticTexts["330 ml"]
+        XCTAssertTrue(
+            updatedTotalAmount.waitForExistence(timeout: 2),
+            "Today should show the default Add Drink form submission as 330 ml"
+        )
     }
     
     @MainActor
