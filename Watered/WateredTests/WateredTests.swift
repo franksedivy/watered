@@ -173,6 +173,39 @@ struct WateredTests {
         #expect(hydrationContributionVolume?.value == -45)
     }
     
+    // MARK: - AddDrinkDraft
+    
+    @Test func addDrinkDraftCreatesDrinkEntryFromSelectedValues() async throws {
+        let date = Date()
+        
+        let draft = AddDrinkDraft(
+            drinkType: .water,
+            volumeValue: 330,
+            unit: .milliliters
+        )
+        
+        let entry = draft.drinkEntry(date: date)
+        
+        #expect(entry.type == .water)
+        #expect(entry.amount.value == 330)
+        #expect(entry.amount.unit == .milliliters)
+        #expect(entry.date == date)
+    }
+    
+    @Test func addDrinkDraftPreservesSelectedUnitWhenCreatingDrinkEntry() async throws {
+        let draft = AddDrinkDraft(
+            drinkType: .coffee,
+            volumeValue: 8,
+            unit: .imperialFluidOunces
+        )
+        
+        let entry = draft.drinkEntry()
+        
+        #expect(entry.type == .coffee)
+        #expect(entry.amount.value == 8)
+        #expect(entry.amount.unit == .imperialFluidOunces)
+    }
+    
     // MARK: - HydrationTracker
     
     @Test func hydrationTrackerCalculatesTotalVolume() async throws {

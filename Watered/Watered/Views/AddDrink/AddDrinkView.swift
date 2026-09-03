@@ -106,27 +106,24 @@ struct AddDrinkView: View {
     
     // MARK: - Submission
     //
-    // Purpose: Converts the current Add Drink form state into a real DrinkEntry.
+    // Purpose: Submits the current Add Drink form state as a real DrinkEntry.
     //
     // Input:
     // Reads the selected drink type, selected volume value, and default display unit
     // currently held by the form.
     //
     // Behavior:
-    // Creates a DrinkAmount from the selected volume, wraps it in a DrinkEntry with
-    // the current date, logs the submitted values, and hands the entry back to the
+    // Wraps the current form values in an AddDrinkDraft, asks the draft to create
+    // the DrinkEntry, logs the submitted entry, and hands the entry back to the
     // parent view.
     private func submitDrink() {
-        let drinkAmount = DrinkAmount(
-            value: selectedVolumeValue,
+        let draft = AddDrinkDraft(
+            drinkType: selectedDrinkType,
+            volumeValue: selectedVolumeValue,
             unit: defaultUnit
         )
         
-        let drinkEntry = DrinkEntry(
-            type: selectedDrinkType,
-            amount: drinkAmount,
-            date: Date()
-        )
+        let drinkEntry = draft.drinkEntry()
         
         wateredLog("Submitting drink entry: \(drinkEntry)")
         onAddDrink(drinkEntry)
