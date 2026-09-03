@@ -102,6 +102,20 @@ struct WateredTabView: View {
         return isTodaySelected && hasNoDrinks
     }
     
+    // MARK: - Transitions
+    //
+    // Purpose:
+    // Provides the shared animation namespace used to visually connect the
+    // floating Add Drink button with the Add Drink sheet.
+    //
+    // UI role:
+    // Lets SwiftUI treat the button as the source of the sheet's zoom transition.
+    @Namespace private var addDrinkTransition
+    
+    // Purpose:
+    // Gives the Add Drink button and Add Drink sheet a shared transition identity.
+    private let addDrinkTransitionID = "addDrink"
+    
     // MARK: - Body
     
     var body: some View {
@@ -135,8 +149,16 @@ struct WateredTabView: View {
                 wateredLog("Add drink button tapped")
                 isShowingAddDrinkSheet = true
             }
-            .padding(.trailing, 24)
-            .padding(.bottom, -13)
+            
+            .frame(width: 88, height: 88)
+            .contentShape(Rectangle())
+            .matchedTransitionSource(
+                id: addDrinkTransitionID,
+                in: addDrinkTransition
+            )
+            .padding(.trailing, 12)
+            .padding(.bottom, -26)
+            
             
             if shouldShowFirstDrinkPrompt {
                 FirstDrinkPrompt()
@@ -145,11 +167,20 @@ struct WateredTabView: View {
                     .padding(.bottom, 64)
             }
         }
+
         .sheet(isPresented: $isShowingAddDrinkSheet) {
             AddDrinkView(
                 defaultUnit: displayUnit,
                 onAddDrink: addDrinkEntry
             )
+            .navigationTransition(
+                .zoom(
+                    sourceID: addDrinkTransitionID,
+                    in: addDrinkTransition
+                )
+            )
+            .presentationDetents([.fraction(0.68), .large])
+            .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $isShowingProfileSheet) {
             ProfileView(displayUnit: $displayUnit)
