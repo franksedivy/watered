@@ -33,9 +33,10 @@ You can also read about the overall progress in my [Design Engineer's diary](htt
 - `0.1` [Core-model](https://github.com/franksedivy/watered/milestone/1), [Release notes](https://github.com/franksedivy/watered/releases/tag/0.1_Core-model)
 - `0.2` [Basic Today UI](https://github.com/franksedivy/watered/milestone/2), [Release notes](https://github.com/franksedivy/watered/releases/tag/0.2_Today-UI)
 - `0.3` [Add Drink Flow](https://github.com/franksedivy/watered/milestone/3), Release notes
-- `0.4` Persistence
+- `0.4` Persistence & Analytics
 - `0.5` HealthKit integration
-- `0.6` iOS Widget
-- `0.7` Apple Watch App
-- `0.8` iCloud backup & syncing
-- '0.9' UI & Foundation polish
+- `0.6` iOS Widget & Apple Watch App
+- `0.7` iCloud backup & syncing
+- `0.8` UI Drink transitions
+- `0.9` Hardening & Public beta
+- `1.0` Bug fixes, AppStore release 
