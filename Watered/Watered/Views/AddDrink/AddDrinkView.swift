@@ -43,8 +43,13 @@ struct AddDrinkView: View {
     
     // MARK: - Initialisation
     
-    init(defaultUnit: LiquidUnit, onAddDrink: @escaping (DrinkEntry) -> Void) {
+    init(
+        defaultUnit: LiquidUnit,
+        recentDrinkLabels: [String] = AddDrinkView.defaultRecentDrinkLabels,
+        onAddDrink: @escaping (DrinkEntry) -> Void
+    ) {
         self.defaultUnit = defaultUnit
+        self.recentDrinkLabels = recentDrinkLabels
         self.onAddDrink = onAddDrink
         _selectedVolumeValue = State(
             initialValue: AddDrinkView.defaultVolumeValue(for: defaultUnit)
@@ -71,26 +76,46 @@ struct AddDrinkView: View {
     // step exists.
     @State private var selectedVolumeValue: Double
     
-    // MARK: - Recent Drink Options
+    // MARK: - Default Recent Drinks Options
     //
     // Purpose:
-    // Provides temporary recent-drink options for the baseline Add Drink sheet UI.
+    // Provides temporary recent-drink labels for the baseline Add Drink sheet.
     //
     // Returns:
-    // A short list of display labels shown as horizontally scrolling pills.
-    //
-    // UI role:
-    // Lets the Add Drink sheet resemble the inteded design before real drink
-    // history and persistence exist.
+    // A short placeholder list used when the parent view does not provide recent
+    // drink data.
     //
     // Notes:
-    // These values are placeholders. They should replaced by real recent drink
-    // data once persistence exists.
-    private let recentDrinkLabels = [
+    // This keeps the 0.3 visual baseline alive while allowing previews, tests, and
+    // future persistence code to pass an empty lists.
+    private static let defaultRecentDrinkLabels = [
         "300 ml of Water",
         "250 ml of Coffee",
         "150 ml of Wine"
     ]
+        
+    // MARK: - Recent Drink Options
+    //
+    // Purpose:
+    // Stores the recent-drink labels available to the Add Drink sheet.
+    //
+    // Input:
+    // Supplied during initilsiation. Defaults to temporary placehoder data until
+    // persistence-backed recent drinks exist.
+    private let recentDrinkLabels: [String]
+    
+    // Purpose:
+    // Decides whether the Recent drinks section should be visible.
+    //
+    // Returns:
+    // 'true' when the Add Drink sheet has at least one recent-drink option.
+    //
+    // UI role:
+    // Precents the sheet from showing an empty Recent drinks section when there
+    // is no recent-drink data available.
+    private var hasRecentDrinkLabels: Bool {
+        return recentDrinkLabels.isEmpty == false
+    }
     
     // MARK: - Drink Type Options
     //
@@ -172,20 +197,15 @@ struct AddDrinkView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Recent drinks") {
-                    AddDrinkPillRow(
-                        labels: recentDrinkLabels,
-                        accessibilityIdentifier: "addDrinkRecentsScrollView"
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(
-                        EdgeInsets(
-                            top:        0,
-                            leading:    0,
-                            bottom:     0,
-                            trailing:   0
+                if hasRecentDrinkLabels {
+                    Section("Recent drinks") {
+                        AddDrinkPillRow(
+                            labels: recentDrinkLabels,
+                            accessibilityIdentifier: "addDrinkRecentsScrollView"
                         )
-                    )
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    }
                 }
                 Section("Drink type") {
                     AddDrinkPillRow(
@@ -203,15 +223,7 @@ struct AddDrinkView: View {
                         }
                     )
                     .listRowBackground(Color.clear)
-                    .listRowInsets(
-                        EdgeInsets(
-                            top:        0,
-                            leading:    0,
-                            bottom:     0,
-                            trailing:   0
-                        )
-                    )
-                    
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 }
                 
                 Section("Volume") {
@@ -227,14 +239,7 @@ struct AddDrinkView: View {
                         wateredLog("Add Drink volume changed from \(previousValue) to \(newValue) \(defaultUnit.rawValue)")
                     }
                     .listRowBackground(Color.clear)
-                    .listRowInsets(
-                        EdgeInsets(
-                            top:        0,
-                            leading:    0,
-                            bottom:     0,
-                            trailing:   0
-                        )
-                    )
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 }
             }
             
@@ -263,6 +268,15 @@ struct AddDrinkView: View {
 
 #Preview {
     AddDrinkView(defaultUnit: .milliliters) { drinkEntry in
+        wateredLog("Preview submitted drink entry: \(drinkEntry)")
+    }
+}
+
+#Preview("No Recent Drinks") {
+    AddDrinkView(
+        defaultUnit: .milliliters,
+        recentDrinkLabels: []
+    ) { drinkEntry in
         wateredLog("Preview submitted drink entry: \(drinkEntry)")
     }
 }
