@@ -71,6 +71,44 @@ struct AddDrinkView: View {
     // step exists.
     @State private var selectedVolumeValue: Double
     
+    // MARK: - Recent Drink Options
+    //
+    // Purpose:
+    // Provides temporary recent-drink options for the baseline Add Drink sheet UI.
+    //
+    // Returns:
+    // A short list of display labels shown as horizontally scrolling pills.
+    //
+    // UI role:
+    // Lets the Add Drink sheet resemble the inteded design before real drink
+    // history and persistence exist.
+    //
+    // Notes:
+    // These values are placeholders. They should replaced by real recent drink
+    // data once persistence exists.
+    private let recentDrinkLabels = [
+        "300 ml of Water",
+        "250 ml of Coffee",
+        "150 ml of Wine"
+    ]
+    
+    // MARK: - Drink Type Options
+    //
+    // Purpose:
+    // Provides the display labels for dirnk types shown in the Add Drink sheet.
+    //
+    // Returns:
+    // A list of drink type names based on the model's supported DrinkType values.
+    //
+    // UI role:
+    // Lets the Type section display horizontally scrolling selectable pills while
+    // still using DrinkType as the source of truth.
+    private var drinkTypeLabels: [String] {
+        DrinkType.allCases.map { drinkType in
+            drinkType.rawValue
+        }
+    }
+    
     // MARK: - Volume Options
     //
     // Purpose: Provides the first predefined volume options for the Add Drink form.
@@ -134,22 +172,46 @@ struct AddDrinkView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Type") {
-                    Picker("Drink type", selection: $selectedDrinkType) {
-                        ForEach(DrinkType.allCases, id: \.self) { drinkType in
-                            Text(drinkType.rawValue)
-                                .tag(drinkType)
-                        }
-                    }
-                    .accessibilityIdentifier("addDrinkTypePicker")
-                    .onChange(of: selectedDrinkType) { previousValue, newValue in
-                        wateredLog("Selected drink type changed from \(previousValue) to \(newValue)")
-                    }
+                Section("Recent drinks") {
+                    AddDrinkPillRow(
+                        labels: recentDrinkLabels,
+                        accessibilityIdentifier: "addDrinkRecentsScrollView"
+                    )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(
+                        EdgeInsets(
+                            top:        0,
+                            leading:    0,
+                            bottom:     0,
+                            trailing:   0
+                        )
+                    )
                 }
-                
-                Section("Recents") {
-                    Text("Recent drinks will go here")
-                        .foregroundStyle(.secondary)
+                Section("Drink type") {
+                    AddDrinkPillRow(
+                        labels: drinkTypeLabels,
+                        selectedLabel: selectedDrinkType.rawValue,
+                        accessibilityIdentifier: "addDrinkTypeScrollView",
+                        onSelect: { selectedLabel in
+                            guard let selectedDrinkType = DrinkType(rawValue: selectedLabel)
+                            else {
+                                return
+                            }
+                            
+                            wateredLog("Selected drink type changed to \(selectedDrinkType)")
+                            self.selectedDrinkType = selectedDrinkType
+                        }
+                    )
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(
+                        EdgeInsets(
+                            top:        0,
+                            leading:    0,
+                            bottom:     0,
+                            trailing:   0
+                        )
+                    )
+                    
                 }
                 
                 Section("Volume") {
@@ -159,10 +221,20 @@ struct AddDrinkView: View {
                                 .tag(volumeOption)
                         }
                     }
+                    .pickerStyle(.wheel)
                     .accessibilityIdentifier("addDrinkVolumePicker")
                     .onChange(of: selectedVolumeValue) { previousValue, newValue in
                         wateredLog("Add Drink volume changed from \(previousValue) to \(newValue) \(defaultUnit.rawValue)")
                     }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(
+                        EdgeInsets(
+                            top:        0,
+                            leading:    0,
+                            bottom:     0,
+                            trailing:   0
+                        )
+                    )
                 }
             }
             

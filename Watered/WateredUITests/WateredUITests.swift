@@ -108,9 +108,9 @@ final class WateredUITests: XCTestCase {
         // default form value.
         //
         // Behavior:
-        // Opens Add Drink, changes the volume picker form its default value to
+        // Opens Add Drink, adjusts the volume wheel from its default value to
         // 500 ml, submits the drink, and checks that Today shows the selected
-        // amount.
+        // amount
         let app = XCUIApplication()
         app.launch()
         
@@ -119,15 +119,10 @@ final class WateredUITests: XCTestCase {
         
         addDrinkButton.tap()
         
-        let volumePicker = app.buttons["addDrinkVolumePicker"]
-        XCTAssertTrue(volumePicker.waitForExistence(timeout: 2))
+        let volumePickerWheel = app.pickerWheels.firstMatch
+        XCTAssertTrue(volumePickerWheel.waitForExistence(timeout: 2))
         
-        volumePicker.tap()
-        
-        let fiveHundredMillilitersOption = app.buttons["500 ml"]
-        XCTAssertTrue(fiveHundredMillilitersOption.waitForExistence(timeout: 2))
-        
-        fiveHundredMillilitersOption.tap()
+        volumePickerWheel.adjust(toPickerWheelValue: "500 ml")
         
         let addDrinkSubmitButton = app.buttons["addDrinkSubmitButton"]
         XCTAssertTrue(addDrinkSubmitButton.waitForExistence(timeout: 2))
