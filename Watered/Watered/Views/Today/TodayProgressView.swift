@@ -40,6 +40,9 @@ struct TodayProgressView: View {
                 .font(.title2)
                 .fontWeight(.semibold)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Hydration progress")
+        .accessibilityValue(progressText)
     }
 }
 

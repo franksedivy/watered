@@ -29,6 +29,7 @@ struct FirstDrinkPrompt: View {
                 .multilineTextAlignment(.trailing)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
+                .accessibilityHidden(true)
             Image(systemName: "arrow.down.right")
                 .font(.system(size: 17, weight: .regular))
         }

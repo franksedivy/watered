@@ -41,6 +41,7 @@ struct TodayDrinkBreakdownView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .accessibilityElement(children: .combine)
     }
     
     // Purpose: Choses the color used for a breakdown row's hydration impact
