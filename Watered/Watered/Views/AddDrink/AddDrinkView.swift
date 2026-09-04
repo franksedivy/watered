@@ -45,11 +45,11 @@ struct AddDrinkView: View {
     
     init(
         defaultUnit: LiquidUnit,
-        recentDrinkLabels: [String] = AddDrinkView.defaultRecentDrinkLabels,
+        recentDrinkOptions: [RecentDrinkOption] = AddDrinkView.defaultRecentDrinkOptions,
         onAddDrink: @escaping (DrinkEntry) -> Void
     ) {
         self.defaultUnit = defaultUnit
-        self.recentDrinkLabels = recentDrinkLabels
+        self.recentDrinkOptions = recentDrinkOptions
         self.onAddDrink = onAddDrink
         _selectedVolumeValue = State(
             initialValue: AddDrinkView.defaultVolumeValue(for: defaultUnit)
@@ -88,10 +88,10 @@ struct AddDrinkView: View {
     // Notes:
     // This keeps the 0.3 visual baseline alive while allowing previews, tests, and
     // future persistence code to pass an empty lists.
-    private static let defaultRecentDrinkLabels = [
-        "300 ml of Water",
-        "250 ml of Coffee",
-        "150 ml of Wine"
+    private static let defaultRecentDrinkOptions = [
+        RecentDrinkOption(drinkType: .water, volumeValue: 300, unit: .milliliters),
+        RecentDrinkOption(drinkType: .coffee, volumeValue: 250, unit: .milliliters),
+        RecentDrinkOption(drinkType: .wine, volumeValue: 150, unit: .milliliters)
     ]
         
     // MARK: - Recent Drink Options
@@ -102,7 +102,7 @@ struct AddDrinkView: View {
     // Input:
     // Supplied during initilsiation. Defaults to temporary placehoder data until
     // persistence-backed recent drinks exist.
-    private let recentDrinkLabels: [String]
+    private let recentDrinkOptions: [RecentDrinkOption]
     
     // Purpose:
     // Decides whether the Recent drinks section should be visible.
@@ -113,8 +113,24 @@ struct AddDrinkView: View {
     // UI role:
     // Precents the sheet from showing an empty Recent drinks section when there
     // is no recent-drink data available.
-    private var hasRecentDrinkLabels: Bool {
-        return recentDrinkLabels.isEmpty == false
+    private var hasRecentDrinkOptions: Bool {
+        return recentDrinkOptions.isEmpty == false
+    }
+    
+    // Purpose:
+    // Converts structured recent-drink options into labels for the pill row.
+    //
+    // Returns:
+    // A list of user-facing labels such as "300 ml of Water".
+    //
+    // UI role:
+    // Keeps AddDrinkPillowRow simple for now by giving it strings, while
+    // AddDrinkView still retains the structured recent-drink data needed for
+    // direct submissions.
+    private var recentDrinkLabels: [String] {
+        return recentDrinkOptions.map { recentDrinkOptions in
+            recentDrinkOptions.label
+        }
     }
     
     // MARK: - Drink Type Options
@@ -192,16 +208,42 @@ struct AddDrinkView: View {
         onAddDrink(drinkEntry)
     }
     
+    // Purpose:
+    // Submit a recent-drink option immediately.
+    //
+    // Input:
+    // Accepts the label from the tapped recent-drink pill.
+    //
+    // Behavior:
+    // Finds the matching RecentDrinkOption, converts it to a DrinkEntry, logs the
+    // submitted recent drink, and hands the entry back to the parent view.
+    private func submitRecentDrink(label: String) {
+        guard let recentDrinkOption = recentDrinkOptions.first(where: { recentDrinkOption in
+            recentDrinkOption.label == label
+        }) else {
+            wateredLog("Could not submit recent drink because no option matched label: \(label)")
+            return
+        }
+        
+        let drinkEntry = recentDrinkOption.drinkEntry()
+        
+        wateredLog("Submitting recent drink entry: \(drinkEntry)")
+        onAddDrink(drinkEntry)
+    }
+    
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
             Form {
-                if hasRecentDrinkLabels {
+                if hasRecentDrinkOptions {
                     Section("Recent drinks") {
                         AddDrinkPillRow(
                             labels: recentDrinkLabels,
-                            accessibilityIdentifier: "addDrinkRecentsScrollView"
+                            accessibilityIdentifier: "addDrinkRecentsScrollView",
+                            onSelect: { selectedLabel in
+                                submitRecentDrink(label: selectedLabel)
+                            }
                         )
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -275,7 +317,7 @@ struct AddDrinkView: View {
 #Preview("No Recent Drinks") {
     AddDrinkView(
         defaultUnit: .milliliters,
-        recentDrinkLabels: []
+        recentDrinkOptions: []
     ) { drinkEntry in
         wateredLog("Preview submitted drink entry: \(drinkEntry)")
     }

@@ -52,7 +52,11 @@ struct AddDrinkPillRow: View {
                         } label: {
                             pillContent(for: label)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(
+                            AddDrinkPillButtonStyle(
+                                isSelected: selectedLabel == label
+                            )
+                        )
                     }
                     else {
                         pillContent(for: label)
@@ -90,6 +94,39 @@ struct AddDrinkPillRow: View {
                 in: Capsule()
             )
             .background(.thinMaterial, in: Capsule())
+    }
+    
+    // MARK: - Add Drink Pill Button Style
+    //
+    // Purpose:
+    // Adds pressed-state feedback to tappable Add Drink pills.
+    //
+    // Input:
+    // Recieves SwiftUI's button configuration and whether the pill is already
+    // selected
+    //
+    // Returns:
+    // A button body that keeps the resting pill style intact, while briefly using
+    // the selected color as the user presses it.
+    //
+    // UI role:
+    // Makes recent-drink pills feel tappable without making them permanently  look
+    // selected after the direct-submit action runs.
+    private struct AddDrinkPillButtonStyle: ButtonStyle {
+        let isSelected: Bool
+        
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .foregroundStyle(shouldUseSelectedStyle(configuration: configuration) ? .white : .primary)
+                .background(
+                    shouldUseSelectedStyle(configuration: configuration) ? Color.accentColor : Color.clear,
+                    in: Capsule()
+                )
+        }
+        
+        private func shouldUseSelectedStyle(configuration: Configuration) -> Bool {
+            return isSelected || configuration.isPressed
+        }
     }
 }
 
