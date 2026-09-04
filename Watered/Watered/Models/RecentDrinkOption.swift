@@ -14,7 +14,7 @@ import Foundation
 //
 // Input:
 // Accepts the drink type, volume value, and unit needed to recreate a previously
-// used drink
+// used drink.
 //
 // Returns:
 // A lightweight value that can provide display text and submit a real DrinkEntry.
@@ -33,7 +33,7 @@ struct RecentDrinkOption {
     // Provides the text shown inside the recent-drink pill.
     //
     // Returns:
-    // A short user-facing label such as "300 ml of Water|.
+    // A short user-facing label such as "300 ml of Water".
     var label: String {
         return "\(Int(volumeValue)) \(unit.rawValue) of \(drinkType.rawValue)"
     }

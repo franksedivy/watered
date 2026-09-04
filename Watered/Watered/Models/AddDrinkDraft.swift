@@ -19,14 +19,14 @@ import Foundation
 //
 // Returns:
 // A lightweight value that can create a DrinkEntry without depending on
-// Swift UI
+// SwiftUI
 //
 // Notes:
 // This keeps AddDrinkView focused on UI state and user interaction. The view
 // decides what the user selected, while AddDrinkDraft decides how those selected
 // values become app model data.
 struct AddDrinkDraft {
-    let drinkType : DrinkType
+    let drinkType: DrinkType
     let volumeValue: Double
     let unit: LiquidUnit
     

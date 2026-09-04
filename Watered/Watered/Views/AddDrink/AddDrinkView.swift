@@ -9,22 +9,26 @@ import SwiftUI
 
 // MARK: - Add Drink View
 //
-// Input: Accepts an onAddDrink closure from the parent view.
+// Purpose:
+// Presents Watered's first real Add Drink flow.
+//
+// Input:
+// Accepts the current display unit, optional recent-drink shortcuts, and an
+// onAddDrink closure from the parent view.
 //
 // Returns:
-// A SwiftUI view containing the first native add-drink action.
+// A SwiftUI sheet view that can submit either a selected recent drink or a new
+// drink built from the form's selected type and volume.
 //
 // UI role:
-// This screen gives the app a real place for the add-drink flow to live.
-// In 0.2 it only triggers the temporary demo drink action. In 0.3 this can grow
-// into the proper drink logging flow without changing the app's top-level
-// navigation shape.
+// This view owns the temporary Add Drink form state. It does not store drinks
+// itself; submitted entries are handed back to the parent through onAddDrink.
 struct AddDrinkView: View {
     // MARK: - Actions
     
     // Purpose:
-    // Stores the action taht recieves teh complete dirnk entry when the user
-    // submits the Add Drink form.
+    // Stores the action that receives a completed drink entry when the user submits
+    // the Add Drink form.
     //
     // Input: Supplied by the parent view that owns the current drink entries.
     private let onAddDrink: (DrinkEntry) -> Void
@@ -65,8 +69,7 @@ struct AddDrinkView: View {
     // DrinkEntry creation step exists.
     //
     // Notes:
-    // This is local form state. It does not update Today until a later ticket
-    // wires the submitted form into the app state.
+    // This is local form state. It updates Today only after the user submits the form.
     @State private var selectedDrinkType: DrinkType = .water
     
     // Purpose: Stores the selected volume amount inside the Add Drink form.
@@ -76,18 +79,14 @@ struct AddDrinkView: View {
     // step exists.
     @State private var selectedVolumeValue: Double
     
-    // MARK: - Default Recent Drinks Options
+    // MARK: - Default Recent Drink Options
     //
     // Purpose:
-    // Provides temporary recent-drink labels for the baseline Add Drink sheet.
+    // Stores the recent-drink shortcuts available to the Add Drink sheet.
     //
-    // Returns:
-    // A short placeholder list used when the parent view does not provide recent
-    // drink data.
-    //
-    // Notes:
-    // This keeps the 0.3 visual baseline alive while allowing previews, tests, and
-    // future persistence code to pass an empty lists.
+    // Input:
+    // Supplied during initialisation. Defaults to temporary placeholder data until
+    // persistence-backed recent drinks exist.
     private static let defaultRecentDrinkOptions = [
         RecentDrinkOption(drinkType: .water, volumeValue: 300, unit: .milliliters),
         RecentDrinkOption(drinkType: .coffee, volumeValue: 250, unit: .milliliters),
@@ -124,12 +123,12 @@ struct AddDrinkView: View {
     // A list of user-facing labels such as "300 ml of Water".
     //
     // UI role:
-    // Keeps AddDrinkPillowRow simple for now by giving it strings, while
+    // Keeps AddDrinkPillRow simple for now by giving it strings, while
     // AddDrinkView still retains the structured recent-drink data needed for
     // direct submissions.
     private var recentDrinkLabels: [String] {
-        return recentDrinkOptions.map { recentDrinkOptions in
-            recentDrinkOptions.label
+        return recentDrinkOptions.map { recentDrinkOption in
+            recentDrinkOption.label
         }
     }
     

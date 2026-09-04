@@ -14,11 +14,11 @@ import SwiftUI
 //
 // Input:
 // Accepts display labels that should be shown as pills, an optional
-// selected label, and an ptional selection action.
+// selected label, and an optional selection action.
 //
 // Returns:
 // A SwiftUI view containing a horizontal scroll view of pill labels
-// or pill buttons
+// or pill buttons.
 //
 // Notes:
 // Recents can use this as a read-only row by omitting the selected label
@@ -102,15 +102,15 @@ struct AddDrinkPillRow: View {
     // Adds pressed-state feedback to tappable Add Drink pills.
     //
     // Input:
-    // Recieves SwiftUI's button configuration and whether the pill is already
-    // selected
+    // Receives SwiftUI's button configuration and whether the pill is already
+    // selected.
     //
     // Returns:
     // A button body that keeps the resting pill style intact, while briefly using
     // the selected color as the user presses it.
     //
     // UI role:
-    // Makes recent-drink pills feel tappable without making them permanently  look
+    // Makes recent-drink pills feel tappable without making them permanently look
     // selected after the direct-submit action runs.
     private struct AddDrinkPillButtonStyle: ButtonStyle {
         let isSelected: Bool
