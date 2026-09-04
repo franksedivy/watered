@@ -25,14 +25,14 @@ import SwiftUI
 // itself; submitted entries are handed back to the parent through onAddDrink.
 struct AddDrinkView: View {
     // MARK: - Actions
-    
+
     // Purpose:
     // Stores the action that receives a completed drink entry when the user submits
     // the Add Drink form.
     //
     // Input: Supplied by the parent view that owns the current drink entries.
     private let onAddDrink: (DrinkEntry) -> Void
-    
+
     // Purpose:
     // Stores the app-level display unit when the Add Drink form opens.
     //
@@ -44,9 +44,9 @@ struct AddDrinkView: View {
     // Lets Add Drink defaults its volume selection to the same unit Today
     // is using.
     private let defaultUnit: LiquidUnit
-    
+
     // MARK: - Initialisation
-    
+
     init(
         defaultUnit: LiquidUnit,
         recentDrinkOptions: [RecentDrinkOption] = AddDrinkView.defaultRecentDrinkOptions,
@@ -59,7 +59,7 @@ struct AddDrinkView: View {
             initialValue: AddDrinkView.defaultVolumeValue(for: defaultUnit)
         )
     }
-    
+
     // MARK: - Form State
     //
     // Purpose: Stores the drink tyep currently selected in the Add Drink form.
@@ -71,14 +71,14 @@ struct AddDrinkView: View {
     // Notes:
     // This is local form state. It updates Today only after the user submits the form.
     @State private var selectedDrinkType: DrinkType = .water
-    
+
     // Purpose: Stores the selected volume amount inside the Add Drink form.
     //
     // Input:
     // Gives the form a concrete volume value before the real DrinkEntry creation
     // step exists.
     @State private var selectedVolumeValue: Double
-    
+
     // MARK: - Default Recent Drink Options
     //
     // Purpose:
@@ -92,7 +92,7 @@ struct AddDrinkView: View {
         RecentDrinkOption(drinkType: .coffee, volumeValue: 250, unit: .milliliters),
         RecentDrinkOption(drinkType: .wine, volumeValue: 150, unit: .milliliters)
     ]
-        
+
     // MARK: - Recent Drink Options
     //
     // Purpose:
@@ -102,7 +102,7 @@ struct AddDrinkView: View {
     // Supplied during initilsiation. Defaults to temporary placehoder data until
     // persistence-backed recent drinks exist.
     private let recentDrinkOptions: [RecentDrinkOption]
-    
+
     // Purpose:
     // Decides whether the Recent drinks section should be visible.
     //
@@ -115,7 +115,7 @@ struct AddDrinkView: View {
     private var hasRecentDrinkOptions: Bool {
         return recentDrinkOptions.isEmpty == false
     }
-    
+
     // Purpose:
     // Converts structured recent-drink options into labels for the pill row.
     //
@@ -131,7 +131,7 @@ struct AddDrinkView: View {
             recentDrinkOption.label
         }
     }
-    
+
     // MARK: - Drink Type Options
     //
     // Purpose:
@@ -148,7 +148,7 @@ struct AddDrinkView: View {
             drinkType.rawValue
         }
     }
-    
+
     // MARK: - Volume Options
     //
     // Purpose: Provides the first predefined volume options for the Add Drink form.
@@ -168,7 +168,7 @@ struct AddDrinkView: View {
             return [5, 8, 10, 12, 16, 20, 24, 32]
         }
     }
-    
+
     // Purpose: Provides the default volumes for the form's selected unit.
     //
     // Input: Accepts the unit that Add Drink recieved from the app-level setting.
@@ -181,7 +181,7 @@ struct AddDrinkView: View {
         case .imperialFluidOunces:  return 8
         }
     }
-    
+
     // MARK: - Submission
     //
     // Purpose: Submits the current Add Drink form state as a real DrinkEntry.
@@ -200,13 +200,13 @@ struct AddDrinkView: View {
             volumeValue: selectedVolumeValue,
             unit: defaultUnit
         )
-        
+
         let drinkEntry = draft.drinkEntry()
-        
-        wateredLog("Submitting drink entry: \(drinkEntry)")
+
+        wateredLog("Add Drink submitted \(selectedDrinkType.rawValue) at \(Int(selectedVolumeValue)) \(defaultUnit.rawValue)")
         onAddDrink(drinkEntry)
     }
-    
+
     // Purpose:
     // Submit a recent-drink option immediately.
     //
@@ -223,15 +223,15 @@ struct AddDrinkView: View {
             wateredLog("Could not submit recent drink because no option matched label: \(label)")
             return
         }
-        
+
         let drinkEntry = recentDrinkOption.drinkEntry()
-        
-        wateredLog("Submitting recent drink entry: \(drinkEntry)")
+
+        wateredLog("Recent drink submitted: \(recentDrinkOption.label)")
         onAddDrink(drinkEntry)
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -258,15 +258,15 @@ struct AddDrinkView: View {
                             else {
                                 return
                             }
-                            
-                            wateredLog("Selected drink type changed to \(selectedDrinkType)")
+
+                            wateredLog("Add Drink type changed to \(selectedDrinkType.rawValue)")
                             self.selectedDrinkType = selectedDrinkType
                         }
                     )
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 }
-                
+
                 Section("Volume") {
                     Picker("Volume", selection: $selectedVolumeValue) {
                         ForEach(volumeOptions, id: \.self) { volumeOption in
@@ -280,7 +280,7 @@ struct AddDrinkView: View {
                     .accessibilityValue("\(Int(selectedVolumeValue)) \(defaultUnit.rawValue)")
                     .accessibilityHint("Adjusts the amount for the drink being added.")
                     .onChange(of: selectedVolumeValue) { previousValue, newValue in
-                        wateredLog("Add Drink volume changed from \(previousValue) to \(newValue) \(defaultUnit.rawValue)")
+                        wateredLog("Add Drink volume changed from \(Int(previousValue)) \(defaultUnit.rawValue) to \(Int(newValue)) \(defaultUnit.rawValue)")
                     }
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -290,7 +290,7 @@ struct AddDrinkView: View {
             .navigationTitle("Add drink")
             .navigationSubtitle("Now, change time")
             .navigationBarTitleDisplayMode(.inline)
-            
+
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action :submitDrink) {
@@ -305,7 +305,8 @@ struct AddDrinkView: View {
             }
             .onAppear {
                 wateredLog(
-                    "Add Drink opened with default unit \(defaultUnit.rawValue) and default volume:\(selectedVolumeValue) \(defaultUnit.rawValue)")
+                    "Add Drink sheet appeared with unit \(defaultUnit.rawValue) and default volume \(Int(selectedVolumeValue)) \(defaultUnit.rawValue)"
+                )
             }
         }
     }
