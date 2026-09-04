@@ -41,6 +41,7 @@ struct AddDrinkActionButton: View {
         .buttonBorderShape(.circle)
         .accessibilityLabel("Add drink")
         .accessibilityIdentifier("addDrinkActionButton")
+        .accessibilityHint("Opens the Add Drink form.")
     }
 }
 

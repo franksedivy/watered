@@ -42,10 +42,11 @@ struct ProfileView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    .accessibilityHint("Changes the volume unit used across Watered.")
                 }
             }
-            Color.clear
-                .navigationTitle("Profile")
+            .navigationTitle("Profile")
+            .accessibilityIdentifier("profileScreen")
         }
     }
 }

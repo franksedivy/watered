@@ -46,6 +46,8 @@ struct ProfileToolbar: ToolbarContent {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Profile")
+            .accessibilityHint("Opens Profile settings.")
+            .accessibilityIdentifier("profileButton")
         }
     }
 }
