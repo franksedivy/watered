@@ -276,6 +276,9 @@ struct AddDrinkView: View {
                     }
                     .pickerStyle(.wheel)
                     .accessibilityIdentifier("addDrinkVolumePicker")
+                    .accessibilityLabel("Drink volume")
+                    .accessibilityValue("\(Int(selectedVolumeValue)) \(defaultUnit.rawValue)")
+                    .accessibilityHint("Adjusts the amount for the drink being added.")
                     .onChange(of: selectedVolumeValue) { previousValue, newValue in
                         wateredLog("Add Drink volume changed from \(previousValue) to \(newValue) \(defaultUnit.rawValue)")
                     }
@@ -283,7 +286,7 @@ struct AddDrinkView: View {
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 }
             }
-            
+            .accessibilityIdentifier("addDrinkScreen")
             .navigationTitle("Add drink")
             .navigationSubtitle("Now, change time")
             .navigationBarTitleDisplayMode(.inline)
@@ -296,6 +299,7 @@ struct AddDrinkView: View {
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.circle)
                     .accessibilityLabel("Save drink")
+                    .accessibilityHint("Adds the selected drink and closes the Add Drink form.")
                     .accessibilityIdentifier("addDrinkSubmitButton")
                 }
             }
