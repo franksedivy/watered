@@ -166,6 +166,42 @@ final class WateredUITests: XCTestCase {
         }
     }
     
+    @MainActor
+    func testAddingRecentDrinkUpdatesTodayTotalAmount() throws {
+        // Purpose:
+        // Proves that a recent-drink pill submits its drink directly.
+        //
+        // Behavior:
+        // Opens Add Drink, taps a complete recent-drink shortcut, and checks that
+        // Today updates without using the checkmark submit button.
+        let app = XCUIApplication()
+        app.launch()
+        
+        let addDrinkButton = app.buttons["addDrinkActionButton"]
+        XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
+        
+        addDrinkButton.tap()
+        
+        let recentDrinksRow = app.scrollViews["addDrinkRecentsScrollView"]
+        XCTAssertTrue(recentDrinksRow.waitForExistence(timeout: 2))
+        
+        let firstRecentDrinkButton = recentDrinksRow.buttons.firstMatch
+        XCTAssertTrue(firstRecentDrinkButton.waitForExistence(timeout: 2))
+        
+        firstRecentDrinkButton.tap()
+        
+        let addDrinkSubmitButton = app.buttons["addDrinkSubmitButton"]
+        XCTAssertFalse(
+            addDrinkSubmitButton.waitForExistence(timeout: 1),
+            "Add Drink should close after directly submitting a recent drink"
+        )
+        
+        let totalAmountText = app.staticTexts["todayTotalAmountText"]
+        XCTAssertTrue(
+            totalAmountText.waitForExistence(timeout: 2),
+            "Today should still show the total amount after submitting a recent drink"
+        )
+    }
 
 //    @MainActor
 //    func testLaunchPerformance() throws {
