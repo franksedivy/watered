@@ -4,11 +4,13 @@ The current focus is the early Today screen UI: showing model-driven hydration d
 TLDR; Hydration tracker, learning project, model-first SwiftUI app.
 
 ## Current Status
-Watered has a working core hydration model and an early Today screen built with native SwiftUI navigation.
-Temporary in-memory demo drinks can be added through the Add Drink sheet.
-Profile includes a temporary display-unit picker.
-Currently, the add drink flow is being designed and developed.
-No persistence / HealthKit / Watch yet.
+Watered has a working core hydration model, native SwiftUI Today screen, and first Add Drink flow.
+
+The app can create real `DrinkEntry` values from the UI, update Today, switch display units during a session, and show recent-drink shortcuts. Drink entries and settings are currently still in-memory only.
+
+The current milestone is `0.4 Persistence`, focused on moving drink entries, display settings, and hydration goal settings into persistent app-owned state. This work is also shaping the data model for future iCloud sync and HealthKit export.
+
+No HealthKit, widgets, Watch app, iCloud sync, or production analytics provider yet.
 
 ## Getting Started
 1. Simply open the project in Xcode, no special setup required yet.
@@ -33,10 +35,10 @@ You can also read about the overall progress in my [Design Engineer's diary](htt
 - `0.1` [Core-model](https://github.com/franksedivy/watered/milestone/1), [Release notes](https://github.com/franksedivy/watered/releases/tag/0.1_Core-model)
 - `0.2` [Basic Today UI](https://github.com/franksedivy/watered/milestone/2), [Release notes](https://github.com/franksedivy/watered/releases/tag/0.2_Today-UI)
 - `0.3` [Add Drink Flow](https://github.com/franksedivy/watered/milestone/3), [Release notes](https://github.com/franksedivy/watered/releases/tag/0.3_Add-drink)
-- `0.4` Persistence & Analytics
+- `0.4` [Persistence & Analytics](https://github.com/franksedivy/watered/milestone/4)
 - `0.5` HealthKit integration & iOS27 upgrade
 - `0.6` iOS Widget & Apple Watch App
-- `0.7` iCloud backup & syncing
+- `0.7` Drinks catalogue & iCloud backup
 - `0.8` UI Drink transitions
 - `0.9` Hardening & Public beta
 - `1.0` Bug fixes, AppStore release 
