@@ -93,6 +93,70 @@ struct WateredTests {
         #expect(entry.date == date)
     }
     
+    // GIVEN a drink entry created without explicit persistence metadata,
+    //  WHEN the entry is initiated
+    //  THEN it recieves default metadata ready for persistence
+    @Test func drinkEntryCreatesManualMetadataByDefault() async throws {
+        let loggedDate = Date()
+        let entry = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: loggedDate
+        )
+        
+        #expect(entry.id != UUID(uuidString: "00000000-0000-0000-0000-000000000000"))
+        #expect(entry.loggedAt == loggedDate)
+        #expect(entry.source == .manual)
+        #expect(entry.createdAt <= Date())
+        #expect(entry.updatedAt <= Date())
+    }
+    
+    // GIVEN two drink entries created without explicit identifiers,
+    //  WHEN when their IDs are compared
+    //  THEN each entry has a distict identifier for persistence.
+    @Test func drinkEntryCreatesDifferentIdentifiersByDefault() async throws {
+        let firstEntry = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        let secondEntry = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date()
+        )
+        
+        #expect(firstEntry.id != secondEntry.id)
+    }
+    
+    // GIVEN explicit metadata values from persistence,
+    //  WHEN a drink entry is recreated,
+    //  THEN the model preserves the metadata exactly
+    @Test func drinkEntryAcceptsExplicitPersistenceMetadata() async throws {
+        let id = UUID()
+        let loggedDate = Date(timeIntervalSince1970: 1000)
+        let createdAt = Date(timeIntervalSince1970: 2000)
+        let updatedAt = Date(timeIntervalSince1970: 3000)
+        
+        let entry = DrinkEntry(
+            id: id,
+            type: .coffee,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: loggedDate,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            source: .manual,
+        )
+        
+        #expect(entry.id == id)
+        #expect(entry.date == loggedDate)
+        #expect(entry.loggedAt == loggedDate)
+        #expect(entry.createdAt == createdAt)
+        #expect(entry.updatedAt == updatedAt)
+        #expect(entry.source == .manual)
+    }
+    
     @Test func drinkEntryDescriptionIncludesTypeAndAmount() async throws {
         let entry = DrinkEntry(
             type: .water,

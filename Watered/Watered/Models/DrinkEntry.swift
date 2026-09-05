@@ -7,12 +7,45 @@
 
 import Foundation
 
-struct DrinkEntry: CustomStringConvertible {
+struct DrinkEntry: Identifiable, CustomStringConvertible {
+    let id: UUID
     let type: DrinkType
     let amount: DrinkAmount
     let date: Date
+    let createdAt: Date
+    let updatedAt: Date
+    let source: DrinkEntrySource
+    
     var description: String {
         "\(type.rawValue), \(amount)"
+    }
+    
+    // Purpose:
+    // Provides a clearer name for the date the drink was logged for.
+    //
+    // Notes:
+    // This keeps the existing 'date' property stable while preparing th emodel for
+    // the future persistent 'loggedAt' field.
+    var loggedAt: Date {
+        date
+    }
+    
+    init(
+        id: UUID = UUID(),
+        type: DrinkType,
+        amount: DrinkAmount,
+        date: Date,
+        createdAt: Date = Date(),
+        updatedAt: Date = Date(),
+        source: DrinkEntrySource = .manual
+    ) {
+        self.id = id
+        self.type = type
+        self.amount = amount
+        self.date = date
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.source = source
     }
     
     // MARK: - Hydration Contribution
