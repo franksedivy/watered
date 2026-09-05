@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct WateredApp: App {
@@ -13,5 +14,6 @@ struct WateredApp: App {
         WindowGroup {
             WateredRootView()
         }
+        .modelContainer(for: PersistentDrinkEntry.self)
     }
 }

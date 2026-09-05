@@ -31,6 +31,23 @@ final class WateredStore {
         self.entries = entries
     }
     
+    // MARK: - Persistence Loading
+    //
+    // Purpose:
+    // Replace the current in-memory drink entries with entries loaded from
+    // persistence.
+    //
+    // Input:
+    // Accepts DrinkEntry values recreated from SwiftData.
+    //
+    // Behavior:
+    // Update the store so the UI can render persisted drink entries after app
+    // launch.
+    func loadDrinkEntries(_ loadedEntries: [DrinkEntry]) {
+        entries = loadedEntries
+        wateredLog("Loaded \(entries.count) persisted drink entries into WateredStore")
+    }
+    
     // MARK: - Actions
     //
     // Input:

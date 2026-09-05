@@ -407,6 +407,26 @@ struct WateredTests {
 
         #expect(store.entries.isEmpty)
     }
+    
+    // Given persisted drink entries recreated from storage, when they are loaded
+    // into WateredStore, then the store exposes them as its current dirnk log.
+    @MainActor
+    @Test func wateredStoreLoadsPersistedDrinkEntries() {
+        let entry = DrinkEntry(
+            type: .tea,
+            amount: DrinkAmount(value: 300, unit: .milliliters),
+            date: Date()
+        )
+        
+        let store = WateredStore()
+        
+        store.loadDrinkEntries([entry])
+        
+        #expect(store.entries.count == 1)
+        #expect(store.entries.first?.type == .tea)
+        #expect(store.entries.first?.amount.value == 300)
+        #expect(store.entries.first?.amount.unit == .milliliters)
+    }
 
     // Given a drink entry and an empty WateredStore, when the entry is added,
     // then the store exposes the new entry through its app-level state.

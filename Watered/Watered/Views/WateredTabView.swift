@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 // MARK: - Watered Tab View
 //
@@ -34,7 +35,7 @@ struct WateredTabView: View {
         case today = "Today"
         case learn = "Learn"
     }
-
+    
     // Purpose: Stores the currently selected top-level app tab.
     //
     // UI role: Lets WateredTabView show app-level UI only when it belongs to the
@@ -60,6 +61,22 @@ struct WateredTabView: View {
     // Keeps drink entries above the tab views without making WateredTabView
     // directly own or mutate the entries array.
     @State private var store = WateredStore()
+    
+    // MARK: - Persistence
+    //
+    // Purpose:
+    // Gives WateredTabView access to the SwiftData context supplied by WateredApp.
+    //
+    // UI role:
+    // Lets the Add Drink submission boundary save new drink entries
+    @Environment(\.modelContext) private var modelContext
+    
+    // Purpose:
+    // Reads persisted drink entries from SwftData.
+    //
+    // UI role:
+    // Lets WateredTabView hydrate WateredStore when the app starts.
+    @Query(sort: \PersistentDrinkEntry.loggedAt) private var persistentDrinkEntries: [PersistentDrinkEntry]
 
     // Purpose: Controls whether the temporary Add Drink sheet is visible.
     //
@@ -144,6 +161,12 @@ struct WateredTabView: View {
             .onChange(of: selectedTab) { previousTab, newTab in
                 wateredLog("Selected tab changed from \(previousTab.rawValue) to \(newTab.rawValue)")
             }
+            .onAppear {
+                loadPersistedDrinkEntries()
+            }
+            .onChange(of: persistentDrinkEntries) {
+                loadPersistedDrinkEntries()
+            }
 
             AddDrinkActionButton {
                 wateredLog("Add Drink flow opened")
@@ -191,6 +214,20 @@ struct WateredTabView: View {
 
     // MARK: - Actions
 
+    // Purpose:
+    // Loads persisted drink entries into Watered's app-level store.
+    //
+    // Behavior:
+    // Converts SwiftData rows back into DrinkEntry values and ignores rows that no
+    // longer map to known model values.
+    private func loadPersistedDrinkEntries() {
+        let loadedEntries = persistentDrinkEntries.compactMap { persistentDrinkEntry in
+            persistentDrinkEntry.drinkEntry()
+        }
+        
+        store.loadDrinkEntries(loadedEntries)
+    }
+    
     // Purpose: Adds a real drink entry submitted from the Add Drink form.
     //
     // Input:
@@ -198,9 +235,10 @@ struct WateredTabView: View {
     // selected volume, selected unit, and current date.
     //
     // Behavior:
-    // Appends the entry to temporary app state, logs the added drink, and closes the
-    // Add Drink sheet so Today can refresh with the new total.
+    // Saves the entry to SwiftData, updates the app-level store, logs the added
+    // drink, and closes the Add Drink sheet so Today can refresh with the new total.
     private func addDrinkEntry(_ entry: DrinkEntry) {
+        modelContext.insert(PersistentDrinkEntry(drinkEntry: entry))
         store.addDrinkEntry(entry)
         wateredLog("Drink entry accepted by Today state: \(entry.type.rawValue) \(entry.amount.formatted); drink count is \(store.entries.count)")
         isShowingAddDrinkSheet = false
