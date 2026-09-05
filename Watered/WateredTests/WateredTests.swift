@@ -314,6 +314,89 @@ struct WateredTests {
         #expect(entry.amount.unit == .imperialFluidOunces)
     }
 
+    // MARK: - PersistentDrinkEntry
+    //
+    // Given a drink entry with persistence metadata, when a persistent drink entry
+    // is created from it, then the stored values use stable persistence identifiers.
+    @MainActor
+    @Test func persistentDrinkEntryStoresDrinkEntryValues() {
+        let id = UUID()
+        let loggedAt = Date(timeIntervalSince1970: 1000)
+        let createdAt = Date(timeIntervalSince1970: 2000)
+        let updatedAt = Date(timeIntervalSince1970: 3000)
+
+        let drinkEntry = DrinkEntry(
+            id: id,
+            type: .coffee,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: loggedAt,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            source: .manual
+        )
+
+        let persistentDrinkEntry = PersistentDrinkEntry(drinkEntry: drinkEntry)
+
+        #expect(persistentDrinkEntry.id == id)
+        #expect(persistentDrinkEntry.drinkTypeID == "coffee")
+        #expect(persistentDrinkEntry.volumeValue == 250)
+        #expect(persistentDrinkEntry.unitID == "milliliters")
+        #expect(persistentDrinkEntry.loggedAt == loggedAt)
+        #expect(persistentDrinkEntry.createdAt == createdAt)
+        #expect(persistentDrinkEntry.updatedAt == updatedAt)
+        #expect(persistentDrinkEntry.source == "manual")
+    }
+
+    // Given a persistent drink entry with known stored identifiers, when it is
+    // converted back to the app model, then it creates the matching DrinkEntry.
+    @MainActor
+    @Test func persistentDrinkEntryCreatesDrinkEntryFromStoredValues() throws {
+        let id = UUID()
+        let loggedAt = Date(timeIntervalSince1970: 1000)
+        let createdAt = Date(timeIntervalSince1970: 2000)
+        let updatedAt = Date(timeIntervalSince1970: 3000)
+
+        let persistentDrinkEntry = PersistentDrinkEntry(
+            id: id,
+            drinkTypeID: "tea",
+            volumeValue: 300,
+            unitID: "imperialFluidOunces",
+            loggedAt: loggedAt,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            source: "manual"
+        )
+
+        let drinkEntry = try #require(persistentDrinkEntry.drinkEntry())
+
+        #expect(drinkEntry.id == id)
+        #expect(drinkEntry.type == .tea)
+        #expect(drinkEntry.amount.value == 300)
+        #expect(drinkEntry.amount.unit == .imperialFluidOunces)
+        #expect(drinkEntry.loggedAt == loggedAt)
+        #expect(drinkEntry.createdAt == createdAt)
+        #expect(drinkEntry.updatedAt == updatedAt)
+        #expect(drinkEntry.source == .manual)
+    }
+
+    // Given a persistent drink entry with an unknown drink type identifier, when it
+    // is converted back to the app model, then Watered refuses to guess the type.
+    @MainActor
+    @Test func persistentDrinkEntryReturnsNilForUnknownDrinkTypeID() {
+        let persistentDrinkEntry = PersistentDrinkEntry(
+            id: UUID(),
+            drinkTypeID: "soda",
+            volumeValue: 300,
+            unitID: "milliliters",
+            loggedAt: Date(),
+            createdAt: Date(),
+            updatedAt: Date(),
+            source: "manual"
+        )
+
+        #expect(persistentDrinkEntry.drinkEntry() == nil)
+    }
+
     // MARK: - WateredStore
 
     // Given a new WateredStore, when its entries are read, then it starts with
