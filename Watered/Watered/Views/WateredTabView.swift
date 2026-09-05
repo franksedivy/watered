@@ -54,12 +54,12 @@ struct WateredTabView: View {
     // proper settings/persisstence layer exists.
     @State private var displayUnit: LiquidUnit = .milliliters
 
-    // Purpose: Stores temporary drink entries while the 0.2 UI is being built.
+    // Purpose: Stores Watered's first app-level state owner.
     //
     // UI role:
-    // Keeps shared screen state above the tabs so TodayView can display entries
-    // and AddDrinkView can add entries.
-    @State private var entries: [DrinkEntry] = []
+    // Keeps drink entries above the tab views without making WateredTabView
+    // directly own or mutate the entries array.
+    @State private var store = WateredStore()
 
     // Purpose: Controls whether the temporary Add Drink sheet is visible.
     //
@@ -97,7 +97,7 @@ struct WateredTabView: View {
     // it over unrelated tabs such as Learn.
     private var shouldShowFirstDrinkPrompt: Bool {
         let isTodaySelected = selectedTab == .today
-        let hasNoDrinks = entries.isEmpty
+        let hasNoDrinks = store.entries.isEmpty
 
         return isTodaySelected && hasNoDrinks
     }
@@ -123,7 +123,7 @@ struct WateredTabView: View {
             TabView(selection: $selectedTab) {
 
                 TodayView(
-                    entries: entries,
+                    entries: store.entries,
                     displayUnit: displayUnit,
                     onOpenProfile: openProfile
                 )
@@ -201,8 +201,8 @@ struct WateredTabView: View {
     // Appends the entry to temporary app state, logs the added drink, and closes the
     // Add Drink sheet so Today can refresh with the new total.
     private func addDrinkEntry(_ entry: DrinkEntry) {
-        entries.append(entry)
-        wateredLog("Drink entry accepted by Today state: \(entry.type.rawValue) \(entry.amount.formatted); drink count is \(entries.count)")
+        store.addDrinkEntry(entry)
+        wateredLog("Drink entry accepted by Today state: \(entry.type.rawValue) \(entry.amount.formatted); drink count is \(store.entries.count)")
         isShowingAddDrinkSheet = false
     }
 

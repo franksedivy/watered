@@ -206,6 +206,31 @@ struct WateredTests {
         #expect(entry.amount.unit == .imperialFluidOunces)
     }
     
+    // MARK: - WateredStore
+    
+    @Test func wateredStoresStartsWithoutNoDrinkEntries() async throws {
+        let store = WateredStore()
+        
+        #expect(store.entries.isEmpty)
+    }
+    
+    @Test func wateredStoredAddsDrinkEntry() async throws {
+        let entry = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 330, unit: .milliliters),
+            date: Date()
+        )
+        
+        let store = WateredStore()
+        
+        store.addDrinkEntry(entry)
+        
+        #expect(store.entries.count == 1)
+        #expect(store.entries.first?.type == .water)
+        #expect(store.entries.first?.amount.value == 330)
+        #expect(store.entries.first?.amount.unit == .milliliters)
+    }
+    
     // MARK: - HydrationTracker
     
     @Test func hydrationTrackerCalculatesTotalVolume() async throws {
