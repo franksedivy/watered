@@ -7,7 +7,7 @@
 import Foundation
 
 // Formats progress value for console output and early UI labels
-struct ProgressFormatter {
+nonisolated struct ProgressFormatter {
     nonisolated init() {}
     
     nonisolated func percentageString(from progress: Double) -> String {

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DrinkAmount: CustomStringConvertible {
+nonisolated struct DrinkAmount: CustomStringConvertible {
     let value: Double
     let unit: LiquidUnit
     
@@ -20,7 +20,7 @@ struct DrinkAmount: CustomStringConvertible {
         "\(Int(value)) \(unit.rawValue)"
     }
     
-    // The amount represented using Foundations's generic volume measurement type
+    // The amount represented using Foundation's generic volume measurement type.
     var volume: Measurement<UnitVolume> {
         Measurement(
             value: value,

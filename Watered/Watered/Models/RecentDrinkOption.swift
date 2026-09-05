@@ -22,7 +22,7 @@ import Foundation
 // Notes:
 // This is intentionally separate from AddDrinkView so recent-drink shortcuts can
 // become persistence-backed later without changing the view's basic shape.
-struct RecentDrinkOption {
+nonisolated struct RecentDrinkOption {
     let drinkType: DrinkType
     let volumeValue: Double
     let unit: LiquidUnit

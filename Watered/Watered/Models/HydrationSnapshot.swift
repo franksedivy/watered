@@ -8,7 +8,7 @@
 import Foundation
 
 // A capture view of hydration state at one point in time.
-struct HydrationSnapshot {
+nonisolated struct HydrationSnapshot {
     // MARK: - Stored Values
     
     let drinkCount: Int

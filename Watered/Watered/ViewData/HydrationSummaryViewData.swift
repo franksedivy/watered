@@ -15,14 +15,14 @@ import Foundation
 //
 // Values:
 // - positive: the drink contributes its full consumed volume as hydration.
-// - reduced: the drink contributes hydration, but less than its raw consudemd volume.
+// - reduced: the drink contributes hydration, but less than its raw consumed volume.
 // - negative: the drink reduces the user's net hydration progress.
-// - unknown: Watered deos not know the drink's hydration contribution.
+// - unknown: Watered does not know the drink's hydration contribution.
 //
 // UI role:
 // Gives SwiftUI a semantic styling value without making the view parse display
 // text or repeat hydration calculation logic.
-enum HydrationImpactStyle {
+nonisolated enum HydrationImpactStyle {
     case positive
     case reduced
     case negative
@@ -45,7 +45,7 @@ extension HydrationImpactStyle {
     // Behavior:
     // 80% and above is strong, 30% to 79% is reduced, and anything below 30%
     // is low or negative.
-    init(hydrationImpactProgress: Double) {
+    nonisolated init(hydrationImpactProgress: Double) {
         if hydrationImpactProgress >= 0.8 {
             self = .positive
         } else if hydrationImpactProgress >= 0.3 {
@@ -56,15 +56,15 @@ extension HydrationImpactStyle {
     }
 }
 
-//Display-ready values for one drink breakdown row
-struct DrinkBreakdownViewData {
+// Display-ready values for one drink breakdown row.
+nonisolated struct DrinkBreakdownViewData {
     let consumedText: String
     let hydrationImpactText: String
     let hydrationImpactStyle: HydrationImpactStyle
 }
 
 // Display-ready values for the hydration summary screen.
-struct HydrationSummaryViewData {
+nonisolated struct HydrationSummaryViewData {
     let totalText: String
     let totalAmountText: String
     let goalText: String

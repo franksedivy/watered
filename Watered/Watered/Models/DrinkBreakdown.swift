@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DrinkBreakdown {
+nonisolated struct DrinkBreakdown {
     // MARK: - Stored Values
         
     // Purpose:

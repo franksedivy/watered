@@ -8,7 +8,7 @@
 // Formats volume measurements for simple console output and early UI labels.
 import Foundation
 
-struct VolumeFormatter {
+nonisolated struct VolumeFormatter {
     private let locale: Locale
     
     init(locale: Locale = .current) {

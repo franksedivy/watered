@@ -8,7 +8,7 @@
 import Foundation
 
 // Centralises the volume unit Watered uses for internal model calculations.
-enum VolumeCalculation {
+nonisolated enum VolumeCalculation {
     
     // MARK: - Base Unit
     

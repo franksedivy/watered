@@ -8,7 +8,7 @@
 import Foundation
 
 // The user's target liquid intake for a single day
-struct HydrationGoal {
+nonisolated struct HydrationGoal {
     let amount: DrinkAmount
     
     // The goal represented as a Foundation volume measurement.

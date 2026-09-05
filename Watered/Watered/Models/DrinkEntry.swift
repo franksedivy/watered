@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DrinkEntry: Identifiable, CustomStringConvertible {
+nonisolated struct DrinkEntry: Identifiable, CustomStringConvertible {
     let id: UUID
     let type: DrinkType
     let amount: DrinkAmount

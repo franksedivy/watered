@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct HydrationTracker {
+nonisolated struct HydrationTracker {
     var entries: [DrinkEntry] = []
     var dailyGoal: HydrationGoal
     

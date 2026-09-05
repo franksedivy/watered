@@ -15,6 +15,6 @@ import Foundation
 // Persistence role:
 // Stores a small source value that can later help Watered distinguish manual
 // entries from healthKit or imported entries.
-enum DrinkEntrySource: String {
+nonisolated enum DrinkEntrySource: String {
     case manual
 }
