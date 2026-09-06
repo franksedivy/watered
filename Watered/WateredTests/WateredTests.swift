@@ -427,6 +427,58 @@ struct WateredTests {
         #expect(store.entries.first?.amount.value == 300)
         #expect(store.entries.first?.amount.unit == .milliliters)
     }
+    
+    // Given drink entries from today and yesterday, when entries are filtered for
+    // today, then only today's entries are returned.
+    @MainActor
+    @Test func wateredStoreReturnsDrinkEntriesForCalendarDay() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        
+        let today = Date(timeIntervalSince1970: 1_000_000)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        
+        let todayEntry = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 300, unit: .milliliters),
+            date: today
+        )
+        let yesterdayEntry = DrinkEntry(
+            type: .coffee,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: yesterday
+        )
+        
+        let store = WateredStore(entries: [todayEntry, yesterdayEntry])
+        
+        let entries = store.drinkEntries(for: today, calendar: calendar)
+        
+        #expect(entries.count == 1)
+        #expect(entries.first?.type == .water)
+    }
+    
+    // Given drink entries from yesterday only, when entries are filtered for
+    // today, then no entries are returned.
+    @MainActor
+    @Test func wateredStoreExcludesPreviousCalendarDayDrinkEntries() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        
+        let today = Date(timeIntervalSince1970: 1_000_000)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        
+        let yesterdayEntry = DrinkEntry(
+            type: .coffee,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: yesterday
+        )
+        
+        let store = WateredStore(entries: [yesterdayEntry])
+        
+        let entries = store.drinkEntries(for: today, calendar: calendar)
+        
+        #expect(entries.isEmpty)
+    }
 
     // Given a drink entry and an empty WateredStore, when the entry is added,
     // then the store exposes the new entry through its app-level state.
