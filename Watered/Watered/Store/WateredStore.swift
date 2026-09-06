@@ -48,6 +48,28 @@ final class WateredStore {
         wateredLog("Loaded \(entries.count) persisted drink entries into WateredStore")
     }
     
+    // MARK: - Calendar Day Filtering
+    //
+    // Purpose:
+    // Returns the drink entries logged during one local calendar day.
+    //
+    // Input:
+    // Accepts the date that represents the calendar day to read and the calendar
+    // Watered should use to compare entry dates.
+    //
+    // Returns:
+    // The entrie swhose loggedAt date falls on the same calendar day as the
+    // supplied date
+    //
+    // Behavior:
+    // Keeps historical entries in the store while letting Today display only
+    // entries that belong to the active day.
+    func drinkEntries(for calendarDay: Date, calendar: Calendar = .current) -> [DrinkEntry] {
+        return entries.filter { entry in
+            calendar.isDate(entry.loggedAt, inSameDayAs: calendarDay)
+        }
+    }
+    
     // MARK: - Actions
     //
     // Input:

@@ -33,7 +33,7 @@ struct WateredTabView: View {
     // empty-state add-drink prompt, can react to the currently selected tab.
     private enum WateredTab: String {
         case today = "Today"
-        case learn = "Learn"
+        case stats = "Stats"
     }
     
     // Purpose: Stores the currently selected top-level app tab.
@@ -61,6 +61,14 @@ struct WateredTabView: View {
     // Keeps drink entries above the tab views without making WateredTabView
     // directly own or mutate the entries array.
     @State private var store = WateredStore()
+    
+    // Purpose:
+    // Stores the local calendar day currently shown by Today.
+    //
+    // Notes:
+    // Lets Today render a day-specific view while WateredStore keeps the full
+    // persisted drink history.
+    @State private var activeCalendarDay = Date()
     
     // MARK: - Persistence
     //
@@ -97,8 +105,6 @@ struct WateredTabView: View {
     //
     // Returns:
     // A Symbol name such as "1.calendar", "24.calendar", or "31.calendar".
-    //
-    // UI role:
     private var todayCalendarSymbolName: String {
         let dayOfMonth = Calendar.current.component(.day, from: Date())
         return "\(dayOfMonth).calendar"
@@ -114,9 +120,23 @@ struct WateredTabView: View {
     // it over unrelated tabs such as Learn.
     private var shouldShowFirstDrinkPrompt: Bool {
         let isTodaySelected = selectedTab == .today
-        let hasNoDrinks = store.entries.isEmpty
+        let hasNoDrinks = todayEntries.isEmpty
 
         return isTodaySelected && hasNoDrinks
+    }
+    
+    // Purpose:
+    // Returns the drink entries that belong to the active Today calendar day.
+    //
+    // Returns:
+    // DrinkEntry values from WateredStore whose loggedAt date falls on the same
+    // local calendar day as activeCalendarDay.
+    //
+    // UI role:
+    // Keeps Today scoped to one day without deleting previous-day entries from
+    // persistence or app state.
+    private var todayEntries: [DrinkEntry] {
+        return store.drinkEntries(for: activeCalendarDay)
     }
 
     // MARK: - Transitions
@@ -140,7 +160,7 @@ struct WateredTabView: View {
             TabView(selection: $selectedTab) {
 
                 TodayView(
-                    entries: store.entries,
+                    entries: todayEntries,
                     displayUnit: displayUnit,
                     onOpenProfile: openProfile
                 )
@@ -149,11 +169,14 @@ struct WateredTabView: View {
                     }
                     .tag(WateredTab.today)
 
-                LearnView(onOpenProfile: openProfile)
+                LearnView(
+                    onOpenProfile: openProfile,
+                    entries:store.entries
+                )
                     .tabItem {
-                        Label("Learn", systemImage: "lightbulb")
+                        Label("Stats", systemImage: "chart.bar")
                     }
-                    .tag(WateredTab.learn)
+                    .tag(WateredTab.stats)
             }
             .onChange(of: displayUnit) { previousUnit, newUnit in
                 wateredLog("Display unit changed from \(previousUnit.rawValue) to \(newUnit.rawValue)")
