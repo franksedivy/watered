@@ -225,6 +225,13 @@ struct WateredTabView: View {
             persistentDrinkEntry.drinkEntry()
         }
         
+        let skippedEntryCount = persistentDrinkEntries.count - loadedEntries.count
+        
+        if skippedEntryCount > 0 {
+            wateredLog("Persistence skipped \(skippedEntryCount) stored drink rows that could not be mapped.")
+        }
+        
+        wateredLog("Persistence read finished with \(loadedEntries) drink entries")
         store.loadDrinkEntries(loadedEntries)
     }
     
@@ -238,9 +245,12 @@ struct WateredTabView: View {
     // Saves the entry to SwiftData, updates the app-level store, logs the added
     // drink, and closes the Add Drink sheet so Today can refresh with the new total.
     private func addDrinkEntry(_ entry: DrinkEntry) {
-        modelContext.insert(PersistentDrinkEntry(drinkEntry: entry))
-        store.addDrinkEntry(entry)
+        let persistentDrinkEntry = PersistentDrinkEntry(drinkEntry: entry)
+        
+        wateredLog("Persistence insert started for drink entry \(entry.id)")
+        modelContext.insert(persistentDrinkEntry)
         wateredLog("Drink entry accepted by Today state: \(entry.type.rawValue) \(entry.amount.formatted); drink count is \(store.entries.count)")
+        store.addDrinkEntry(entry)
         isShowingAddDrinkSheet = false
     }
 
