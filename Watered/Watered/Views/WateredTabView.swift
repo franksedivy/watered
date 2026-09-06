@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 // MARK: - Watered Tab View
 //
@@ -16,12 +17,19 @@ import SwiftData
 // A native SwiftUI TabView containing the main app areas.
 //
 // UI role:
-// This view owns the temporary 0.2 drink entries because TodayView needs to
-// display them and the future add-drink sheet will need to create them.
+// Acts as Watered's main app shell. It owns tab selection, app-wide sheet
+// presentation, the floating Add Drink action, and the shared Profile entry
+// point so those controls behave consistently across top-level screens.
+//
+// It also bridges app-level state into the visible tabs: Today recieves only
+// entries for hte active local calendar day, while Stats recieves the full
+// drink history for debugging and persistence validation.
 //
 // Notes:
-// Today is the read-only summary screen. Learn is a temporary placeholder tab.
-// Add Drink will be presented as a sheet from the tab bar area.
+// WateredTabView currently sits at the boundary between SwiftUI navigation,
+// SwiftData persistence, and WateredStore. It hydrates the store from persisted
+// entries, saves new Add Drink submissions, and refreshes Today when iOS reports
+// a significant time change.
 struct WateredTabView: View {
 
     // MARK: - Tabs
@@ -68,7 +76,7 @@ struct WateredTabView: View {
     // Notes:
     // Lets Today render a day-specific view while WateredStore keeps the full
     // persisted drink history.
-    @State private var activeCalendarDay = Date()
+    @State private var activeCalendarDay = TodayCalendarDay()
     
     // MARK: - Persistence
     //
@@ -106,7 +114,7 @@ struct WateredTabView: View {
     // Returns:
     // A Symbol name such as "1.calendar", "24.calendar", or "31.calendar".
     private var todayCalendarSymbolName: String {
-        let dayOfMonth = Calendar.current.component(.day, from: Date())
+        let dayOfMonth = activeCalendarDay.calendar.component(.day, from: Date())
         return "\(dayOfMonth).calendar"
     }
 
@@ -136,7 +144,10 @@ struct WateredTabView: View {
     // Keeps Today scoped to one day without deleting previous-day entries from
     // persistence or app state.
     private var todayEntries: [DrinkEntry] {
-        return store.drinkEntries(for: activeCalendarDay)
+        return store.drinkEntries(
+            for: activeCalendarDay.date,
+            calendar: activeCalendarDay.calendar
+        )
     }
 
     // MARK: - Transitions
@@ -189,6 +200,13 @@ struct WateredTabView: View {
             }
             .onChange(of: persistentDrinkEntries) {
                 loadPersistedDrinkEntries()
+            }
+            .onReceive(
+                NotificationCenter.default.publisher(
+                    for: UIApplication.significantTimeChangeNotification
+                )
+            ) { _ in
+                refreshActiveCalendarDay()
             }
 
             AddDrinkActionButton {
@@ -254,7 +272,7 @@ struct WateredTabView: View {
             wateredLog("Persistence skipped \(skippedEntryCount) stored drink rows that could not be mapped.")
         }
         
-        wateredLog("Persistence read finished with \(loadedEntries) drink entries")
+        wateredLog("Persistence read finished with \(loadedEntries.count) drink entries")
         store.loadDrinkEntries(loadedEntries)
     }
     
@@ -284,6 +302,19 @@ struct WateredTabView: View {
     private func openProfile() {
         wateredLog("Profile opened")
         isShowingProfileSheet = true
+    }
+    
+    // Purpose:
+    // Refreshes the local calendar day shown by Today.
+    //
+    // Behavior:
+    // Updates activeCalendarDay after iOS reports a significant time change, such
+    // as midnight, daylight saving changes, or manual clock updates.
+    private func refreshActiveCalendarDay() {
+        activeCalendarDay.refresh()
+        wateredLog(
+            "Active Today calendar day refreshed to \(activeCalendarDay.date.formatted(date: .complete, time: .shortened))"
+        )
     }
 }
 

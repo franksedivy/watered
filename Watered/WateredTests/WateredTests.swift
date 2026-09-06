@@ -397,6 +397,62 @@ struct WateredTests {
         #expect(persistentDrinkEntry.drinkEntry() == nil)
     }
 
+    // MARK: - TodayCalendarDay
+    //
+    // Given an active Today calendar day, when a drink entry was logged on the
+    // same local calendar day, then the entry belongs to Today.
+    @Test func todayCalendarDayContainsEntryFromSameCalendarDay() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        
+        let today = Date(timeIntervalSince1970: 1_000_000)
+        let laterToday = today.addingTimeInterval(60 * 60)
+        
+        let activeDay = TodayCalendarDay(date: today, calendar: calendar)
+        let entry = DrinkEntry(
+            type: .water,
+            amount: .init(value: 300, unit: .milliliters),
+            date: laterToday
+        )
+        
+        #expect(activeDay.contains(entry))
+    }
+    
+    // Given an active Today calendar day, when a drink entry was logged on the
+    // previous local calendar day, then the entry does not belong to Today.
+    @Test func todayCalendarDayExcludesEntryFromPreviousCalendarDay() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        
+        let today = Date(timeIntervalSince1970: 1_000_000)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        
+        let activeDay = TodayCalendarDay(date: today, calendar: calendar)
+        let entry = DrinkEntry(
+            type: .coffee,
+            amount: .init(value: 250, unit: .milliliters),
+            date: yesterday
+        )
+        
+        #expect(activeDay.contains(entry) == false)
+    }
+    
+    // Given an active Today calendar day, when it is refreshed with a new date,
+    // then it stores the new date for future Today filtering.
+    @Test func todayCalendarDayRefreshesActiveDate() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        
+        let previousDay = Date(timeIntervalSince1970: 1_000_000)
+        let nextDay = previousDay.addingTimeInterval(60 * 60 * 24)
+        
+        var activeDay = TodayCalendarDay(date: previousDay, calendar: calendar)
+        
+        activeDay.refresh(now: nextDay)
+        
+        #expect(activeDay.date == nextDay)
+    }
+    
     // MARK: - WateredStore
 
     // Given a new WateredStore, when its entries are read, then it starts with
