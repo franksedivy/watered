@@ -215,6 +215,12 @@ struct WateredTabView: View {
                 wateredLog("Display unit changed from \(previousUnit.rawValue) to \(newUnit.rawValue)")
                 saveDisplayUnit(newUnit)
             }
+            .onChange(of: dailyHydrationGoal.amount.value) { previousGoalValue, newGoalValue in
+                wateredLog(
+                    "Daily hydration goal changed from \(Int(previousGoalValue)) \(dailyHydrationGoal.amount.unit.rawValue) to \(Int(newGoalValue)) \(dailyHydrationGoal.amount.unit.rawValue)"
+                )
+                saveDailyHydrationGoal(dailyHydrationGoal)
+            }
             .onChange(of: selectedTab) { previousTab, newTab in
                 wateredLog("Selected tab changed from \(previousTab.rawValue) to \(newTab.rawValue)")
             }
@@ -273,7 +279,10 @@ struct WateredTabView: View {
             .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $isShowingProfileSheet) {
-            ProfileView(displayUnit: $displayUnit)
+            ProfileView(
+                displayUnit: $displayUnit,
+                dailyHydrationGoal: $dailyHydrationGoal
+            )
         }
     }
 
@@ -319,7 +328,10 @@ struct WateredTabView: View {
         }
         
         displayUnit = appSettings.displayUnit
-        wateredLog("Settings loaded with display unit \(displayUnit.rawValue)")
+        dailyHydrationGoal = appSettings.dailyHydrationGoal
+        wateredLog(
+            "Settings loaded with display unit \(displayUnit.rawValue) and daily hydration goal \(dailyHydrationGoal.amount.formatted)"
+        )
     }
     
     // Purpose:
@@ -334,7 +346,10 @@ struct WateredTabView: View {
     // been persisted.
     private func saveDisplayUnit(_ displayUnit: LiquidUnit) {
         let settings = persistentAppSettings.first ?? PersistentAppSettings(
-            appSettings: AppSettings.defaults()
+            appSettings: AppSettings(
+                displayUnit: displayUnit,
+                dailyHydrationGoal: dailyHydrationGoal
+            )
         )
         
         settings.displayUnitID = displayUnit.persistenceIdentifier
@@ -345,6 +360,36 @@ struct WateredTabView: View {
             wateredLog("Settings created with display unit \(displayUnit.rawValue)")
         } else {
             wateredLog("Settings updated with display unit \(displayUnit.rawValue)")
+        }
+    }
+    
+    // Purpose:
+    // Saves the selected daily hydration goal to Watered's persisted app settings.
+    //
+    // Input:
+    // Accepts the daily hdyration goal selected from Profile.
+    //
+    // Behavior:
+    // Updates the existing settings row when one exists, or creates a new settings
+    // row using Watered's current app-level settings when settings have not yet
+    // been persisted.
+    private func saveDailyHydrationGoal(_ dailyHydrationGoal: HydrationGoal) {
+        let settings = persistentAppSettings.first ?? PersistentAppSettings(
+            appSettings: AppSettings(
+                displayUnit: displayUnit,
+                dailyHydrationGoal: dailyHydrationGoal
+            )
+        )
+        
+        settings.dailyGoalValue = dailyHydrationGoal.amount.value
+        settings.dailyGoalUnitID = dailyHydrationGoal.amount.unit .persistenceIdentifier
+        settings.updatedAt = Date()
+        
+        if persistentAppSettings.isEmpty {
+            modelContext.insert(settings)
+            wateredLog("Settings created with daily goal hydration goal \(dailyHydrationGoal.amount.formatted)")
+        } else {
+            wateredLog("Settings updated with daily hydration goal \(dailyHydrationGoal.amount.formatted)")
         }
     }
     

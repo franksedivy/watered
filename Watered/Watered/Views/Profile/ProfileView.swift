@@ -31,6 +31,38 @@ struct ProfileView: View {
     // Allows Profile to change the app's display unit without owning the setting.
     @Binding var displayUnit: LiquidUnit
     
+    // Purpose:
+    // Stores the selected daily hydration goal.
+    //
+    // Input:
+    // Supplied as a binding from WateredTabView, where app-level settings state
+    // currently lives.
+    //
+    // UI role:
+    // Allows Profile to change the goal used by Today without owning the setting.
+    @Binding var dailyHydrationGoal: HydrationGoal
+    
+    // Purpose:
+    // Bridges the HydrationGoal model into a numberic Profile form control.
+    //
+    // Returns:
+    // A binding to the goal amount value while preserving the goal unit.
+    private var dailyHydrationGoalValue: Binding<Double> {
+        Binding(
+            get: {
+                dailyHydrationGoal.amount.value
+            },
+            set: { newValue in
+                    dailyHydrationGoal = HydrationGoal(
+                        amount: DrinkAmount(
+                            value: newValue,
+                            unit: dailyHydrationGoal.amount.unit
+                        )
+                    )
+            }
+        )
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -44,6 +76,16 @@ struct ProfileView: View {
                     .pickerStyle(.segmented)
                     .accessibilityHint("Changes the volume unit used across Watered.")
                 }
+                Section("Hydration goal") {
+                    Stepper(
+                        value: dailyHydrationGoalValue,
+                        in: 500...5000,
+                        step: 100
+                    ) {
+                        Text("Daily goal: \(dailyHydrationGoal.amount.formatted)")
+                    }
+                    .accessibilityHint("Changes the daily hydration goal used by Today.")
+                }
             }
             .navigationTitle("Profile")
             .accessibilityIdentifier("profileScreen")
@@ -52,5 +94,12 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(displayUnit: .constant(.milliliters))
+    ProfileView(
+        displayUnit: .constant(.milliliters),
+        dailyHydrationGoal: .constant(
+            HydrationGoal(
+                amount: DrinkAmount(value: 2700, unit: .milliliters)
+            )
+        )
+    )
 }
