@@ -63,6 +63,18 @@ struct WateredTabView: View {
     // Starts from Watered's local-aware defaults, then gets replaced by persisted
     // settings when a saved setting exists.
     @State private var displayUnit: LiquidUnit = AppSettings.defaults().displayUnit
+    
+    // Purpose:
+    // Stores the daily hydration goal currently applied to Today.
+    //
+    // UI role:
+    // TodayView uses this goal to calculate and dsiplay hydration progress,
+    // remaining hydration, and goal-reached states.
+    //
+    // Persistence role:
+    // Starts from Watered's first-run defeaults, then gets replaced by persisted
+    // settings when a saved goal exists.
+    @State private var dailyHydrationGoal = AppSettings.defaults().dailyHydrationGoal
 
     // Purpose: Stores Watered's first app-level state owner.
     //
@@ -182,7 +194,8 @@ struct WateredTabView: View {
                 TodayView(
                     entries: todayEntries,
                     displayUnit: displayUnit,
-                    onOpenProfile: openProfile
+                    onOpenProfile: openProfile,
+                    dailyGoal: dailyHydrationGoal,
                 )
                     .tabItem {
                         Label("Today", systemImage: todayCalendarSymbolName)

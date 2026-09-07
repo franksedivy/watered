@@ -43,14 +43,14 @@ struct TodayView: View {
     
     // MARK: - Temporary Configuration
     
-    // Purpose: Stores fixed values used by the temporary 0.2 release.
+    // Purpose: Stores the daily hydration goal used by Today.
     //
-    // Notes:
-    // These values are not user settings yet. The daily goal, display unit and demo
-    // drink source are hardcoded while the Today screen is being built.
-    private let dailyGoal = HydrationGoal(
-        amount: DrinkAmount(value: 2700, unit: .milliliters)
-    )
+    // Input:
+    // Supplied by WateredTabView from app settings.
+    //
+    // UI role:
+    // Drives Today's progress, remaining hydration, and goal-reached state.
+    let dailyGoal: HydrationGoal
     private let volumeFormatter = VolumeFormatter()
     private let progressFormatter = ProgressFormatter()
     
@@ -196,5 +196,15 @@ struct TodayView: View {
 }
 
 #Preview {
-    TodayView(entries: [], displayUnit: .milliliters, onOpenProfile: {})
+    TodayView(
+        entries: [],
+        displayUnit: .milliliters,
+        onOpenProfile: {},
+        dailyGoal: HydrationGoal(
+            amount:DrinkAmount(
+                value: 2700,
+                unit: .milliliters
+            )
+        )
+    )
 }
