@@ -14,6 +14,6 @@ struct WateredApp: App {
         WindowGroup {
             WateredRootView()
         }
-        .modelContainer(for: PersistentDrinkEntry.self)
+        .modelContainer(for: [PersistentDrinkEntry.self, PersistentAppSettings.self])
     }
 }

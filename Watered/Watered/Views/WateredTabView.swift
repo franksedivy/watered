@@ -52,16 +52,17 @@ struct WateredTabView: View {
 
     // MARK: - Temporary State
     //
-    // Purpose: Stores the temporary display unit selected for the app.
+    // Purpose: Stores the display unit selected for the app.
     //
     // UI role:
-    // WateredTabView owns this because it sits above both TodayView, which displays
-    // volumes, and ProfileView, which will later let the user change the unit.
+    // Stores the display unit currently applied across Watered's top-level views.
+    // TodayView uses it to format volume summaries, AddDrinkView uses it as the
+    // default logging unit, and ProfileView can change it through a binding.
     //
-    // Notes:
-    // This is temporary 0.2 state. It will reset when the app relaunches until a
-    // proper settings/persisstence layer exists.
-    @State private var displayUnit: LiquidUnit = .milliliters
+    // Persistence role:
+    // Starts from Watered's local-aware defaults, then gets replaced by persisted
+    // settings when a saved setting exists.
+    @State private var displayUnit: LiquidUnit = AppSettings.defaults().displayUnit
 
     // Purpose: Stores Watered's first app-level state owner.
     //
@@ -93,15 +94,23 @@ struct WateredTabView: View {
     // UI role:
     // Lets WateredTabView hydrate WateredStore when the app starts.
     @Query(sort: \PersistentDrinkEntry.loggedAt) private var persistentDrinkEntries: [PersistentDrinkEntry]
+    
+    // Purpose:
+    // Reads persisted app settings from SwiftData.
+    //
+    // UI role:
+    // Lets WateredTabView hydrate app-level settings, such as display unit and
+    // daily hydration goal, when the app starts.
+    @Query private var persistentAppSettings: [PersistentAppSettings]
 
-    // Purpose: Controls whether the temporary Add Drink sheet is visible.
+    // Purpose: Controls whether the Add Drink sheet is visible.
     //
     // UI role:
     // Keeps AddDrinkView out of the tab bar while still allowing it to appear as a
     // focused add-drink flow above the current tab.
     @State private var isShowingAddDrinkSheet = false
 
-    // Purpose: Controls whether the temporary Profile sheet is visible.
+    // Purpose: Controls whether the Profile sheet is visible.
     //
     // UI role:
     // Keeps profile presentation at the app-tab level so the same profile button
@@ -191,12 +200,14 @@ struct WateredTabView: View {
             }
             .onChange(of: displayUnit) { previousUnit, newUnit in
                 wateredLog("Display unit changed from \(previousUnit.rawValue) to \(newUnit.rawValue)")
+                saveDisplayUnit(newUnit)
             }
             .onChange(of: selectedTab) { previousTab, newTab in
                 wateredLog("Selected tab changed from \(previousTab.rawValue) to \(newTab.rawValue)")
             }
             .onAppear {
                 loadPersistedDrinkEntries()
+                loadPersistedAppSettings()
             }
             .onChange(of: persistentDrinkEntries) {
                 loadPersistedDrinkEntries()
@@ -274,6 +285,54 @@ struct WateredTabView: View {
         
         wateredLog("Persistence read finished with \(loadedEntries.count) drink entries")
         store.loadDrinkEntries(loadedEntries)
+    }
+    
+    // Purpose:
+    // Loads persisted app settings into Watered's app-level UI state.
+    //
+    // Behavior:
+    // Uses the first valid settings row when one exists. If no valid settings row
+    // exists, Watered keeps the local-aware first-run defaults already stored in
+    // local state.
+    private func loadPersistedAppSettings() {
+        guard let persistentSettings = persistentAppSettings.first else {
+            wateredLog("Settings read found no persissted settings; using first-run defaults.")
+            return
+        }
+        
+        guard let appSettings = persistentSettings.appSettings() else {
+            wateredLog("Settings read found stored settings that could not be mapped; using first-run defaults.")
+            return
+        }
+        
+        displayUnit = appSettings.displayUnit
+        wateredLog("Settings loaded with display unit \(displayUnit.rawValue)")
+    }
+    
+    // Purpose:
+    // Saves the selected display unit to Watered's persisted app settings.
+    //
+    // Input:
+    // Accepts the display unit selected from Profile.
+    //
+    // Behavior:
+    // Updates the existing settings row when one exits, or creates a new settings
+    // row using Watered's current first-run defaults when settings have not yet
+    // been persisted.
+    private func saveDisplayUnit(_ displayUnit: LiquidUnit) {
+        let settings = persistentAppSettings.first ?? PersistentAppSettings(
+            appSettings: AppSettings.defaults()
+        )
+        
+        settings.displayUnitID = displayUnit.persistenceIdentifier
+        settings.updatedAt = Date()
+        
+        if persistentAppSettings.isEmpty {
+            modelContext.insert(settings)
+            wateredLog("Settings created with display unit \(displayUnit.rawValue)")
+        } else {
+            wateredLog("Settings updated with display unit \(displayUnit.rawValue)")
+        }
     }
     
     // Purpose: Adds a real drink entry submitted from the Add Drink form.

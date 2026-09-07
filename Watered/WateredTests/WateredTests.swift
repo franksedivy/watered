@@ -313,7 +313,7 @@ struct WateredTests {
         #expect(entry.amount.value == 8)
         #expect(entry.amount.unit == .imperialFluidOunces)
     }
-
+    
     // MARK: - PersistentDrinkEntry
     //
     // Given a drink entry with persistence metadata, when a persistent drink entry
@@ -395,6 +395,93 @@ struct WateredTests {
         )
 
         #expect(persistentDrinkEntry.drinkEntry() == nil)
+    }
+    
+    // MARK: - AppSettings
+    //
+    // Given a US locale, when Watered creates first-run app settings, then the
+    // display unit defaults to US fluid ounces.
+    @Test func appSettingsDefaultsToUSFluidOuncesForUSLocale() {
+        let settings = AppSettings.defaults(for: Locale(identifier: "en_US"))
+        
+        #expect(settings.displayUnit == .usFluidOunces)
+        #expect(settings.dailyHydrationGoal.amount.value == 2700)
+        #expect(settings.dailyHydrationGoal.amount.unit == .milliliters)
+    }
+    
+    // Given a UK locale, when Watered creates first-run app settings, then the
+    // display unit still defaults to milliliters rather than impersial fluid ounces.
+    @Test func appSettingsDefaultsToMillilitersForUKLocale() {
+        let settings = AppSettings.defaults(for: Locale(identifier: "en_GB"))
+        
+        #expect(settings.displayUnit == .milliliters)
+        #expect(settings.dailyHydrationGoal.amount.value == 2700)
+        #expect(settings.dailyHydrationGoal.amount.unit == .milliliters)
+    }
+    
+    // Given a metric locale, when Watered creates first-run app settings, then the
+    // display unit defaults to milliliters.
+    @Test func appSettingsDefaultsToMillilitersForMetricLocale() {
+        let settings = AppSettings.defaults(for: Locale(identifier: "es_ES"))
+        
+        #expect(settings.displayUnit == .milliliters)
+        #expect(settings.dailyHydrationGoal.amount.value == 2700)
+        #expect(settings.dailyHydrationGoal.amount.unit == .milliliters)
+    }
+    
+    // MARK: - PersistentAppSettings
+    //
+    // Given app settings with a display unit and hydration goal, when persistent
+    // settings are created, then SwiftData stores stable identifiers and values.
+    @MainActor
+    @Test func persistentAppSettingsStoresAppSettingsValues() {
+        let appSettings = AppSettings(
+            displayUnit: .usFluidOunces,
+            dailyHydrationGoal: HydrationGoal(
+                amount: DrinkAmount(value: 90, unit: .usFluidOunces)
+            )
+        )
+        
+        let persistentSettings = PersistentAppSettings(appSettings: appSettings)
+        
+        #expect(persistentSettings.id == "appSettings")
+        #expect(persistentSettings.displayUnitID == "usFluidOunces")
+        #expect(persistentSettings.dailyGoalValue == 90)
+        #expect(persistentSettings.dailyGoalUnitID == "usFluidOunces")
+        #expect(persistentSettings.createdAt <= Date())
+        #expect(persistentSettings.updatedAt <= Date())
+    }
+    
+    // Given persistent settings with known stored identifiers, when they are
+    // converted back to the app model, then Watered recreates matching settings.
+    @MainActor
+    @Test func persistentAppSettingsCreatesAppSettingsFromStoredValues() throws {
+        let persistentSettings = PersistentAppSettings(
+            displayUnitID: "milliliters",
+            dailyGoalValue: 2700,
+            dailyGoalUnitID: "milliliters",
+            createdAt: Date(timeIntervalSince1970: 1000),
+            updatedAt: Date(timeIntervalSince1970: 2000)
+        )
+        
+        let appSettings = try #require(persistentSettings.appSettings())
+        
+        #expect(appSettings.displayUnit == .milliliters)
+        #expect(appSettings.dailyHydrationGoal.amount.value == 2700)
+        #expect(appSettings.dailyHydrationGoal.amount.unit == .milliliters)
+    }
+    
+    // Given persistent settings with an unknown display unit identifier, when they
+    // are converted back to the app model, then Watered refuses to guess settings.
+    @MainActor
+    @Test func persistentAppSettingsReturnsNilForUnknownDisplayUnitID() {
+        let persistentSettings = PersistentAppSettings(
+            displayUnitID: "cups",
+            dailyGoalValue: 2700,
+            dailyGoalUnitID: "milliliters"
+        )
+        
+        #expect(persistentSettings.appSettings() == nil)
     }
 
     // MARK: - TodayCalendarDay
