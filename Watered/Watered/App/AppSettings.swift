@@ -15,9 +15,6 @@ import Foundation
 // Input:
 // Accepts the user's preferred display unit and daily hydration goal.
 //
-// Returns:
-// Detaile return
-//
 // Persistence role:
 // Acts as the app model for settings. Persistence-specific models can map to and
 // from this type without leaking SwiftData details into views.
@@ -31,11 +28,11 @@ nonisolated struct AppSettings {
     // Creates Watered's first-run default settings.
     //
     // Input:
-    // Accepts a Locale so test can verify local-based defaults without relying
+    // Accepts a Locale so tests can verify locale-based defaults without relying
     // on the test device's actual region settings.
     //
     // Returns:
-    // App settings u sing US fluid ounces only for US measurement systems and
+    // App settings using US fluid ounces only for US measurement systems and
     // milliliters everywhere else.
     static func defaults(for locale: Locale = .current) -> AppSettings {
         let displayUnit: LiquidUnit

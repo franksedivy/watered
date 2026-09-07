@@ -21,8 +21,8 @@ import UIKit
 // presentation, the floating Add Drink action, and the shared Profile entry
 // point so those controls behave consistently across top-level screens.
 //
-// It also bridges app-level state into the visible tabs: Today recieves only
-// entries for hte active local calendar day, while Stats recieves the full
+// It also bridges app-level state into the visible tabs: Today receives only
+// entries for the active local calendar day, while Stats receives the full
 // drink history for debugging and persistence validation.
 //
 // Notes:
@@ -50,7 +50,7 @@ struct WateredTabView: View {
     // active tab.
     @State private var selectedTab: WateredTab = .today
 
-    // MARK: - Temporary State
+    // MARK: - Settings State
     //
     // Purpose: Stores the display unit selected for the app.
     //
@@ -60,7 +60,7 @@ struct WateredTabView: View {
     // default logging unit, and ProfileView can change it through a binding.
     //
     // Persistence role:
-    // Starts from Watered's local-aware defaults, then gets replaced by persisted
+    // Starts from Watered's locale-aware defaults, then gets replaced by persisted
     // settings when a saved setting exists.
     @State private var displayUnit: LiquidUnit = AppSettings.defaults().displayUnit
     
@@ -68,11 +68,11 @@ struct WateredTabView: View {
     // Stores the daily hydration goal currently applied to Today.
     //
     // UI role:
-    // TodayView uses this goal to calculate and dsiplay hydration progress,
+    // TodayView uses this goal to calculate and display hydration progress,
     // remaining hydration, and goal-reached states.
     //
     // Persistence role:
-    // Starts from Watered's first-run defeaults, then gets replaced by persisted
+    // Starts from Watered's first-run defaults, then gets replaced by persisted
     // settings when a saved goal exists.
     @State private var dailyHydrationGoal = AppSettings.defaults().dailyHydrationGoal
 
@@ -97,11 +97,11 @@ struct WateredTabView: View {
     // Gives WateredTabView access to the SwiftData context supplied by WateredApp.
     //
     // UI role:
-    // Lets the Add Drink submission boundary save new drink entries
+    // Lets the Add Drink submission boundary save new drink entries.
     @Environment(\.modelContext) private var modelContext
     
     // Purpose:
-    // Reads persisted drink entries from SwftData.
+    // Reads persisted drink entries from SwiftData.
     //
     // UI role:
     // Lets WateredTabView hydrate WateredStore when the app starts.
@@ -314,11 +314,11 @@ struct WateredTabView: View {
     //
     // Behavior:
     // Uses the first valid settings row when one exists. If no valid settings row
-    // exists, Watered keeps the local-aware first-run defaults already stored in
+    // exists, Watered keeps the locale-aware first-run defaults already stored in
     // local state.
     private func loadPersistedAppSettings() {
         guard let persistentSettings = persistentAppSettings.first else {
-            wateredLog("Settings read found no persissted settings; using first-run defaults.")
+            wateredLog("Settings read found no persisted settings; using first-run defaults.")
             return
         }
         
@@ -341,7 +341,7 @@ struct WateredTabView: View {
     // Accepts the display unit selected from Profile.
     //
     // Behavior:
-    // Updates the existing settings row when one exits, or creates a new settings
+    // Updates the existing settings row when one exists, or creates a new settings
     // row using Watered's current first-run defaults when settings have not yet
     // been persisted.
     private func saveDisplayUnit(_ displayUnit: LiquidUnit) {
@@ -367,7 +367,7 @@ struct WateredTabView: View {
     // Saves the selected daily hydration goal to Watered's persisted app settings.
     //
     // Input:
-    // Accepts the daily hdyration goal selected from Profile.
+    // Accepts the daily hydration goal selected from Profile.
     //
     // Behavior:
     // Updates the existing settings row when one exists, or creates a new settings
@@ -382,12 +382,12 @@ struct WateredTabView: View {
         )
         
         settings.dailyGoalValue = dailyHydrationGoal.amount.value
-        settings.dailyGoalUnitID = dailyHydrationGoal.amount.unit .persistenceIdentifier
+        settings.dailyGoalUnitID = dailyHydrationGoal.amount.unit.persistenceIdentifier
         settings.updatedAt = Date()
         
         if persistentAppSettings.isEmpty {
             modelContext.insert(settings)
-            wateredLog("Settings created with daily goal hydration goal \(dailyHydrationGoal.amount.formatted)")
+            wateredLog("Settings created with daily hydration goal \(dailyHydrationGoal.amount.formatted)")
         } else {
             wateredLog("Settings updated with daily hydration goal \(dailyHydrationGoal.amount.formatted)")
         }
@@ -396,7 +396,7 @@ struct WateredTabView: View {
     // Purpose: Adds a real drink entry submitted from the Add Drink form.
     //
     // Input:
-    // Recieves the DrinkEntry created by AddDrinkView from the selected drink type,
+    // Receives the DrinkEntry created by AddDrinkView from the selected drink type,
     // selected volume, selected unit, and current date.
     //
     // Behavior:

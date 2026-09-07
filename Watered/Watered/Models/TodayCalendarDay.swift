@@ -39,7 +39,7 @@ nonisolated struct TodayCalendarDay {
     // Accepts the current date. Defaults to Date() for app use, while tests can
     // pass fixed values.
     //
-    // Behvavior:
+    // Behavior:
     // Stores the new date so Today can recalculate which drink entries belong to
     // the active local calendar day.
     mutating func refresh(now: Date = Date()) {

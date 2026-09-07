@@ -410,7 +410,7 @@ struct WateredTests {
     }
     
     // Given a UK locale, when Watered creates first-run app settings, then the
-    // display unit still defaults to milliliters rather than impersial fluid ounces.
+    // display unit still defaults to milliliters rather than imperial fluid ounces.
     @Test func appSettingsDefaultsToMillilitersForUKLocale() {
         let settings = AppSettings.defaults(for: Locale(identifier: "en_GB"))
         
@@ -479,6 +479,20 @@ struct WateredTests {
             displayUnitID: "cups",
             dailyGoalValue: 2700,
             dailyGoalUnitID: "milliliters"
+        )
+        
+        #expect(persistentSettings.appSettings() == nil)
+    }
+    
+    // Given persistent settings with an unknown daily goal unit identifier, when
+    // they are converted back to the app model, then Watered refuses to guess
+    // settings.
+    @MainActor
+    @Test func persistentAppSettingsReturnsNilForUnknownDailyGoalUnitID() {
+        let persistentSettings = PersistentAppSettings(
+            displayUnitID: "milliliters",
+            dailyGoalValue: 2700,
+            dailyGoalUnitID: "cups"
         )
         
         #expect(persistentSettings.appSettings() == nil)
@@ -552,7 +566,7 @@ struct WateredTests {
     }
     
     // Given persisted drink entries recreated from storage, when they are loaded
-    // into WateredStore, then the store exposes them as its current dirnk log.
+    // into WateredStore, then the store exposes them as its current drink log.
     @MainActor
     @Test func wateredStoreLoadsPersistedDrinkEntries() {
         let entry = DrinkEntry(

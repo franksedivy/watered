@@ -58,8 +58,8 @@ final class WateredStore {
     // Watered should use to compare entry dates.
     //
     // Returns:
-    // The entrie swhose loggedAt date falls on the same calendar day as the
-    // supplied date
+    // The entries whose loggedAt date falls on the same calendar day as the
+    // supplied date.
     //
     // Behavior:
     // Keeps historical entries in the store while letting Today display only

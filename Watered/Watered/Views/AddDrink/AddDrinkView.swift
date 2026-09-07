@@ -135,7 +135,7 @@ struct AddDrinkView: View {
     // MARK: - Drink Type Options
     //
     // Purpose:
-    // Provides the display labels for dirnk types shown in the Add Drink sheet.
+    // Provides the display labels for drink types shown in the Add Drink sheet.
     //
     // Returns:
     // A list of drink type names based on the model's supported DrinkType values.
