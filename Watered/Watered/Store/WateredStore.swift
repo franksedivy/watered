@@ -70,6 +70,45 @@ final class WateredStore {
         }
     }
     
+    // MARK: - Recent Drinks
+    //
+    // Purpose:
+    // Builds recent-drink shortcuts from the store's full dirnk history
+    //
+    // Returns:
+    // Unique drink options ordered by their most recent logged date.
+    // Returns an empty array when there are no entries.
+    //
+    // Behavior:
+    // Treats entries with the same drink type, volume value, and unit as
+    // one shortcut. Preserves the original amount and unit for submission.
+    var recentDrinkOptions: [RecentDrinkOption] {
+        let newestEntries = entries.sorted { firstEntry, secondEntry in
+            firstEntry.loggedAt > secondEntry.loggedAt
+        }
+        
+        var options: [RecentDrinkOption] = []
+        
+        for entry in newestEntries {
+            let alreadyIncluded = options.contains { option in
+                option.drinkType == entry.type &&
+                option.volumeValue == entry.amount.value &&
+                option.unit == entry.amount.unit
+            }
+            if alreadyIncluded == false {
+                let option = RecentDrinkOption(
+                    drinkType: entry.type,
+                    volumeValue: entry.amount.value,
+                    unit: entry.amount.unit
+                )
+                
+                options.append(option)
+            }
+        }
+        
+        return options
+    }
+    
     // MARK: - Actions
     //
     // Input:

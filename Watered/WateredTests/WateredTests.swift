@@ -657,6 +657,50 @@ struct WateredTests {
         #expect(store.entries.first?.amount.unit == .milliliters)
     }
 
+    // Given an empty drink log, when recent drinks are requested,
+    // then no shotcuts are returned
+    @MainActor
+    @Test func wateredStoreReturnsNoRecentDrinksForEmptyHistory() {
+        let store = WateredStore()
+        
+        #expect(store.recentDrinkOptions.isEmpty)
+    }
+    
+    // Given unsorted history containing repeated water entries and newer coffee,
+    // when recent drinks are requested, then coffee appears first and water
+    // appears only once, with its original amount and unit preserved.
+    @MainActor
+    @Test func wateredStoreOrdersAndDeduplicatesRecentDrinks() {
+        let olderWater = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 300, unit: .milliliters),
+            date: Date(timeIntervalSince1970: 100_000)
+        )
+        let newerWater = DrinkEntry(
+            type: .water,
+            amount: DrinkAmount(value: 300, unit: .milliliters),
+            date: Date(timeIntervalSince1970: 200_000)
+        )
+        let coffee = DrinkEntry(
+            type: .coffee,
+            amount: DrinkAmount(value: 250, unit: .milliliters),
+            date: Date(timeIntervalSince1970: 300_000)
+        )
+        let store = WateredStore(
+            entries: [newerWater, coffee, olderWater]
+        )
+        
+        let options = store.recentDrinkOptions
+        
+        #expect(options.count == 2)
+        #expect(options.first?.drinkType == .coffee)
+        #expect(options.first?.volumeValue == 250)
+        #expect(options.first?.unit == .milliliters)
+        #expect(options.last?.drinkType == .water)
+        #expect(options.last?.volumeValue == 300)
+        #expect(options.last?.unit == .milliliters)
+    }
+    
     // MARK: - HydrationTracker
 
     // Given multiple drink entries, when the tracker calculates total volume,
