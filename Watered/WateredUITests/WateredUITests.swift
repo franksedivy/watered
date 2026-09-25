@@ -21,6 +21,29 @@ final class WateredUITests: XCTestCase {
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
+    
+    // MARK: - Test Helpers
+    //
+    // Purpose:
+    // Launches the app with predictable starting conditions for UI flow tests.
+    //
+    // Returns:
+    // The launched applicaiton, ready for the test to interact with.
+    //
+    // Behavior:
+    // Uses an empty in-memory store and an English/UK locale so previous
+    // drinks and settings cannot affect tests that expect millilitre values.
+    @MainActor
+    private func launchIsolatedApp() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-uiTestingInMemory",
+            "-AppLanguages", "(en)",
+            "-AppleLocale", "en_GB"
+        ]
+        app.launch()
+        return app
+    }
 
     @MainActor
     func testAppLaunchesToTodayScreen() throws {
@@ -30,8 +53,7 @@ final class WateredUITests: XCTestCase {
         // This is intentionally a smoke test. It does not check layout, color,
         // typography, or exact copy. It only checks for the stable Today screen
         // accessibility identifier.
-        let app = XCUIApplication()
-        app.launch()
+        let app = launchIsolatedApp()
         
         let todayScreen = app.otherElements["todayScreen"]
         XCTAssertTrue(todayScreen.waitForExistence(timeout: 2))
@@ -45,8 +67,7 @@ final class WateredUITests: XCTestCase {
         // Behavior:
         // This test only checks for the stable accessibility identifier on the
         // floating add-drink button. It does not care where the button sits visually.
-        let app = XCUIApplication()
-        app.launch()
+        let app = launchIsolatedApp()
         
         let addDrinkButton = app.buttons["addDrinkActionButton"]
         XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
@@ -60,8 +81,7 @@ final class WateredUITests: XCTestCase {
         // Behvaior:
         // This test checks the navigation from Today into the sheet. It does not add a
         // drink yet, so failure are easier to understand if sheet presentation breaks.
-        let app = XCUIApplication()
-        app.launch()
+        let app = launchIsolatedApp()
         
         let addDrinkButton = app.buttons["addDrinkActionButton"]
         XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
@@ -81,8 +101,7 @@ final class WateredUITests: XCTestCase {
         // This test does not yet assert an exact amount.
         // It only checks that the total amount text changes away from the empty
         // starting value after a drink is added.
-        let app = XCUIApplication()
-        app.launch()
+        let app = launchIsolatedApp()
         
         let addDrinkButton = app.buttons["addDrinkActionButton"]
         XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
@@ -111,8 +130,7 @@ final class WateredUITests: XCTestCase {
         // Opens Add Drink, adjusts the volume wheel from its default value to
         // 500 ml, submits the drink, and checks that Today shows the selected
         // amount
-        let app = XCUIApplication()
-        app.launch()
+        let app = launchIsolatedApp()
         
         let addDrinkButton = app.buttons["addDrinkActionButton"]
         XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
@@ -144,8 +162,7 @@ final class WateredUITests: XCTestCase {
         // Each add goes through the same user path: open the sheet, tap the temporary
         // add button, return to Today. The test does not care which random drinks are
         // selected or waht exact totals are shown.
-        let app = XCUIApplication()
-        app.launch()
+        let app = launchIsolatedApp()
         
         for addDrinkAttempt in 1...3 {
             let addDrinkButton = app.buttons["addDrinkActionButton"]
@@ -174,8 +191,7 @@ final class WateredUITests: XCTestCase {
         // Behavior:
         // Opens Add Drink, taps a complete recent-drink shortcut, and checks that
         // Today updates without using the checkmark submit button.
-        let app = XCUIApplication()
-        app.launch()
+        let app = launchIsolatedApp()
         
         let addDrinkButton = app.buttons["addDrinkActionButton"]
         XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
