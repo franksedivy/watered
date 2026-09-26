@@ -75,10 +75,11 @@ struct StatsDrinkEntryDetailView: View {
                             try onDeleteDrink(entry.id)
                             dismiss()
                         } catch {
-                            wateredLog("Stats deletion failed for \(entry.id): \(error.localizedDescription)")
+                            wateredLog("Drink deletion failed for \(entry.id): \(error.localizedDescription)")
                             isShowingDeletionError = true
                         }
                     }
+                    .accessibilityIdentifier("confirmDeleteDrinkButton")
                     
                     Button("Cancel", role: .cancel) {}
                 } message: {

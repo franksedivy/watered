@@ -95,6 +95,7 @@ struct LearnView: View {
                                             .foregroundStyle(.secondary)
                                     }
                                 }
+                                .accessibilityIdentifier("statsDrinkEntryLink")
                             }
                         }
                     }

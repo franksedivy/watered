@@ -38,7 +38,7 @@ final class WateredUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = [
             "-uiTestingInMemory",
-            "-AppLanguages", "(en)",
+            "-AppleLanguages", "(en)",
             "-AppleLocale", "en_GB"
         ]
         app.launch()
@@ -231,7 +231,236 @@ final class WateredUITests: XCTestCase {
             "Repeating the 330 ml drink should bring today's total to 660 ml"
         )
     }
+    
+    // Given two identical dirnks, when one is deleted from Stats,
+    // then its detail screen closes, one history entry remains,
+    // and Today shows only the remaining drink's volume.
+    @MainActor
+    func testDeletingOneOfTwoIndeticalDrinksKeepsTheOther() throws {
+        let app = launchIsolatedApp()
+        let addDrinkButton = app.buttons["addDrinkActionButton"]
+        let submitButton = app.buttons["addDrinkSubmitButton"]
+        
+        // Submit the default 330ml drink twice.
+        for _ in 0..<2 {
+            XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 3))
+            addDrinkButton.tap()
+            
+            XCTAssertTrue(submitButton.waitForExistence(timeout: 3))
+            submitButton.tap()
+            XCTAssertTrue(submitButton.waitForNonExistence(timeout: 3))
+        }
+        
+        let totalAmountText = app.staticTexts["todayTotalAmountText"]
+        XCTAssertTrue(
+            totalAmountText.wait(for: \.label, toEqual: "660 ml", timeout: 3)
+        )
+        
+        let statsTab = app.tabBars.buttons["Stats"]
+        XCTAssertTrue(statsTab.waitForExistence(timeout: 3))
+        statsTab.tap()
+        
+        let historyRows = app.buttons.matching(identifier: "statsDrinkEntryLink")
+        XCTAssertTrue(statsTab.waitForExistence(timeout: 3))
+        XCTAssertEqual(historyRows.count, 2)
+        historyRows.element(boundBy: 0).tap()
 
+        let deleteButton = app.buttons["deleteDrinkButton"]
+        XCTAssertTrue(deleteButton.waitForExistence(timeout: 3))
+        deleteButton.tap()
+        
+        let confirmationDialog = app.sheets["Delete this drink?"]
+        XCTAssertTrue(confirmationDialog.waitForExistence(timeout: 3))
+        
+        // The confirmation action exposes nested buttons with the same identifier.
+        // Select the inner button rather than its accessibility wrapper.
+        let confirmButton = confirmationDialog.buttons
+            .matching(identifier: "confirmDeleteDrinkButton")
+            .children(matching: .button)
+            .element
+        
+        XCTAssertTrue(confirmButton.waitForExistence(timeout: 3))
+        confirmButton.tap()
+        
+        // Successful deletion should return to the list with one entry.
+        XCTAssertTrue(deleteButton.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(historyRows.element(boundBy: 0).waitForExistence(timeout: 3))
+        XCTAssertTrue(historyRows.element(boundBy: 1).waitForNonExistence(timeout: 3))
+        XCTAssertEqual(historyRows.count, 1)
+        
+        app.tabBars.buttons["Today"].tap()
+        XCTAssertTrue(
+            totalAmountText.wait(for: \.label, toEqual: "330 ml", timeout: 3)
+        )
+    }
+    
+    // Given a saved drink, when deletion is cancelled from its detail screen,
+    // then the detail remains open and Today's total stays unchanged.
+    @MainActor
+    func testCancellingDrinkDeletionKeepsTheDrink() throws {
+        let app = launchIsolatedApp()
+        
+        let addDrinkButton = app.buttons["addDrinkActionButton"]
+        XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 3))
+        addDrinkButton.tap()
+        
+        let submitButton = app.buttons["addDrinkSubmitButton"]
+        XCTAssertTrue(submitButton.waitForExistence(timeout:3))
+        submitButton.tap()
+        XCTAssertTrue(submitButton.waitForNonExistence(timeout: 3))
+        
+        let totalAmountText = app.staticTexts["todayTotalAmountText"]
+        XCTAssertTrue(
+            totalAmountText.wait(for: \.label, toEqual: "330 ml", timeout: 3)
+        )
+        
+        app.tabBars.buttons["Stats"].tap()
+        
+        let historyRow = app.buttons
+            .matching(identifier: "statsDrinkEntryLink")
+            .element
+        XCTAssertTrue(historyRow.waitForExistence(timeout: 3))
+        historyRow.tap()
+        
+        let deleteButton = app.buttons["deleteDrinkButton"]
+        XCTAssertTrue(deleteButton.waitForExistence(timeout: 3))
+        deleteButton.tap()
+        
+        let confirmationDialog = app.sheets["Delete this drink?"]
+        XCTAssertTrue(confirmationDialog.waitForExistence(timeout: 3))
+        
+        let dismissalPoint = app.coordinate(
+            withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)
+        )
+        XCTAssertFalse(
+            confirmationDialog.frame.contains(dismissalPoint.screenPoint),
+            "The dismissal tap must be outside the conifmration dialog"
+        )
+        dismissalPoint.tap()
+        
+        XCTAssertTrue(confirmationDialog.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(deleteButton.exists, "Cancelling should keep the detail open")
+        
+        app.tabBars.buttons["Today"].tap()
+        XCTAssertTrue(
+            totalAmountText.wait(for: \.label, toEqual: "330 ml", timeout: 3)
+        )
+    }
+    
+    // Given two saved drinks, when the user confirms a history reset,
+    // then Profile closes, Stats is empty, and Add Drink has no recents.
+    @MainActor
+    func testDeletingAllDrinksClearsHistoryAndRecents() throws {
+        
+        let app = launchIsolatedApp()
+        let addDrinkButton = app.buttons["addDrinkActionButton"]
+        let submitButton = app.buttons["addDrinkSubmitButton"]
+
+        for _ in 0..<2 {
+            XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 3))
+            addDrinkButton.tap()
+            XCTAssertTrue(submitButton.waitForExistence(timeout: 3))
+            submitButton.tap()
+            XCTAssertTrue(submitButton.waitForNonExistence(timeout: 3))
+        }
+
+        let totalAmountText = app.staticTexts["todayTotalAmountText"]
+        XCTAssertTrue(
+            totalAmountText.wait(for: \.label, toEqual: "660 ml", timeout: 3)
+        )
+
+        let profileButton = app.buttons["profileButton"]
+        XCTAssertTrue(profileButton.waitForExistence(timeout: 3))
+        profileButton.tap()
+
+        let resetButton = app.buttons["deleteAllDrinksButton"]
+        XCTAssertTrue(resetButton.waitForExistence(timeout: 3))
+        resetButton.tap()
+
+        let confirmationDialog = app.sheets["Delete all drinks?"]
+        XCTAssertTrue(confirmationDialog.waitForExistence(timeout: 3))
+
+        // Target the inner action button in the native confirmation hierarchy.
+        let confirmButton = confirmationDialog.buttons
+            .matching(identifier: "confirmDeleteAllDrinksButton")
+            .children(matching: .button)
+            .element 
+        XCTAssertTrue(confirmButton.waitForExistence(timeout: 3))
+        confirmButton.tap()
+
+        XCTAssertTrue(resetButton.waitForNonExistence(timeout: 3))
+        app.tabBars.buttons["Stats"].tap()
+        XCTAssertTrue(
+            app.staticTexts["No persisted drinks yet"].waitForExistence(timeout: 3)
+        )
+
+        app.tabBars.buttons["Today"].tap()
+        addDrinkButton.tap()
+        XCTAssertTrue(submitButton.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.scrollViews["addDrinkRecentsScrollView"].exists)
+    }
+    
+    // Given a saved drink and customised profile settings, when history is
+    // deleted, then the selected unit and hydration goal remain unchanged.
+    @MainActor
+    func testDeletingAllDrinksPreservesProfileSettings() throws {
+        let app = launchIsolatedApp()
+
+        let addDrinkButton = app.buttons["addDrinkActionButton"]
+        XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 3))
+        addDrinkButton.tap()
+
+        let submitButton = app.buttons["addDrinkSubmitButton"]
+        XCTAssertTrue(submitButton.waitForExistence(timeout: 3))
+        submitButton.tap()
+        XCTAssertTrue(submitButton.waitForNonExistence(timeout: 3))
+
+        let profileButton = app.buttons["profileButton"]
+        XCTAssertTrue(profileButton.waitForExistence(timeout: 3))
+        profileButton.tap()
+
+        let selectedUnit = app.segmentedControls["displayUnitPicker"]
+            .buttons["US fl oz"]
+        XCTAssertTrue(selectedUnit.waitForExistence(timeout: 3))
+        selectedUnit.tap()
+        XCTAssertTrue(selectedUnit.isSelected)
+
+        let goalText = app.staticTexts["dailyHydrationGoalText"]
+        XCTAssertTrue(goalText.waitForExistence(timeout: 3))
+        let originalGoal = goalText.label
+
+        let goalStepper = app.steppers["dailyHydrationGoalStepper"]
+        
+        let incrementButton = goalStepper.buttons["dailyHydrationGoalStepper-Increment"]
+        XCTAssertTrue(incrementButton.waitForExistence(timeout: 3))
+        incrementButton.tap()
+        XCTAssertNotEqual(goalText.label, originalGoal)
+        let selectedGoal = goalText.label
+
+        let resetButton = app.buttons["deleteAllDrinksButton"]
+        resetButton.tap()
+
+        let confirmationDialog = app.sheets["Delete all drinks?"]
+        XCTAssertTrue(confirmationDialog.waitForExistence(timeout: 3))
+
+        // Select the inner button exposed by the confirmation action.
+        let confirmButton = confirmationDialog.buttons
+            .matching(identifier: "confirmDeleteAllDrinksButton")
+            .children(matching: .button)
+            .element
+        XCTAssertTrue(confirmButton.waitForExistence(timeout: 3))
+        confirmButton.tap()
+        XCTAssertTrue(resetButton.waitForNonExistence(timeout: 3))
+
+        // Reopen Profile and check the customised settings survived.
+        profileButton.tap()
+        XCTAssertTrue(selectedUnit.waitForExistence(timeout: 3))
+        XCTAssertTrue(selectedUnit.isSelected)
+        XCTAssertTrue(
+            goalText.wait(for: \.label, toEqual: selectedGoal, timeout: 3)
+        )
+    }
+    
 //    @MainActor
 //    func testLaunchPerformance() throws {
 //        // This measures how long it takes to launch your application.

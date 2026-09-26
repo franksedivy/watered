@@ -99,6 +99,7 @@ struct ProfileView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    .accessibilityIdentifier("displayUnitPicker")
                     .accessibilityHint("Changes the volume unit used across Watered.")
                 }
                 Section("Hydration goal") {
@@ -108,7 +109,9 @@ struct ProfileView: View {
                         step: 100
                     ) {
                         Text("Daily goal: \(dailyHydrationGoal.amount.formatted)")
+                            .accessibilityIdentifier("dailyHydrationGoalText")
                     }
+                    .accessibilityIdentifier("dailyHydrationGoalStepper")
                     .accessibilityHint("Changes the daily hydration goal used by Today.")
                 }
                 
@@ -134,6 +137,7 @@ struct ProfileView: View {
                                 isShowingDrinkResetError = true
                             }
                         }
+                        .accessibilityIdentifier("confirmDeleteAllDrinksButton")
                         
                         Button("Cancel", role: .cancel) {}
                     } message: {
