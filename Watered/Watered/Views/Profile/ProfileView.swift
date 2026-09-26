@@ -42,6 +42,31 @@ struct ProfileView: View {
     // Allows Profile to change the goal used by Today without owning the setting.
     @Binding var dailyHydrationGoal: HydrationGoal
     
+    #if DEBUG
+    // MARK: - Developer Actions
+    //
+    // Purpose:
+    // Lets Profile request deletion of all saved drinks.
+    //
+    // Input:
+    // Supplied by the parent, which owns persistence and app state. Previews can
+    // omit this action.
+    //
+    // Behavior:
+    // The action throws if deletion fails, allowing Profile to show an error.
+    // A missing action means the reset control should not be displayed.
+    var onDeleteAllDrinks: (() throws -> Void)? = nil
+    
+    // Controls confirmation before deleting the entire drink history.
+    @State private var isConfirmingDrinkReset = false
+    
+    // Presents an error when the parent cannot complete the deletion.
+    @State private var isShowingDrinkResetError = false
+    
+    // Dismisses the Profile sheet after a successful drink-history reset.
+    @Environment(\.dismiss) private var dismiss
+    #endif
+    
     // Purpose:
     // Bridges the HydrationGoal model into a numberic Profile form control.
     //
@@ -86,6 +111,44 @@ struct ProfileView: View {
                     }
                     .accessibilityHint("Changes the daily hydration goal used by Today.")
                 }
+                
+                #if DEBUG
+                if let deleteAllDrinks = onDeleteAllDrinks {
+                    Section("Developer Tools") {
+                        Button("Delete all drinks", role: .destructive) {
+                            isConfirmingDrinkReset = true
+                        }
+                        .accessibilityIdentifier("deleteAllDrinksButton")
+                    }
+                    .confirmationDialog(
+                        "Delete all drinks?",
+                        isPresented: $isConfirmingDrinkReset,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Delete all drinks", role: .destructive) {
+                            do {
+                                try deleteAllDrinks()
+                                dismiss()
+                            } catch {
+                                wateredLog("Profile reset failed: \(error.localizedDescription)")
+                                isShowingDrinkResetError = true
+                            }
+                        }
+                        
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("This permanently deletes your entire drink history. Are you sure?")
+                    }
+                    .alert(
+                        "Could not delete drinks",
+                        isPresented: $isShowingDrinkResetError
+                    ) {
+                        Button("OK", role: .cancel) {}
+                    } message: {
+                        Text("Your drink history could not be deleted.")
+                    }
+                }
+                #endif
             }
             .navigationTitle("Profile")
             .accessibilityIdentifier("profileScreen")

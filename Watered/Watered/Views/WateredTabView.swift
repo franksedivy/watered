@@ -204,7 +204,8 @@ struct WateredTabView: View {
 
                 LearnView(
                     onOpenProfile: openProfile,
-                    entries:store.entries
+                    entries: store.entries,
+                    onDeleteDrink: deleteDrinkEntry
                 )
                     .tabItem {
                         Label("Stats", systemImage: "chart.bar")
@@ -280,10 +281,20 @@ struct WateredTabView: View {
             .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $isShowingProfileSheet) {
+            #if DEBUG
+            ProfileView(
+                displayUnit: $displayUnit,
+                dailyHydrationGoal: $dailyHydrationGoal,
+                onDeleteAllDrinks: {
+                    try deleteDrinkEntries(persistentDrinkEntries)
+                }
+            )
+            #else
             ProfileView(
                 displayUnit: $displayUnit,
                 dailyHydrationGoal: $dailyHydrationGoal
             )
+            #endif
         }
     }
 
@@ -394,6 +405,77 @@ struct WateredTabView: View {
         }
     }
     
+    // Purpose:
+    // Deletes one logical dirnk entry identified by its stable UUID.
+    //
+    // Input:
+    // Accepts the ID of the drink selected in the Stats detail screen.
+    //
+    // Behavior:
+    // Finds the matching persisted rows and delegates saving and store updates
+    // to the shared deletion function. An already-absent entry requires no deletion.
+    //
+    // Throw:
+    // A persistence error if saving fails.
+    private func deleteDrinkEntry(id: UUID) throws {
+        let matchingEntries = persistentDrinkEntries.filter { entry in
+            entry.id == id
+        }
+        
+        wateredLog("Deletion requested for drink entry \(id)")
+        try deleteDrinkEntries(matchingEntries)
+    }
+
+    
+    // Purpose:
+    // Deletes selected saved drinks and updates the app's in-memory history
+    //
+    // Input:
+    // Accepts persistent drink entries belonging to this view's model context.
+    //
+    // Behavior:
+    // Saves existing changes first so rollback cannot discard pednding settings.
+    // Updates WateredStore only after the deletion saves successfully.
+    //
+    // Throws:
+    // A persistence error if either saves fails. Failed deletions are rolled back
+    // so the caller can display an error without rpeorting a successful deletion.
+    private func deleteDrinkEntries(
+        _ entriesToDelete: [PersistentDrinkEntry]
+    ) throws {
+        guard entriesToDelete.isEmpty == false else {
+            return
+        }
+        
+        if modelContext.hasChanges {
+            try modelContext.save()
+        }
+        
+        // Capture IDs befor saving the deletion invalidates the stored objects.
+        let deletedIDs = Set(entriesToDelete.map { entry in
+            entry.id
+        })
+        
+        for entry in entriesToDelete {
+            modelContext.delete(entry)
+        }
+        
+        do {
+            try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            wateredLog("Drink deletion failed: \(error.localizedDescription)")
+            throw error
+        }
+        
+        let remainingEntries = store.entries.filter { entry in
+            deletedIDs.contains(entry.id) == false
+        }
+        
+        store.loadDrinkEntries(remainingEntries)
+        wateredLog("Deleted \(entriesToDelete.count) saved drink entries")
+    }
+    
     // Purpose: Adds a real drink entry submitted from the Add Drink form.
     //
     // Input:
@@ -434,6 +516,7 @@ struct WateredTabView: View {
             "Active Today calendar day refreshed to \(activeCalendarDay.date.formatted(date: .complete, time: .shortened))"
         )
     }
+    
 }
 
 #Preview {

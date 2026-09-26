@@ -35,6 +35,16 @@ struct LearnView: View {
     let entries: [DrinkEntry]
     
     // Purpose:
+    // Requests deletion of a drink without owning persistence logic.
+    //
+    // Input:
+    // Supplied by the parent' accepts the selected drink's UUID.
+    //
+    // Behavior:
+    // Throws if saving fails so the detail screen can present an error.
+    let onDeleteDrink: (UUID) throws -> Void
+    
+    // Purpose:
     // Groups the full drink  history by local calendar day for the temporary Stats
     //
     // Returns:
@@ -72,7 +82,10 @@ struct LearnView: View {
                         Section(section.day.formatted(date: .complete, time: .omitted)) {
                             ForEach(section.entries) { entry in
                                 NavigationLink {
-                                    StatsDrinkEntryDetailView(entry: entry)
+                                    StatsDrinkEntryDetailView(
+                                        entry: entry,
+                                        onDeleteDrink: onDeleteDrink
+                                    )
                                 } label: {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text("\(entry.type.rawValue) · \(entry.amount.formatted)")
@@ -93,5 +106,11 @@ struct LearnView: View {
 }
 
 #Preview {
-    LearnView(onOpenProfile: {}, entries: [])
+    LearnView(
+        onOpenProfile: {},
+        entries: [],
+        onDeleteDrink: { entryID in
+            wateredLog("Preview deletion requested for \(entryID)")
+        }
+    )
 }
