@@ -267,6 +267,7 @@ struct WateredTabView: View {
         }) {
             AddDrinkView(
                 defaultUnit: displayUnit,
+                recentDrinkOptions: store.recentDrinkOptions,
                 onAddDrink: addDrinkEntry
             )
             .navigationTransition(

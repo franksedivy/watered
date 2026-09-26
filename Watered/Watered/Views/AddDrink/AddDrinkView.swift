@@ -13,7 +13,7 @@ import SwiftUI
 // Presents Watered's first real Add Drink flow.
 //
 // Input:
-// Accepts the current display unit, optional recent-drink shortcuts, and an
+// Accepts the current display unit, recent-drink shortcuts, and an
 // onAddDrink closure from the parent view.
 //
 // Returns:
@@ -49,7 +49,7 @@ struct AddDrinkView: View {
 
     init(
         defaultUnit: LiquidUnit,
-        recentDrinkOptions: [RecentDrinkOption] = AddDrinkView.defaultRecentDrinkOptions,
+        recentDrinkOptions: [RecentDrinkOption],
         onAddDrink: @escaping (DrinkEntry) -> Void
     ) {
         self.defaultUnit = defaultUnit
@@ -79,19 +79,6 @@ struct AddDrinkView: View {
     // step exists.
     @State private var selectedVolumeValue: Double
 
-    // MARK: - Default Recent Drink Options
-    //
-    // Purpose:
-    // Stores the recent-drink shortcuts available to the Add Drink sheet.
-    //
-    // Input:
-    // Supplied during initialisation. Defaults to temporary placeholder data until
-    // persistence-backed recent drinks exist.
-    private static let defaultRecentDrinkOptions = [
-        RecentDrinkOption(drinkType: .water, volumeValue: 300, unit: .milliliters),
-        RecentDrinkOption(drinkType: .coffee, volumeValue: 250, unit: .milliliters),
-        RecentDrinkOption(drinkType: .wine, volumeValue: 150, unit: .milliliters)
-    ]
 
     // MARK: - Recent Drink Options
     //
@@ -312,10 +299,20 @@ struct AddDrinkView: View {
     }
 }
 
-#Preview {
-    AddDrinkView(defaultUnit: .milliliters) { drinkEntry in
-        wateredLog("Preview submitted drink entry: \(drinkEntry)")
-    }
+#Preview("With Recent Drinks") {
+    AddDrinkView(
+        defaultUnit: .milliliters,
+        recentDrinkOptions: [
+            RecentDrinkOption(
+                drinkType: .water,
+                volumeValue: 300,
+                unit: .milliliters
+            )
+        ],
+        onAddDrink: { drinkEntry in
+            wateredLog("Preview submitted drink entry: \(drinkEntry)")
+        }
+    )
 }
 
 #Preview("No Recent Drinks") {

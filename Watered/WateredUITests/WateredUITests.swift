@@ -183,39 +183,52 @@ final class WateredUITests: XCTestCase {
         }
     }
     
+    // Given an empty history, when a drink is logged and its recent shortcut
+    // is tapped, then Recents appears, another drink is added, and the sheet
+    // closes without requiring the submit button again.
     @MainActor
     func testAddingRecentDrinkUpdatesTodayTotalAmount() throws {
-        // Purpose:
-        // Proves that a recent-drink pill submits its drink directly.
-        //
-        // Behavior:
-        // Opens Add Drink, taps a complete recent-drink shortcut, and checks that
-        // Today updates without using the checkmark submit button.
         let app = launchIsolatedApp()
         
         let addDrinkButton = app.buttons["addDrinkActionButton"]
-        XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 2))
-        
+        XCTAssertTrue(addDrinkButton.waitForExistence(timeout: 3))
         addDrinkButton.tap()
         
+        let submitButton = app.buttons["addDrinkSubmitButton"]
+        XCTAssertTrue(submitButton.waitForExistence(timeout:3))
+        
         let recentDrinksRow = app.scrollViews["addDrinkRecentsScrollView"]
-        XCTAssertTrue(recentDrinksRow.waitForExistence(timeout: 2))
-        
-        let firstRecentDrinkButton = recentDrinksRow.buttons.firstMatch
-        XCTAssertTrue(firstRecentDrinkButton.waitForExistence(timeout: 2))
-        
-        firstRecentDrinkButton.tap()
-        
-        let addDrinkSubmitButton = app.buttons["addDrinkSubmitButton"]
         XCTAssertFalse(
-            addDrinkSubmitButton.waitForExistence(timeout: 1),
-            "Add Drink should close after directly submitting a recent drink"
+            recentDrinksRow.exists,
+            "Recents should be hidden before any drinks are logged"
         )
         
+        // Create the history that the recent-drink shortcut will use.
+        submitButton.tap()
+        XCTAssertTrue(submitButton.waitForNonExistence(timeout: 3))
+        
         let totalAmountText = app.staticTexts["todayTotalAmountText"]
+        XCTAssertTrue(totalAmountText.waitForExistence(timeout: 3))
         XCTAssertTrue(
-            totalAmountText.waitForExistence(timeout: 2),
-            "Today should still show the total amount after submitting a recent drink"
+            totalAmountText.wait(for: \.label, toEqual: "330 ml", timeout: 3),
+            "The first drink should bring today's total to 330 ml"
+        )
+        
+        addDrinkButton.tap()
+        XCTAssertTrue(submitButton.waitForExistence(timeout: 3))
+        XCTAssertTrue(recentDrinksRow.waitForExistence(timeout: 3))
+        
+        let firstRecentDrinkButton = recentDrinksRow.buttons.firstMatch
+        XCTAssertTrue(firstRecentDrinkButton.waitForExistence(timeout: 3))
+        firstRecentDrinkButton.tap()
+        
+        XCTAssertTrue(
+            submitButton.waitForNonExistence(timeout: 3),
+            "Tapping a recent drink should close the sheet"
+        )
+        XCTAssertTrue(
+            totalAmountText.wait(for: \.label, toEqual: "660 ml", timeout: 3),
+            "Repeating the 330 ml drink should bring today's total to 660 ml"
         )
     }
 
