@@ -170,6 +170,21 @@ struct WateredTabView: View {
             calendar: activeCalendarDay.calendar
         )
     }
+    
+    // MARK: - Add Drink Presentation
+    
+    /// The available sheet heights for the current Add Drink content.
+    ///
+    /// Without recent drinks, the sheet uses the smaller system height.
+    /// With recents, it retains the existing taller layout. Both configurations
+    /// allow expansion to full height.
+    private var addDrinkPresentationDetents: Set<PresentationDetent> {
+        if store.recentDrinkOptions.isEmpty {
+            return [.fraction(0.50), .large]
+        }
+        
+        return [.fraction(0.64), .large]
+    }
 
     // MARK: - Transitions
     //
@@ -277,7 +292,7 @@ struct WateredTabView: View {
                     in: addDrinkTransition
                 )
             )
-            .presentationDetents([.fraction(0.68), .large])
+            .presentationDetents(addDrinkPresentationDetents)
             .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $isShowingProfileSheet) {
