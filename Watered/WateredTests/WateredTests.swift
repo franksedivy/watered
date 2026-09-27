@@ -397,6 +397,74 @@ struct WateredTests {
         #expect(persistentDrinkEntry.drinkEntry() == nil)
     }
     
+    // MARK: - Hydration Goal History
+    //
+    // GIVEN a committed goal change, when it is mapped into a persistent record and back,
+    // THEN its identitiy, amount, unit, timestamp, and source are preserved.
+    @MainActor
+    @Test func persistentHydrationGoalChangePreservesRecordedValues() throws {
+        let id = UUID()
+        let changedAt = Date(timeIntervalSince1970: 1000)
+        let change = HydrationGoalChange(
+            id: id,
+            goal: HydrationGoal(
+                amount: DrinkAmount(value: 90, unit: .usFluidOunces)
+            ),
+            changedAt: changedAt,
+            source: .manual
+        )
+        
+        let storedChange = PersistentHydrationGoalChange(change: change)
+        
+        #expect(storedChange.id == id)
+        #expect(storedChange.goalValue == 90)
+        #expect(storedChange.goalUnitID == "usFluidOunces")
+        #expect(storedChange.changedAt == changedAt)
+        #expect(storedChange.source == "manual")
+        
+        let restoredChange = try #require(storedChange.hydrationGoalChange())
+        
+        #expect(restoredChange.id == id)
+        #expect(restoredChange.goal.amount.value == 90)
+        #expect(restoredChange.goal.amount.unit == .usFluidOunces)
+        #expect(restoredChange.changedAt == changedAt)
+        #expect(restoredChange.source == .manual)
+    }
+    
+    // GIVEN a stored goal change with an unknown unit identifier, when it is reconstructed,
+    // THEN the mapper returns nil rather than interpreting the amount using a guessed unit.
+    @MainActor
+    @Test func persistentHydrationGoalChangesRejectsUnknownUnit() {
+        let change = HydrationGoalChange(
+            goal: HydrationGoal(
+                amount: DrinkAmount(value: 2700, unit: .milliliters)
+            ),
+            changedAt: Date(timeIntervalSince1970: 1000),
+            source: .manual
+        )
+        let storedChange = PersistentHydrationGoalChange(change: change)
+        storedChange.goalUnitID = "uknown-unit"
+        
+        #expect(storedChange.hydrationGoalChange() == nil)
+    }
+    
+    // GIVEN a stored goal change with an unknown source identifier, when it is reconstrcuted,
+    // THEN the mapper returns nil rather than incorrectly attributing the change.
+    @MainActor
+    @Test func persistentHydrationGoalChangeRejectsUnknownSource() {
+        let change = HydrationGoalChange(
+            goal: HydrationGoal(
+                amount: DrinkAmount(value: 2700, unit: .milliliters)
+            ),
+            changedAt: Date(timeIntervalSince1970: 1000),
+            source: .manual
+        )
+        let storedChange = PersistentHydrationGoalChange(change: change)
+        storedChange.source = "unknown-source"
+        
+        #expect(storedChange.hydrationGoalChange() == nil)
+    }
+    
     // MARK: - AppSettings
     //
     // Given a US locale, when Watered creates first-run app settings, then the
