@@ -250,4 +250,118 @@ struct AppSettingsPersistenceTests {
         #expect(latest.changedAt == changedDate)
         #expect(latest.source == HydrationGoalSource.manual.rawValue)
     }
+    
+    // Given goal history saved to disk, when a new container opens the same store,
+    // then current settings and both historical records retain their saved values.
+    @Test func goalHistorySurvivesReopeningDiskStore() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: directory,
+            withIntermediateDirectories: true
+        )
+        defer {
+            try? FileManager.default.removeItem(at: directory)
+        }
+
+        let storeURL = directory.appendingPathComponent("GoalHistory.store")
+        let expectedIDs = try writeGoalHistory(to: storeURL)
+
+        let configuration = ModelConfiguration(
+            url: storeURL,
+            cloudKitDatabase: .none
+        )
+        let container = try ModelContainer(
+            for: PersistentAppSettings.self,
+            PersistentHydrationGoalChange.self,
+            configurations: configuration
+        )
+        let context = ModelContext(container)
+        context.autosaveEnabled = false
+
+        let settingsRecords = try context.fetch(
+            FetchDescriptor<PersistentAppSettings>()
+        )
+        let history = try context.fetch(
+            FetchDescriptor<PersistentHydrationGoalChange>(
+                sortBy: [SortDescriptor(\.changedAt)]
+            )
+        )
+        let restoredIDs = history.map { change in
+            change.id
+        }
+
+        #expect(settingsRecords.count == 1)
+        #expect(history.count == 2)
+        #expect(restoredIDs == expectedIDs)
+
+        let settings = try #require(settingsRecords.first)
+        let original = try #require(history.first)
+        let latest = try #require(history.last)
+        let defaults = AppSettings.defaults(for: Locale(identifier: "en_GB"))
+
+        #expect(settings.dailyGoalValue == 3000)
+        #expect(settings.dailyGoalUnitID == "milliliters")
+        #expect(settings.createdAt == Date(timeIntervalSince1970: 1000))
+        #expect(settings.updatedAt == Date(timeIntervalSince1970: 2000))
+        #expect(original.goalValue == defaults.dailyHydrationGoal.amount.value)
+        #expect(original.goalUnitID == "milliliters")
+        #expect(original.changedAt == Date(timeIntervalSince1970: 1000))
+        #expect(original.source == HydrationGoalSource.appDefault.rawValue)
+        #expect(latest.goalValue == 3000)
+        #expect(latest.goalUnitID == "milliliters")
+        #expect(latest.changedAt == Date(timeIntervalSince1970: 2000))
+        #expect(latest.source == HydrationGoalSource.manual.rawValue)
+    }
+    
+    // MARK: - Test Helpers
+
+    /// Writes an initial goal and one manual change to a supplied test store.
+    ///
+    /// Returns value identifiers rather than keeping the writing context or
+    /// its model objects available to the test's verification step.
+    ///
+    /// - Returns: The history IDs ordered by change timestamp.
+    /// - Throws: An error if creating, saving, or reading the store fails.
+    /// - Parameter storeURL: The location of the disposable test store.
+    private func writeGoalHistory(to storeURL: URL) throws -> [UUID] {
+        let configuration = ModelConfiguration(
+            url: storeURL,
+            cloudKitDatabase: .none
+        )
+        let container = try ModelContainer(
+            for: PersistentAppSettings.self,
+            PersistentHydrationGoalChange.self,
+            configurations: configuration
+        )
+        let context = ModelContext(container)
+        context.autosaveEnabled = false
+
+        let defaults = AppSettings.defaults(for: Locale(identifier: "en_GB"))
+        let settings = try AppSettingsPersistence.loadOrCreate(
+            defaults: defaults,
+            in: context,
+            at: Date(timeIntervalSince1970: 1000)
+        )
+        let newGoal = HydrationGoal(
+            amount: DrinkAmount(value: 3000, unit: .milliliters)
+        )
+        let didChange = try AppSettingsPersistence.saveGoal(
+            newGoal,
+            source: .manual,
+            settings: settings,
+            in: context,
+            at: Date(timeIntervalSince1970: 2000)
+        )
+        #expect(didChange)
+
+        let history = try context.fetch(
+            FetchDescriptor<PersistentHydrationGoalChange>(
+                sortBy: [SortDescriptor(\.changedAt)]
+            )
+        )
+        return history.map { change in
+            change.id
+        }
+    }
 }
