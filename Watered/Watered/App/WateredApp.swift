@@ -34,7 +34,11 @@ struct WateredApp: App {
             WateredRootView()
         }
         .modelContainer(
-            for: [PersistentDrinkEntry.self, PersistentAppSettings.self],
+            for: [
+                PersistentDrinkEntry.self,
+                PersistentAppSettings.self,
+                PersistentHydrationGoalChange.self
+            ],
             inMemory: usesInMemoryStoreage
         )
     }

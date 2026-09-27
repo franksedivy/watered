@@ -75,6 +75,14 @@ struct WateredTabView: View {
     // Starts from Watered's first-run defaults, then gets replaced by persisted
     // settings when a saved goal exists.
     @State private var dailyHydrationGoal = AppSettings.defaults().dailyHydrationGoal
+    
+    /// Holds Profile's uncomitted goal until the sheet closes.
+    ///
+    /// Opening Profile starts a new draft from the currently applied goal.
+    @State private var profileDraftGoal = AppSettings.defaults().dailyHydrationGoal
+    
+    /// Presents feedback when Profile's final goal could not be saved.
+    @State private var isShowingGoalSaveError = false
 
     // Purpose: Stores Watered's first app-level state owner.
     //
@@ -231,12 +239,6 @@ struct WateredTabView: View {
                 wateredLog("Display unit changed from \(previousUnit.rawValue) to \(newUnit.rawValue)")
                 saveDisplayUnit(newUnit)
             }
-            .onChange(of: dailyHydrationGoal.amount.value) { previousGoalValue, newGoalValue in
-                wateredLog(
-                    "Daily hydration goal changed from \(Int(previousGoalValue)) \(dailyHydrationGoal.amount.unit.rawValue) to \(Int(newGoalValue)) \(dailyHydrationGoal.amount.unit.rawValue)"
-                )
-                saveDailyHydrationGoal(dailyHydrationGoal)
-            }
             .onChange(of: selectedTab) { previousTab, newTab in
                 wateredLog("Selected tab changed from \(previousTab.rawValue) to \(newTab.rawValue)")
             }
@@ -295,11 +297,11 @@ struct WateredTabView: View {
             .presentationDetents(addDrinkPresentationDetents)
             .presentationDragIndicator(.visible)
         }
-        .sheet(isPresented: $isShowingProfileSheet) {
+        .sheet(isPresented: $isShowingProfileSheet, onDismiss: commitProfileGoal) {
             #if DEBUG
             ProfileView(
                 displayUnit: $displayUnit,
-                dailyHydrationGoal: $dailyHydrationGoal,
+                dailyHydrationGoal: $profileDraftGoal,
                 onDeleteAllDrinks: {
                     try deleteDrinkEntries(persistentDrinkEntries)
                 }
@@ -307,9 +309,14 @@ struct WateredTabView: View {
             #else
             ProfileView(
                 displayUnit: $displayUnit,
-                dailyHydrationGoal: $dailyHydrationGoal
+                dailyHydrationGoal: $profileDraftGoal
             )
             #endif
+        }
+        .alert("Could not save your goal", isPresented: $isShowingGoalSaveError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Your previous goal is still active. Please reopen Profile and try again.")
         }
     }
 
@@ -336,29 +343,32 @@ struct WateredTabView: View {
         store.loadDrinkEntries(loadedEntries)
     }
     
-    // Purpose:
-    // Loads persisted app settings into Watered's app-level UI state.
-    //
-    // Behavior:
-    // Uses the first valid settings row when one exists. If no valid settings row
-    // exists, Watered keeps the locale-aware first-run defaults already stored in
-    // local state.
+    /// Loads saved settings, creating first-run settings and initial goal history if needed.
+    ///
+    /// Existing settings are preserved. If loading fails or stored values cannot be mapped, the current UI state remains
+    /// unchanged and the failure is logged.
     private func loadPersistedAppSettings() {
-        guard let persistentSettings = persistentAppSettings.first else {
-            wateredLog("Settings read found no persisted settings; using first-run defaults.")
-            return
+        do {
+            let persistentSettings = try AppSettingsPersistence.loadOrCreate(
+                defaults: AppSettings.defaults(),
+                in: modelContext
+            )
+            
+            guard let appSettings = persistentSettings.appSettings() else {
+                wateredLog("Settings could not be mapped; keeping current UI values.")
+                return
+            }
+            
+            displayUnit = appSettings.displayUnit
+            dailyHydrationGoal = appSettings.dailyHydrationGoal
+            
+            wateredLog(
+                "Settings loaded with dsipaly unit \(displayUnit.rawValue)"
+                + " and daily hydration goal \(dailyHydrationGoal.amount.formatted)"
+            )
+        } catch {
+            wateredLog("Settings loading failed: \(error.localizedDescription)")
         }
-        
-        guard let appSettings = persistentSettings.appSettings() else {
-            wateredLog("Settings read found stored settings that could not be mapped; using first-run defaults.")
-            return
-        }
-        
-        displayUnit = appSettings.displayUnit
-        dailyHydrationGoal = appSettings.dailyHydrationGoal
-        wateredLog(
-            "Settings loaded with display unit \(displayUnit.rawValue) and daily hydration goal \(dailyHydrationGoal.amount.formatted)"
-        )
     }
     
     // Purpose:
@@ -390,33 +400,32 @@ struct WateredTabView: View {
         }
     }
     
-    // Purpose:
-    // Saves the selected daily hydration goal to Watered's persisted app settings.
-    //
-    // Input:
-    // Accepts the daily hydration goal selected from Profile.
-    //
-    // Behavior:
-    // Updates the existing settings row when one exists, or creates a new settings
-    // row using Watered's current app-level settings when settings have not yet
-    // been persisted.
-    private func saveDailyHydrationGoal(_ dailyHydrationGoal: HydrationGoal) {
-        let settings = persistentAppSettings.first ?? PersistentAppSettings(
-            appSettings: AppSettings(
-                displayUnit: displayUnit,
-                dailyHydrationGoal: dailyHydrationGoal
+    /// Commits Profile's final goal when its sheet closes.
+    ///
+    /// Persistence skips unchanged goals. Today recieves the draft only after the operation succeeds, a failuure leaves the
+    /// applied goal unchanged
+    private func commitProfileGoal() {
+        do {
+            let settings = try AppSettingsPersistence.loadOrCreate(
+                defaults: AppSettings.defaults(),
+                in: modelContext
             )
-        )
-        
-        settings.dailyGoalValue = dailyHydrationGoal.amount.value
-        settings.dailyGoalUnitID = dailyHydrationGoal.amount.unit.persistenceIdentifier
-        settings.updatedAt = Date()
-        
-        if persistentAppSettings.isEmpty {
-            modelContext.insert(settings)
-            wateredLog("Settings created with daily hydration goal \(dailyHydrationGoal.amount.formatted)")
-        } else {
-            wateredLog("Settings updated with daily hydration goal \(dailyHydrationGoal.amount.formatted)")
+            
+            let didChange = try AppSettingsPersistence.saveGoal(
+                profileDraftGoal,
+                source: .manual,
+                settings: settings,
+                in: modelContext
+            )
+            
+            dailyHydrationGoal = profileDraftGoal
+            
+            if !didChange {
+                wateredLog("Profile closed without a goal change.")
+            }
+        } catch {
+            wateredLog("Profile goal save failed: \(error.localizedDescription)")
+            isShowingGoalSaveError = true
         }
     }
     
@@ -510,12 +519,10 @@ struct WateredTabView: View {
         isShowingAddDrinkSheet = false
     }
 
-    // Purpose: Open the temporary profile sheet.
-    //
-    // UI role:
-    // Gives every top-level tab the same persistent profile destination.
+    /// Starts a goal-editing session and presents the shared Profile sheet.
     private func openProfile() {
-        wateredLog("Profile opened")
+        profileDraftGoal = dailyHydrationGoal
+        wateredLog("Profile opened with a new goal draft.")
         isShowingProfileSheet = true
     }
     
@@ -531,7 +538,6 @@ struct WateredTabView: View {
             "Active Today calendar day refreshed to \(activeCalendarDay.date.formatted(date: .complete, time: .shortened))"
         )
     }
-    
 }
 
 #Preview {
