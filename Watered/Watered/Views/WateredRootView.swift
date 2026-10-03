@@ -8,22 +8,38 @@
 import SwiftUI
 
 // MARK: - Watered Root View
-//
-// Purpose: Defines the first SwiftUI view shown by the Watered app.
-//
-// Returns:
-// The root app experience
-//
-// UI role: Keeps WateredApp focused on app launch, while this view decides which main
-// screen or navigation structure the app should show.
-//
-// Notes:
-// WateredTabView currently owns the top-level app structure. Today is the main
-// read-only summary screen, while Add Drink is a temporary placeholder the
-// future 0.3 drink loggin flow.
+
+/// Defines Watere's root experience and forwards app-level dependencies
+///
+/// The tab view owns navigation and sheet presentation. This view connnects that app shell to the dependencies supplied
+/// at launch.
 struct WateredRootView: View {
+    
+    // MARK: - Dependencies
+    
+    /// The analytics client passed to the app shell.
+    private let analytics: any AnalyticsClient
+    
+    // MARK: - Initialisation
+    
+    /// Creates the root experience without analytics reporting
+    @MainActor
+    init() {
+        self.init(analytics: NoOpAnalyticsClient())
+    }
+    
+    /// Creates the root experience with the supplied analytics client.
+    ///
+    /// - Parameter analytics: The client forwarded to the app shell.
+    @MainActor
+    init(analytics: any AnalyticsClient) {
+        self.analytics = analytics
+    }
+    
+    // MARK: - Body
+    
     var body: some View {
-        WateredTabView()
+        WateredTabView(analytics: analytics)
     }
 }
 

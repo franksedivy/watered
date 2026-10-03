@@ -31,6 +31,13 @@ import UIKit
 // entries, saves new Add Drink submissions, and refreshes Today when iOS reports
 // a significant time change.
 struct WateredTabView: View {
+    
+    // MARK: - Dependencies
+    
+    /// Receives product events from the app's top-level action handlers.
+    ///
+    /// The app supplies the implementation. Child views remain indepenedent of analytics aclients and provider SDKs
+    private let analytics: any AnalyticsClient
 
     // MARK: - Tabs
     //
@@ -208,8 +215,24 @@ struct WateredTabView: View {
     // Gives the Add Drink button and Add Drink sheet a shared transition identity.
     private let addDrinkTransitionID = "addDrink"
 
+    // MARK: - Initialisation
+    //
+    /// Crates the app shell without analytics reporting.
+    ///
+    /// Constructs the default client on the main actor.
+    init() {
+        self.init(analytics: NoOpAnalyticsClient())
+    }
+    
+    /// Creates the app shell with an explicitly supplied analytics client.
+    ///
+    /// - Parameter analytics: The client that recieves product events.
+    @MainActor
+    init(analytics: any AnalyticsClient) {
+        self.analytics = analytics
+    }
+    
     // MARK: - Body
-
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             TabView(selection: $selectedTab) {
